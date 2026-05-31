@@ -1,0 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-app: #0a0e17;
+  --bg-panel: #131b2e;
+  --bg-subtle: #0f1623;
+  --border-panel: #1e293b;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-profit: #22c55e;
+  --accent-loss: #ef4444;
+  --accent-equity: #3b82f6;
+  --accent-warm: #f59e0b;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtle ambient gradient that gives the dark theme depth */
+.ambient-bg {
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 50% -20%,
+      rgba(59, 130, 246, 0.15),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 60% 50% at 80% 120%,
+      rgba(34, 197, 94, 0.08),
+      transparent
+    ),
+    var(--bg-app);
+}
