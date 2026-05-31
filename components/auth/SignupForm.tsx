@@ -3,8 +3,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Mail, Lock, CheckCircle2 } from "lucide-react";
+import { Loader2, Mail, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import PasswordInput from "./PasswordInput";
+import PasswordStrength from "./PasswordStrength";
 
 export default function SignupForm() {
   const router = useRouter();
@@ -40,8 +42,6 @@ export default function SignupForm() {
       return;
     }
 
-    // If Supabase requires email confirmation, the session is null until they confirm.
-    // If confirmation is disabled, we get a session immediately and can redirect.
     if (data.session) {
       router.push("/dashboard");
       router.refresh();
@@ -60,6 +60,9 @@ export default function SignupForm() {
           We sent a confirmation link to{" "}
           <span className="text-white">{email}</span>. Click it to activate
           your account, then sign in.
+        </p>
+        <p className="mt-3 text-[11px] text-slate-500">
+          Don&apos;t see it? Check your spam folder.
         </p>
       </div>
     );
@@ -89,19 +92,14 @@ export default function SignupForm() {
         <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
           Password
         </label>
-        <div className="relative">
-          <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-          <input
-            type="password"
-            required
-            minLength={8}
-            autoComplete="new-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500/50"
-            placeholder="At least 8 characters"
-          />
-        </div>
+        <PasswordInput
+          value={password}
+          onChange={setPassword}
+          autoComplete="new-password"
+          minLength={8}
+          placeholder="At least 8 characters"
+        />
+        <PasswordStrength password={password} />
       </div>
 
       {error && (

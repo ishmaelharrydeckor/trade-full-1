@@ -3,8 +3,9 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2, Mail, Lock } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import PasswordInput from "./PasswordInput";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -33,7 +34,6 @@ export default function LoginForm() {
       return;
     }
 
-    // Hard refresh to ensure middleware reads new cookies
     router.push(next);
     router.refresh();
   }
@@ -62,18 +62,11 @@ export default function LoginForm() {
         <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
           Password
         </label>
-        <div className="relative">
-          <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-          <input
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500/50"
-            placeholder="••••••••"
-          />
-        </div>
+        <PasswordInput
+          value={password}
+          onChange={setPassword}
+          autoComplete="current-password"
+        />
       </div>
 
       {error && (
