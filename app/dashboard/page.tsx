@@ -68,7 +68,7 @@ export default async function DashboardPage() {
           {accounts!.map((acc) => (
             <Link
               key={acc.id}
-              href={`/dashboard/accounts`}
+              href={`/dashboard/accounts/${acc.id}`}
               className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition hover:border-blue-500/30 hover:bg-blue-500/[0.05]"
             >
               <div className="mb-2 flex items-center justify-between">
