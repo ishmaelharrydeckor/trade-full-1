@@ -3,13 +3,42 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Mail, CheckCircle2 } from "lucide-react";
+import { Loader2, Mail, User, MapPin, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import PasswordInput from "./PasswordInput";
 import PasswordStrength from "./PasswordStrength";
 
+// Common countries — full list available via "Other" + free-text fallback later.
+// Africa-heavy because that's our initial market.
+const COUNTRIES = [
+  "Ghana",
+  "Nigeria",
+  "Kenya",
+  "South Africa",
+  "Uganda",
+  "Tanzania",
+  "Egypt",
+  "Morocco",
+  "Ethiopia",
+  "Rwanda",
+  "United Kingdom",
+  "United States",
+  "Canada",
+  "Germany",
+  "France",
+  "United Arab Emirates",
+  "India",
+  "Pakistan",
+  "Philippines",
+  "Indonesia",
+  "Brazil",
+  "Other",
+];
+
 export default function SignupForm() {
   const router = useRouter();
+  const [displayName, setDisplayName] = useState("");
+  const [country, setCountry] = useState("Ghana");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -21,6 +50,12 @@ export default function SignupForm() {
     setSubmitting(true);
     setError(null);
 
+    const trimmedName = displayName.trim();
+    if (trimmedName.length < 2) {
+      setError("Please enter your name (at least 2 characters).");
+      setSubmitting(false);
+      return;
+    }
     if (password.length < 8) {
       setError("Password must be at least 8 characters.");
       setSubmitting(false);
@@ -33,6 +68,12 @@ export default function SignupForm() {
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        // These get stored on auth.users.raw_user_meta_data
+        // and copied into public.profiles by the on_auth_user_created trigger.
+        data: {
+          display_name: trimmedName,
+          country: country,
+        },
       },
     });
 
@@ -70,6 +111,62 @@ export default function SignupForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Name */}
+      <div>
+        <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
+          Your name
+        </label>
+        <div className="relative">
+          <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+          <input
+            type="text"
+            required
+            minLength={2}
+            maxLength={50}
+            autoComplete="name"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500/50"
+            placeholder="What should we call you?"
+          />
+        </div>
+      </div>
+
+      {/* Country */}
+      <div>
+        <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
+          Country
+        </label>
+        <div className="relative">
+          <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+          <select
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+            className="w-full appearance-none rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-8 text-sm outline-none transition focus:border-blue-500/50"
+          >
+            {COUNTRIES.map((c) => (
+              <option key={c} value={c} className="bg-slate-900">
+                {c}
+              </option>
+            ))}
+          </select>
+          <svg
+            className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </div>
+      </div>
+
+      {/* Email */}
       <div>
         <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
           Email
@@ -88,6 +185,7 @@ export default function SignupForm() {
         </div>
       </div>
 
+      {/* Password */}
       <div>
         <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
           Password

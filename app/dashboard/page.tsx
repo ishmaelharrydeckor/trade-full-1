@@ -12,6 +12,16 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Profile (already created by the trigger when they signed up)
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("display_name")
+    .eq("id", user!.id)
+    .maybeSingle();
+
+  const displayName =
+    profile?.display_name ?? user?.email?.split("@")[0] ?? "trader";
+
   const { data: accounts } = await supabase
     .from("accounts")
     .select("id, name, broker, currency, starting_balance, created_at")
@@ -24,15 +34,8 @@ export default async function DashboardPage() {
       {/* Welcome */}
       <section>
         <h1 className="font-serif text-3xl tracking-tight md:text-4xl">
-          Welcome
-          {user?.email && (
-            <span className="text-slate-500">
-              {", "}
-              <span className="font-sans text-base text-slate-400 italic">
-                {user.email}
-              </span>
-            </span>
-          )}
+          Welcome,{" "}
+          <span className="italic text-blue-300">{displayName}</span>
         </h1>
         <p className="mt-2 text-sm text-slate-400">
           {hasAccounts

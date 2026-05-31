@@ -2,7 +2,13 @@
 import Link from "next/link";
 import { LogOut, LayoutGrid } from "lucide-react";
 
-export default function DashboardNav({ userEmail }: { userEmail: string }) {
+export default function DashboardNav({
+  displayName,
+  email,
+}: {
+  displayName: string;
+  email: string;
+}) {
   return (
     <header className="border-b border-white/5 bg-black/20 backdrop-blur">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 md:px-8">
@@ -23,8 +29,12 @@ export default function DashboardNav({ userEmail }: { userEmail: string }) {
             <LayoutGrid className="h-3.5 w-3.5" />
             Accounts
           </Link>
-          <div className="ml-2 hidden text-xs text-slate-500 md:block">
-            {userEmail}
+          <div
+            className="ml-2 hidden text-right md:block"
+            title={email}
+          >
+            <div className="text-xs text-slate-300">{displayName}</div>
+            <div className="text-[10px] text-slate-500">{email}</div>
           </div>
           <form action="/auth/signout" method="post">
             <button
