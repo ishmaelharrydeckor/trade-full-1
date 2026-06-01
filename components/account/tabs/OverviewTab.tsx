@@ -7,6 +7,7 @@ import { computeKpis, buildEquityCurve, computeCurrentEquity } from "@/lib/stats
 import KpiCards from "@/components/overview/KpiCards";
 import EquityCurve from "@/components/overview/EquityCurve";
 import RecentTradesPreview from "@/components/overview/RecentTradesPreview";
+import OpenPositionsPanel from "@/components/overview/OpenPositionsPanel";
 import AiInsightsPanel from "@/components/insights/AiInsightsPanel";
 
 export default function OverviewTab({
@@ -32,6 +33,8 @@ export default function OverviewTab({
 
   return (
     <div className="flex flex-col gap-6">
+      <OpenPositionsPanel accountId={account.id} />
+
       <KpiCards
         kpis={kpis}
         currency={account.currency}

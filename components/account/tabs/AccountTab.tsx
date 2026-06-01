@@ -11,6 +11,7 @@ import {
   TrendingUp,
   TrendingDown,
   Loader2,
+  Download,
 } from "lucide-react";
 import type {
   Account,
@@ -21,6 +22,7 @@ import type {
 import { fmtSignedUsd, fmtDate } from "@/lib/format";
 import { computeCurrentEquity } from "@/lib/stats";
 import PositionCalculator from "@/components/account/PositionCalculator";
+import EaDownloadPanel from "@/components/account/EaDownloadPanel";
 import { cn } from "@/lib/utils";
 
 export default function AccountTab({
@@ -44,6 +46,11 @@ export default function AccountTab({
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <EaDownloadPanel
+        accountId={account.id}
+        accountName={account.name}
+        eaToken={account.ea_token}
+      />
       <ConnectionPanel account={account} />
       <RiskSettingsPanel
         accountId={account.id}
@@ -83,22 +90,35 @@ function ConnectionPanel({ account }: { account: Account }) {
     }
   }
 
+  const downloadUrl = `/api/ea/download?accountId=${account.id}`;
+
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur lg:col-span-2">
       <div className="mb-3 flex items-center gap-2">
         <ShieldCheck className="h-4 w-4 text-blue-400" />
-        <h3 className="font-serif text-lg">Connect MT5</h3>
+        <h3 className="font-serif text-lg">Connect MT5 — live sync</h3>
       </div>
       <p className="mb-4 text-sm text-slate-400">
-        Your unique account token. The MetaTrader expert advisor uses this to
-        attribute trades to this account. The pre-configured EA download lands
-        in Milestone 3.
+        Download our expert advisor, drop it on any MT5 chart, and every
+        closed trade plus open position will sync here automatically.
       </p>
-      <div className="rounded-lg border border-white/10 bg-black/30 p-3">
-        <div className="mb-1 text-[10px] uppercase tracking-wider text-slate-500">
-          EA Token
-        </div>
-        <div className="flex items-center gap-2">
+
+      {/* Download CTA */}
+      <a
+        href={downloadUrl}
+        download
+        className="mb-4 inline-flex items-center gap-2 rounded-lg bg-blue-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-400"
+      >
+        <Download className="h-4 w-4" />
+        Download EA (.mq5)
+      </a>
+
+      {/* Token block (collapsible, in case people want to copy manually) */}
+      <details className="rounded-lg border border-white/10 bg-black/30 p-3">
+        <summary className="cursor-pointer text-[10px] uppercase tracking-wider text-slate-400">
+          Or copy the token manually
+        </summary>
+        <div className="mt-2 flex items-center gap-2">
           <code className="flex-1 break-all font-mono text-xs text-slate-200">
             {account.ea_token}
           </code>
@@ -118,11 +138,42 @@ function ConnectionPanel({ account }: { account: Account }) {
             )}
           </button>
         </div>
-      </div>
-      <div className="mt-3 text-[10px] text-slate-500">
-        Keep this private — anyone with the token can push trades into this
-        account.
-      </div>
+        <p className="mt-2 text-[10px] text-slate-500">
+          Keep this private — anyone with the token can push trades to this account.
+        </p>
+      </details>
+
+      {/* Setup instructions */}
+      <details className="mt-4 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3" open>
+        <summary className="cursor-pointer text-sm font-medium text-amber-100">
+          Setup steps (one time, ~2 minutes)
+        </summary>
+        <ol className="mt-3 space-y-2.5 pl-4 text-xs text-amber-100/90 list-decimal">
+          <li>
+            <strong>Whitelist this app in MT5.</strong>{" "}
+            In MetaTrader 5: <span className="font-mono text-[11px] text-amber-200">Tools → Options → Expert Advisors</span>. Tick
+            <span className="font-mono text-[11px] text-amber-200"> "Allow WebRequest for listed URL"</span> and add:
+            <code className="mt-1 block break-all rounded bg-black/30 px-2 py-1 font-mono text-[11px] text-amber-100">
+              {typeof window !== "undefined" ? window.location.origin : "https://trade-full-1.vercel.app"}
+            </code>
+          </li>
+          <li>
+            <strong>Place the file.</strong>{" "}
+            In MT5: <span className="font-mono text-[11px] text-amber-200">File → Open Data Folder → MQL5 → Experts</span>.
+            Drop the downloaded <code className="font-mono text-amber-200">.mq5</code> file in there.
+          </li>
+          <li>
+            <strong>Refresh the Navigator</strong> (press F5 in MT5 or right-click Expert Advisors → Refresh).
+          </li>
+          <li>
+            <strong>Drag it onto any chart.</strong>{" "}
+            Find <code className="font-mono text-amber-200">TradeFull1Sync</code> under Expert Advisors. Drop it on a chart. Click <strong>OK</strong> in the dialog (the token is already filled in).
+          </li>
+          <li>
+            <strong>Look for the smiley face</strong> in the top-right of the chart — that means the EA is running. Place a trade, close it, and watch the dashboard light up.
+          </li>
+        </ol>
+      </details>
     </div>
   );
 }
