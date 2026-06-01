@@ -1,7 +1,7 @@
 // components/account/tabs/AccountTab.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -16,28 +16,44 @@ import type {
   Account,
   AccountTransaction,
   AccountSettings,
+  Trade,
 } from "@/types/database";
 import { fmtSignedUsd, fmtDate } from "@/lib/format";
+import { computeCurrentEquity } from "@/lib/stats";
+import PositionCalculator from "@/components/account/PositionCalculator";
 import { cn } from "@/lib/utils";
 
 export default function AccountTab({
   account,
+  trades,
   transactions,
   settings,
 }: {
   account: Account;
+  trades: Trade[];
   transactions: AccountTransaction[];
   settings: AccountSettings | null;
 }) {
   const router = useRouter();
+  const startingBalance = account.starting_balance ?? 0;
+  const riskParts = settings?.risk_parts ?? 10;
+  const currentEquity = useMemo(
+    () => computeCurrentEquity(trades, transactions, startingBalance),
+    [trades, transactions, startingBalance]
+  );
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <ConnectionPanel account={account} />
       <RiskSettingsPanel
         accountId={account.id}
-        initialParts={settings?.risk_parts ?? 10}
+        initialParts={riskParts}
         onSaved={() => router.refresh()}
+      />
+      <PositionCalculator
+        equity={currentEquity}
+        riskParts={riskParts}
+        currency={account.currency}
       />
       <div className="lg:col-span-2">
         <TransactionsPanel

@@ -7,6 +7,7 @@ import { computeKpis, buildEquityCurve, computeCurrentEquity } from "@/lib/stats
 import KpiCards from "@/components/overview/KpiCards";
 import EquityCurve from "@/components/overview/EquityCurve";
 import RecentTradesPreview from "@/components/overview/RecentTradesPreview";
+import AiInsightsPanel from "@/components/insights/AiInsightsPanel";
 
 export default function OverviewTab({
   account,
@@ -44,13 +45,14 @@ export default function OverviewTab({
         startingBalance={account.starting_balance}
       />
 
+      <AiInsightsPanel accountId={account.id} hasTrades={trades.length > 0} />
+
       <RecentTradesPreview
         trades={trades}
         onOpenAll={() => {
-          // Switch to the Trades tab. We dispatch a custom event the
-          // parent dashboard listens for; simpler than prop-drilling
-          // a setter into deeply nested components.
-          window.dispatchEvent(new CustomEvent("tradefull:gototab", { detail: "trades" }));
+          window.dispatchEvent(
+            new CustomEvent("tradefull:gototab", { detail: "trades" })
+          );
         }}
       />
     </div>
