@@ -6,7 +6,8 @@ import AccountTabs, { type TabId } from "./AccountTabs";
 import OverviewTab from "@/components/account/tabs/OverviewTab";
 import TradesTab from "@/components/account/tabs/TradesTab";
 import AccountTab from "@/components/account/tabs/AccountTab";
-import ComingSoonTab from "@/components/account/tabs/ComingSoonTab";
+import AnalyticsTab from "@/components/account/tabs/AnalyticsTab";
+import CalendarTab from "@/components/account/tabs/CalendarTab";
 import type {
   Account,
   Trade,
@@ -53,25 +54,19 @@ export default function AccountDashboard({
         <TradesTab account={account} trades={trades} />
       )}
 
+      {tab === "analytics" && (
+        <AnalyticsTab account={account} trades={trades} />
+      )}
+
+      {tab === "calendar" && (
+        <CalendarTab account={account} trades={trades} />
+      )}
+
       {tab === "account" && (
         <AccountTab
           account={account}
           transactions={transactions}
           settings={settings}
-        />
-      )}
-
-      {tab === "analytics" && (
-        <ComingSoonTab
-          title="Analytics"
-          description="Pair performance, weekday/hour distribution, mindset breakdown, tag analysis, and 8 more charts. Shipping in M2.2 next week."
-        />
-      )}
-
-      {tab === "calendar" && (
-        <ComingSoonTab
-          title="Calendar"
-          description="Heatmap of daily P&L, click any day to see that day's trades. Shipping in M2.2."
         />
       )}
     </div>
