@@ -2,11 +2,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Plus, Edit2, Trash2, Search, FileText } from "lucide-react";
+import { Plus, Edit2, Trash2, Search, FileText, Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import type { Account, Trade } from "@/types/database";
 import TradeForm from "@/components/trades/TradeForm";
+import CsvImport from "@/components/trades/CsvImport";
 import { fmtSignedUsd, fmtDateTime, fmtNumber } from "@/lib/format";
 import { tradeNetPnl } from "@/lib/stats";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,7 @@ export default function TradesTab({
   const router = useRouter();
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
@@ -59,16 +61,25 @@ export default function TradesTab({
             className="w-full rounded-lg border border-white/10 bg-black/30 py-2 pl-9 pr-3 text-sm outline-none transition focus:border-blue-500/50"
           />
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            setEditingTrade(null);
-            setFormOpen(true);
-          }}
-          className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
-        >
-          <Plus className="h-4 w-4" /> Add trade
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setImportOpen(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10"
+          >
+            <Upload className="h-4 w-4" /> Import CSV
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setEditingTrade(null);
+              setFormOpen(true);
+            }}
+            className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+          >
+            <Plus className="h-4 w-4" /> Add trade
+          </button>
+        </div>
       </div>
 
       {/* Table or empty state */}
@@ -212,6 +223,14 @@ export default function TradesTab({
             setFormOpen(false);
             setEditingTrade(null);
           }}
+        />
+      )}
+
+      {/* CSV import modal */}
+      {importOpen && (
+        <CsvImport
+          accountId={account.id}
+          onClose={() => setImportOpen(false)}
         />
       )}
     </div>
