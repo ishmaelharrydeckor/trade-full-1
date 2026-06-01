@@ -146,7 +146,7 @@ function ConnectionPanel({ account }: { account: Account }) {
       {/* Setup instructions */}
       <details className="mt-4 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3" open>
         <summary className="cursor-pointer text-sm font-medium text-amber-100">
-          Setup steps (one time, ~2 minutes)
+          Setup steps (one time, ~3 minutes)
         </summary>
         <ol className="mt-3 space-y-2.5 pl-4 text-xs text-amber-100/90 list-decimal">
           <li>
@@ -163,14 +163,18 @@ function ConnectionPanel({ account }: { account: Account }) {
             Drop the downloaded <code className="font-mono text-amber-200">.mq5</code> file in there.
           </li>
           <li>
-            <strong>Refresh the Navigator</strong> (press F5 in MT5 or right-click Expert Advisors → Refresh).
+            <strong>Compile it.</strong>{" "}
+            Open <span className="font-mono text-[11px] text-amber-200">MetaEditor</span> (press <kbd className="rounded border border-amber-500/30 bg-black/30 px-1 font-mono text-[10px] text-amber-200">F4</kbd> from MT5, or double-click the <code className="font-mono text-amber-200">.mq5</code> file in Experts folder). Then press <kbd className="rounded border border-amber-500/30 bg-black/30 px-1 font-mono text-[10px] text-amber-200">F7</kbd> to compile. You should see <span className="font-mono text-[11px] text-emerald-300">"0 errors, 0 warnings"</span> at the bottom. This step is what makes the EA appear in MT5's Navigator.
+          </li>
+          <li>
+            <strong>Refresh the Navigator</strong> in MT5 (press <kbd className="rounded border border-amber-500/30 bg-black/30 px-1 font-mono text-[10px] text-amber-200">F5</kbd> or right-click Expert Advisors → Refresh).
           </li>
           <li>
             <strong>Drag it onto any chart.</strong>{" "}
-            Find <code className="font-mono text-amber-200">TradeFull1Sync</code> under Expert Advisors. Drop it on a chart. Click <strong>OK</strong> in the dialog (the token is already filled in).
+            Look for <code className="font-mono text-amber-200">TradeFull1_{account.name.replace(/[^a-zA-Z0-9-_]/g, "_").slice(0, 40)}</code> under Expert Advisors (the name matches your downloaded filename). Drop it on any chart — the symbol doesn't matter, the EA monitors the whole account. In the dialog, check <strong>Allow algorithmic trading</strong> → <strong>OK</strong>.
           </li>
           <li>
-            <strong>Look for the smiley face</strong> in the top-right of the chart — that means the EA is running. Place a trade, close it, and watch the dashboard light up.
+            <strong>Look for the smiley face</strong> 🙂 in the top-right of the chart — that means the EA is running. The <span className="font-mono text-[11px] text-amber-200">Experts</span> tab at the bottom of MT5 should show <span className="font-mono text-[11px] text-emerald-300">"TradeFull1Sync online. Account #..."</span>. Place a trade, close it, and watch the dashboard light up within ~10 seconds.
           </li>
         </ol>
       </details>

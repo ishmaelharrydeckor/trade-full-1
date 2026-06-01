@@ -158,6 +158,8 @@ void PushPositionsSnapshot()
       double currentPrice= PositionGetDouble(POSITION_PRICE_CURRENT);
       double profit      = PositionGetDouble(POSITION_PROFIT);
       double swap        = PositionGetDouble(POSITION_SWAP);
+      double sl          = PositionGetDouble(POSITION_SL);
+      double tp          = PositionGetDouble(POSITION_TP);
       datetime openTime  = (datetime)PositionGetInteger(POSITION_TIME);
       long posType       = PositionGetInteger(POSITION_TYPE);
       string direction   = (posType == POSITION_TYPE_BUY) ? "long" : "short";
@@ -172,7 +174,11 @@ void PushPositionsSnapshot()
       json += "\"current_price\":" + DoubleToString(currentPrice, 5) + ",";
       json += "\"open_time\":\"" + IsoUtc(openTime) + "\",";
       json += "\"unrealized_pnl\":" + DoubleToString(profit, 2) + ",";
-      json += "\"swap\":" + DoubleToString(swap, 2);
+      json += "\"swap\":" + DoubleToString(swap, 2) + ",";
+      // SL/TP: MT5 returns 0 when none is set, so only send non-zero values.
+      // The API treats 0/null/missing identically.
+      json += "\"stop_loss\":" + DoubleToString(sl, 5) + ",";
+      json += "\"take_profit\":" + DoubleToString(tp, 5);
       json += "}";
    }
 
