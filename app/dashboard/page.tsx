@@ -30,6 +30,7 @@ export default async function DashboardPage() {
   const { data: accounts } = await supabase
     .from("accounts")
     .select("id, name, broker, currency, starting_balance, created_at")
+    .eq("archived", false)
     .order("created_at", { ascending: false });
 
   const hasAccounts = (accounts?.length ?? 0) > 0;
