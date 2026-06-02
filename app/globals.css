@@ -165,3 +165,13 @@ body {
   background: var(--scrollbar-thumb);
   border-radius: 3px;
 }
+
+/* Account cards (server component — no JS hover) */
+.account-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+}
+.account-card:hover {
+  border-color: var(--card-hover-border);
+  box-shadow: var(--card-hover-shadow);
+}

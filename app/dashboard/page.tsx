@@ -97,19 +97,7 @@ export default async function DashboardPage() {
             <Link
               key={acc.id}
               href={`/dashboard/accounts/${acc.id}`}
-              className="group rounded-2xl p-5 transition"
-              style={{
-                backgroundColor: 'var(--card-bg)',
-                border: '1px solid var(--card-border)',
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.borderColor = 'var(--card-hover-border)';
-                e.currentTarget.style.boxShadow = 'var(--card-hover-shadow)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.borderColor = 'var(--card-border)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
+              className="account-card group rounded-2xl p-5 transition"
             >
               <div className="mb-2 flex items-center justify-between">
                 <h3 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>{acc.name}</h3>
