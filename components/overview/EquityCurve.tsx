@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import type { EquityPoint } from "@/lib/stats";
 import { fmtSignedUsd, fmtCompactNumber, fmtDateTime } from "@/lib/format";
+import InfoTooltip from "@/components/ui/InfoTooltip";
 
 export default function EquityCurve({
   data,
@@ -47,6 +48,7 @@ export default function EquityCurve({
     <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h3 className="font-serif text-lg">Equity curve</h3>
+        <InfoTooltip text="Your account balance over time, adjusted for each trade's P&L plus deposits and withdrawals. An upward slope means you're growing your account." />
         <div className="flex items-center gap-2 text-xs">
           <span className="h-2 w-2 rounded-full bg-blue-400" />
           <span className="text-slate-400">{currency}</span>

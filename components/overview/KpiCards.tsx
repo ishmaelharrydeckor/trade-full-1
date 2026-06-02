@@ -2,6 +2,7 @@
 import { fmtSignedUsd, fmtPct, fmtNumber } from "@/lib/format";
 import type { KpiSummary } from "@/lib/stats";
 import { cn } from "@/lib/utils";
+import InfoTooltip from "@/components/ui/InfoTooltip";
 import {
   TrendingUp,
   Target,
@@ -35,6 +36,7 @@ export default function KpiCards({
       <Kpi
         icon={<Coins className="h-3.5 w-3.5" />}
         label="Net P&L"
+        tooltip="Total profit/loss after commissions and swaps. This is your bottom-line performance."
         primary={fmtSignedUsd(kpis.netPnl)}
         primaryClass={
           pnlPositive
@@ -53,6 +55,7 @@ export default function KpiCards({
       <Kpi
         icon={<Activity className="h-3.5 w-3.5" />}
         label="Trades"
+        tooltip="Total number of closed trades — winners (W), losers (L), and break-even (BE)."
         primary={String(kpis.trades)}
         sub={`${kpis.winners}W · ${kpis.losers}L${
           kpis.breakeven ? ` · ${kpis.breakeven}BE` : ""
@@ -62,6 +65,7 @@ export default function KpiCards({
       <Kpi
         icon={<Target className="h-3.5 w-3.5" />}
         label="Win rate"
+        tooltip="Percentage of trades that were profitable. A win rate above 50% means you win more often than you lose."
         primary={fmtPct(kpis.winRate, 1)}
         sub={
           kpis.winRate >= 50 ? "Above 50%" : "Below 50%"
@@ -74,6 +78,7 @@ export default function KpiCards({
       <Kpi
         icon={<TrendingUp className="h-3.5 w-3.5" />}
         label="Profit factor"
+        tooltip="Gross profit divided by gross loss. Above 1 means profitable overall. Above 2 is considered strong."
         primary={
           kpis.profitFactor === Infinity
             ? "∞"
@@ -96,6 +101,7 @@ export default function KpiCards({
       <Kpi
         icon={<Trophy className="h-3.5 w-3.5" />}
         label="Best streak"
+        tooltip="Longest consecutive run of winning trades. Shows your best disciplined stretch."
         primary={`${kpis.bestStreak}W`}
         sub={`Avg win: ${fmtSignedUsd(kpis.avgWinner)}`}
       />
@@ -103,6 +109,7 @@ export default function KpiCards({
       <Kpi
         icon={<Flame className="h-3.5 w-3.5" />}
         label="Worst streak"
+        tooltip="Longest consecutive run of losing trades. Helps you understand your drawdown risk."
         primary={`${kpis.worstStreak}L`}
         sub={`Avg loss: ${fmtSignedUsd(kpis.avgLoser)}`}
         primaryClass={kpis.worstStreak > 3 ? "text-red-300" : undefined}
@@ -114,12 +121,14 @@ export default function KpiCards({
 function Kpi({
   icon,
   label,
+  tooltip,
   primary,
   primaryClass,
   sub,
 }: {
   icon: React.ReactNode;
   label: string;
+  tooltip?: string;
   primary: string;
   primaryClass?: string;
   sub: string;
@@ -129,6 +138,7 @@ function Kpi({
       <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-slate-400">
         {icon}
         {label}
+        {tooltip && <InfoTooltip text={tooltip} />}
       </div>
       <div
         className={cn(

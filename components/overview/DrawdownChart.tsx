@@ -14,6 +14,7 @@ import type { EquityPoint } from "@/lib/stats";
 import { computeDrawdown } from "@/lib/stats";
 import { fmtPct, fmtSignedUsd } from "@/lib/format";
 import { TrendingDown } from "lucide-react";
+import InfoTooltip from "@/components/ui/InfoTooltip";
 
 export default function DrawdownChart({
   equityCurve,
@@ -44,6 +45,7 @@ export default function DrawdownChart({
       <div className="mb-4 flex items-center gap-2">
         <TrendingDown className="h-4 w-4 text-red-400" />
         <h3 className="font-serif text-lg">Drawdown</h3>
+        <InfoTooltip text="Drawdown measures the drop from your peak equity to the lowest point before recovering. It shows how much you could lose during a bad streak." />
         <div className="ml-auto flex items-center gap-4 text-xs text-slate-400">
           <span>
             Max: <span className="font-mono text-red-300">{fmtPct(dd.maxDrawdownPct, 1)}</span>
