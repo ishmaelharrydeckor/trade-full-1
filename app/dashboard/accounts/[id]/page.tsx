@@ -33,11 +33,14 @@ export default async function AccountPage({
     notFound();
   }
 
-  // Trades for this account, newest first
+  // Trades for this account, newest first — exclude backtest trades by default
+  // (per the user decision in M4 planning). Backtest trades are visible inside
+  // their own session page.
   const { data: trades } = await supabase
     .from("trades")
     .select("*")
     .eq("account_id", id)
+    .eq("is_backtest", false)
     .order("close_time", { ascending: false, nullsFirst: false });
 
   // Transactions

@@ -1,6 +1,6 @@
 // components/backtest/BacktestChart.tsx
-// Pure rendering — takes candles + current position, draws the chart.
-// Data fetching + playback state live in the parent (BacktestSessionClient).
+// Pure rendering — takes candles, current position, and trade markers.
+// Future bars are hidden so the trader can't peek ahead.
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -9,6 +9,8 @@ import {
   ColorType,
   type IChartApi,
   type ISeriesApi,
+  type SeriesMarker,
+  type Time,
 } from "lightweight-charts";
 
 export interface Candle {
@@ -19,19 +21,28 @@ export interface Candle {
   close: number;
 }
 
+export interface ChartMarker {
+  time: number;
+  position: "aboveBar" | "belowBar";
+  color: string;
+  shape: "arrowUp" | "arrowDown" | "circle" | "square";
+  text?: string;
+}
+
 export default function BacktestChart({
   candles,
   currentBarIndex,
+  markers = [],
 }: {
   candles: Candle[];
   currentBarIndex: number;
+  markers?: ChartMarker[];
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const hasInitialFit = useRef(false);
 
-  // Initialize chart once, clean up on unmount
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -79,21 +90,31 @@ export default function BacktestChart({
     };
   }, []);
 
-  // Update visible slice whenever data or playback position changes.
-  // Only show bars [0..currentBarIndex] — future bars are HIDDEN so the
-  // trader can't peek ahead. This is the core of bar-by-bar backtesting.
+  // Update visible slice + markers
   useEffect(() => {
     if (!seriesRef.current || candles.length === 0) return;
     const slice = candles.slice(0, currentBarIndex + 1);
     seriesRef.current.setData(slice as never);
 
-    // Auto-fit only on first data load. Subsequent updates preserve
-    // the user's scroll/zoom level so playback feels continuous.
+    // Only show markers whose time is <= the current bar (don't reveal future trades)
+    const visibleTime = slice[slice.length - 1]?.time ?? 0;
+    const visibleMarkers = markers
+      .filter((m) => m.time <= visibleTime)
+      .sort((a, b) => a.time - b.time)
+      .map<SeriesMarker<Time>>((m) => ({
+        time: m.time as Time,
+        position: m.position,
+        color: m.color,
+        shape: m.shape,
+        text: m.text,
+      }));
+    seriesRef.current.setMarkers(visibleMarkers);
+
     if (!hasInitialFit.current && chartRef.current && slice.length > 0) {
       chartRef.current.timeScale().fitContent();
       hasInitialFit.current = true;
     }
-  }, [candles, currentBarIndex]);
+  }, [candles, currentBarIndex, markers]);
 
   return (
     <div className="relative h-[480px] w-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-3 backdrop-blur">

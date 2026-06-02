@@ -29,6 +29,15 @@ export async function PATCH(
   if (body.name !== undefined) {
     updates.name = String(body.name).trim().slice(0, 200);
   }
+  if (body.open_positions !== undefined) {
+    if (!Array.isArray(body.open_positions)) {
+      return NextResponse.json(
+        { error: "open_positions must be an array" },
+        { status: 400 }
+      );
+    }
+    updates.open_positions = body.open_positions;
+  }
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });

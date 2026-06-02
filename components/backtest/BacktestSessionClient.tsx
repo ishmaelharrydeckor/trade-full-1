@@ -1,13 +1,25 @@
 // components/backtest/BacktestSessionClient.tsx
-// Owns: candles data, playback state (current bar, isPlaying, speed),
-// and debounced persistence of position back to the DB.
+// Orchestrates: data fetching, playback state, open positions, SL/TP hit
+// detection, closed-trade persistence to the trades table.
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Info, Loader2, AlertCircle } from "lucide-react";
-import BacktestChart, { type Candle } from "./BacktestChart";
+import BacktestChart, { type Candle, type ChartMarker } from "./BacktestChart";
 import PlaybackControls, { type PlaybackSpeed } from "./PlaybackControls";
+import NewTradePanel from "./NewTradePanel";
+import BacktestOpenPositions from "./BacktestOpenPositions";
+import BacktestClosedTrades from "./BacktestClosedTrades";
+import BacktestSessionStats from "./BacktestSessionStats";
+import {
+  type BacktestOpenPosition,
+  computePnl,
+  checkSlTpHit,
+  uuid,
+} from "@/lib/backtest-trade";
+import { getInstrument } from "@/lib/backtest-instruments";
 import { fmtUsd } from "@/lib/format";
+import type { Trade } from "@/types/database";
 
 interface BacktestSession {
   id: string;
@@ -20,6 +32,7 @@ interface BacktestSession {
   range_end: string;
   current_bar_time: string | null;
   starting_balance: number;
+  open_positions: BacktestOpenPosition[];
   status: "active" | "completed" | "archived";
 }
 
@@ -30,45 +43,60 @@ const SPEED_MS: Record<Exclude<PlaybackSpeed, "instant">, number> = {
 };
 
 export default function BacktestSessionClient({
-  session,
+  session: initialSession,
 }: {
   session: BacktestSession;
 }) {
+  // === Constants for this session
+  const instrument = getInstrument(initialSession.symbol);
+  const contractValue = instrument?.contractValue ?? 1;
+
+  // === State
   const [candles, setCandles] = useState<Candle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentBarIndex, setCurrentBarIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState<PlaybackSpeed>(1);
+  const [openPositions, setOpenPositions] = useState<BacktestOpenPosition[]>(
+    initialSession.open_positions ?? []
+  );
+  const [closedTrades, setClosedTrades] = useState<Trade[]>([]);
 
-  const saveTimer = useRef<NodeJS.Timeout | null>(null);
+  // === Refs for debounced persistence
+  const saveBarTimer = useRef<NodeJS.Timeout | null>(null);
+  const savePositionsTimer = useRef<NodeJS.Timeout | null>(null);
   const playTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // -- Fetch candles once on mount
+  // === Fetch candles + existing closed trades on mount
   useEffect(() => {
     let alive = true;
     setLoading(true);
     setError(null);
-    const startMs = new Date(session.range_start).getTime();
-    const endMs = new Date(session.range_end).getTime();
+    const startMs = new Date(initialSession.range_start).getTime();
+    const endMs = new Date(initialSession.range_end).getTime();
 
-    fetch(
-      `/api/backtest/data?symbol=${encodeURIComponent(session.symbol)}&timeframe=${session.timeframe}&start=${startMs}&end=${endMs}`
-    )
-      .then((r) => r.json())
-      .then((data) => {
+    Promise.all([
+      fetch(
+        `/api/backtest/data?symbol=${encodeURIComponent(initialSession.symbol)}&timeframe=${initialSession.timeframe}&start=${startMs}&end=${endMs}`
+      ).then((r) => r.json()),
+      fetch(`/api/backtest/sessions/${initialSession.id}/trade`).then((r) =>
+        r.json()
+      ),
+    ])
+      .then(([dataRes, tradesRes]) => {
         if (!alive) return;
-        if (data.error) {
-          setError(data.error);
+        if (dataRes.error) {
+          setError(dataRes.error);
           return;
         }
-        const c = (data.candles ?? []) as Candle[];
+        const c = (dataRes.candles ?? []) as Candle[];
         setCandles(c);
+        setClosedTrades((tradesRes.trades ?? []) as Trade[]);
 
-        // Restore prior playback position if the session has one
-        if (session.current_bar_time && c.length > 0) {
+        if (initialSession.current_bar_time && c.length > 0) {
           const savedTime = Math.floor(
-            new Date(session.current_bar_time).getTime() / 1000
+            new Date(initialSession.current_bar_time).getTime() / 1000
           );
           const idx = c.findIndex((bar) => bar.time >= savedTime);
           setCurrentBarIndex(idx >= 0 ? idx : 0);
@@ -83,35 +111,141 @@ export default function BacktestSessionClient({
     return () => {
       alive = false;
     };
-  }, [session.id, session.symbol, session.timeframe, session.range_start, session.range_end, session.current_bar_time]);
+  }, [
+    initialSession.id,
+    initialSession.symbol,
+    initialSession.timeframe,
+    initialSession.range_start,
+    initialSession.range_end,
+    initialSession.current_bar_time,
+  ]);
 
-  // -- Debounced save of current bar position to DB
-  const saveCurrentPosition = useCallback(
+  // === Debounced saves
+  const saveBarPosition = useCallback(
     (barIndex: number) => {
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-      saveTimer.current = setTimeout(async () => {
+      if (saveBarTimer.current) clearTimeout(saveBarTimer.current);
+      saveBarTimer.current = setTimeout(async () => {
         const bar = candles[barIndex];
         if (!bar) return;
-        await fetch(`/api/backtest/sessions/${session.id}`, {
+        fetch(`/api/backtest/sessions/${initialSession.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             current_bar_time: new Date(bar.time * 1000).toISOString(),
           }),
-        }).catch(() => {
-          /* silent — playback continues even if save fails */
-        });
+        }).catch(() => {});
       }, 1000);
     },
-    [candles, session.id]
+    [candles, initialSession.id]
   );
 
-  // Save when index changes (debounced)
-  useEffect(() => {
-    if (candles.length > 0) saveCurrentPosition(currentBarIndex);
-  }, [currentBarIndex, candles.length, saveCurrentPosition]);
+  const saveOpenPositions = useCallback(
+    (positions: BacktestOpenPosition[]) => {
+      if (savePositionsTimer.current) clearTimeout(savePositionsTimer.current);
+      savePositionsTimer.current = setTimeout(async () => {
+        fetch(`/api/backtest/sessions/${initialSession.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ open_positions: positions }),
+        }).catch(() => {});
+      }, 500);
+    },
+    [initialSession.id]
+  );
 
-  // -- Playback loop
+  // Persist position changes
+  useEffect(() => {
+    if (candles.length > 0) saveBarPosition(currentBarIndex);
+  }, [currentBarIndex, candles.length, saveBarPosition]);
+  useEffect(() => {
+    saveOpenPositions(openPositions);
+  }, [openPositions, saveOpenPositions]);
+
+  // === SL/TP hit detection — runs whenever bar advances forward
+  const closeTrade = useCallback(
+    async (
+      position: BacktestOpenPosition,
+      exitPrice: number,
+      exitTime: string,
+      exitReason: "sl" | "tp" | "manual"
+    ) => {
+      const pnl = computePnl({
+        direction: position.direction,
+        entry: position.entry_price,
+        exit: exitPrice,
+        volume: position.volume,
+        contractValue,
+      });
+
+      try {
+        const res = await fetch(
+          `/api/backtest/sessions/${initialSession.id}/trade`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              symbol: position.symbol,
+              asset_class: instrument?.assetClass,
+              direction: position.direction,
+              volume: position.volume,
+              entry_price: position.entry_price,
+              exit_price: exitPrice,
+              open_time: position.entry_time,
+              close_time: exitTime,
+              pnl,
+              stop_loss: position.stop_loss,
+              take_profit: position.take_profit,
+              mindset: position.mindset,
+              notes: position.notes,
+              tags: position.tags,
+              exit_reason: exitReason,
+            }),
+          }
+        );
+        const data = await res.json();
+        if (res.ok && data.trade) {
+          setClosedTrades((prev) => [data.trade, ...prev]);
+        }
+      } catch {
+        /* fail silently for now — could surface error toast later */
+      }
+
+      // Remove from open positions
+      setOpenPositions((prev) => prev.filter((p) => p.id !== position.id));
+    },
+    [contractValue, initialSession.id, instrument?.assetClass]
+  );
+
+  // Check SL/TP on bar advance
+  const prevBarIndex = useRef(currentBarIndex);
+  useEffect(() => {
+    // Only check when advancing forward (not when stepping back / jumping to start)
+    if (
+      currentBarIndex > prevBarIndex.current &&
+      candles.length > 0 &&
+      openPositions.length > 0
+    ) {
+      const bar = candles[currentBarIndex];
+      if (bar) {
+        for (const position of openPositions) {
+          // Don't fire on the bar where we just opened
+          if (position.entry_bar_index >= currentBarIndex) continue;
+          const hit = checkSlTpHit(position, bar);
+          if (hit) {
+            closeTrade(
+              position,
+              hit.hit_price,
+              new Date(bar.time * 1000).toISOString(),
+              hit.type
+            );
+          }
+        }
+      }
+    }
+    prevBarIndex.current = currentBarIndex;
+  }, [currentBarIndex, candles, openPositions, closeTrade]);
+
+  // === Playback loop
   useEffect(() => {
     if (!isPlaying) {
       if (playTimer.current) {
@@ -121,7 +255,6 @@ export default function BacktestSessionClient({
       return;
     }
     if (speed === "instant") {
-      // Jump straight to the end
       setCurrentBarIndex(candles.length - 1);
       setIsPlaying(false);
       return;
@@ -144,13 +277,11 @@ export default function BacktestSessionClient({
     };
   }, [isPlaying, speed, candles.length]);
 
-  // -- Keyboard shortcuts
+  // === Keyboard shortcuts
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
-      // Ignore when typing in an input
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-
       if (e.code === "Space") {
         e.preventDefault();
         setIsPlaying((p) => !p);
@@ -166,7 +297,88 @@ export default function BacktestSessionClient({
     return () => window.removeEventListener("keydown", handleKey);
   }, [candles.length]);
 
-  const currentBarTime = candles[currentBarIndex]?.time ?? null;
+  // === Handlers
+  function handleOpenTrade(input: {
+    direction: "long" | "short";
+    volume: number;
+    entry_price: number;
+    stop_loss: number | null;
+    take_profit: number | null;
+    mindset: string | null;
+    notes: string | null;
+    tags: string[];
+  }) {
+    const bar = candles[currentBarIndex];
+    if (!bar) return;
+    const newPosition: BacktestOpenPosition = {
+      id: uuid(),
+      symbol: initialSession.symbol,
+      direction: input.direction,
+      volume: input.volume,
+      entry_price: input.entry_price,
+      entry_time: new Date(bar.time * 1000).toISOString(),
+      entry_bar_index: currentBarIndex,
+      stop_loss: input.stop_loss,
+      take_profit: input.take_profit,
+      mindset: input.mindset,
+      notes: input.notes,
+      tags: input.tags,
+    };
+    setOpenPositions((prev) => [...prev, newPosition]);
+  }
+
+  function handleManualClose(positionId: string) {
+    const position = openPositions.find((p) => p.id === positionId);
+    const bar = candles[currentBarIndex];
+    if (!position || !bar) return;
+    closeTrade(
+      position,
+      bar.close,
+      new Date(bar.time * 1000).toISOString(),
+      "manual"
+    );
+  }
+
+  // === Build chart markers from open positions + closed trades
+  const markers = useMemo<ChartMarker[]>(() => {
+    const m: ChartMarker[] = [];
+    // Closed trades: entry + exit markers
+    for (const t of closedTrades) {
+      if (t.open_time) {
+        m.push({
+          time: Math.floor(new Date(t.open_time).getTime() / 1000),
+          position: t.direction === "long" ? "belowBar" : "aboveBar",
+          color: t.direction === "long" ? "#22c55e" : "#ef4444",
+          shape: t.direction === "long" ? "arrowUp" : "arrowDown",
+          text: t.direction === "long" ? "BUY" : "SELL",
+        });
+      }
+      if (t.close_time) {
+        const pnl = Number(t.pnl) || 0;
+        m.push({
+          time: Math.floor(new Date(t.close_time).getTime() / 1000),
+          position: t.direction === "long" ? "aboveBar" : "belowBar",
+          color: pnl > 0 ? "#22c55e" : pnl < 0 ? "#ef4444" : "#94a3b8",
+          shape: "circle",
+          text: pnl > 0 ? "WIN" : pnl < 0 ? "LOSS" : "BE",
+        });
+      }
+    }
+    // Open positions: entry markers
+    for (const p of openPositions) {
+      m.push({
+        time: Math.floor(new Date(p.entry_time).getTime() / 1000),
+        position: p.direction === "long" ? "belowBar" : "aboveBar",
+        color: p.direction === "long" ? "#3b82f6" : "#a855f7",
+        shape: p.direction === "long" ? "arrowUp" : "arrowDown",
+        text: p.direction === "long" ? "BUY" : "SELL",
+      });
+    }
+    return m;
+  }, [closedTrades, openPositions]);
+
+  const currentBar = candles[currentBarIndex];
+  const currentPrice = currentBar?.close ?? 0;
 
   return (
     <div className="space-y-4">
@@ -174,10 +386,10 @@ export default function BacktestSessionClient({
       <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="font-serif text-2xl">{session.name}</h1>
+            <h1 className="font-serif text-2xl">{initialSession.name}</h1>
             <p className="mt-0.5 text-sm text-slate-400">
-              {session.symbol} · {session.timeframe} ·{" "}
-              <span className="capitalize">{session.asset_class}</span>
+              {initialSession.symbol} · {initialSession.timeframe} ·{" "}
+              <span className="capitalize">{initialSession.asset_class}</span>
             </p>
           </div>
           <div className="text-right">
@@ -185,18 +397,17 @@ export default function BacktestSessionClient({
               Starting balance
             </div>
             <div className="font-mono text-xl tabular-nums">
-              {fmtUsd(session.starting_balance)}
+              {fmtUsd(initialSession.starting_balance)}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Chart */}
       {loading ? (
         <div className="flex h-[480px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.02]">
           <div className="flex items-center gap-2 text-sm text-slate-400">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Loading {session.symbol} {session.timeframe} candles…
+            Loading {initialSession.symbol} {initialSession.timeframe} candles…
           </div>
         </div>
       ) : error ? (
@@ -209,14 +420,18 @@ export default function BacktestSessionClient({
         </div>
       ) : (
         <>
-          <BacktestChart candles={candles} currentBarIndex={currentBarIndex} />
+          <BacktestChart
+            candles={candles}
+            currentBarIndex={currentBarIndex}
+            markers={markers}
+          />
 
           <PlaybackControls
             isPlaying={isPlaying}
             speed={speed}
             currentBarIndex={currentBarIndex}
             totalBars={candles.length}
-            currentTime={currentBarTime}
+            currentTime={currentBar?.time ?? null}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
             onStepForward={() =>
@@ -229,18 +444,41 @@ export default function BacktestSessionClient({
             onJumpToEnd={() => setCurrentBarIndex(candles.length - 1)}
             onSpeedChange={setSpeed}
           />
+
+          <BacktestSessionStats
+            closedTrades={closedTrades}
+            startingBalance={initialSession.starting_balance}
+          />
+
+          <BacktestOpenPositions
+            positions={openPositions}
+            currentPrice={currentPrice}
+            contractValue={contractValue}
+            onClose={handleManualClose}
+          />
+
+          <div>
+            <NewTradePanel
+              symbol={initialSession.symbol}
+              currentPrice={currentPrice}
+              onOpen={handleOpenTrade}
+            />
+          </div>
+
+          <BacktestClosedTrades trades={closedTrades} />
         </>
       )}
 
-      <div className="flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/[0.05] p-4 text-sm text-amber-100">
-        <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+      <div className="flex items-start gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.05] p-4 text-sm text-emerald-100">
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
         <div>
-          <p className="font-semibold">M4.2 — Playback shipped.</p>
-          <p className="mt-1 text-xs text-amber-100/80">
-            Use <kbd className="rounded border border-amber-500/30 bg-black/30 px-1 font-mono text-[10px]">Space</kbd> to play/pause,{" "}
-            <kbd className="rounded border border-amber-500/30 bg-black/30 px-1 font-mono text-[10px]">→</kbd> /{" "}
-            <kbd className="rounded border border-amber-500/30 bg-black/30 px-1 font-mono text-[10px]">←</kbd> to step.
-            Position is auto-saved 1s after each change. Trade simulation (click chart to enter, set SL/TP) arrives in M4.3.
+          <p className="font-semibold">M4.3 — Trade simulation shipped.</p>
+          <p className="mt-1 text-xs text-emerald-100/80">
+            Open positions auto-close when price touches SL or TP as bars
+            advance. All closed trades land in your <strong>trades</strong>{" "}
+            table flagged as backtest. Open positions persist across page
+            refreshes. Next: M4.4 — analytics integration (toggle to include
+            backtest trades in main dashboard charts).
           </p>
         </div>
       </div>

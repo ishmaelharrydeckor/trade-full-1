@@ -8,24 +8,25 @@ export interface BacktestInstrument {
   assetClass: "crypto" | "forex" | "metals" | "indices";
   dataSource: "binance" | "twelvedata";
   providerSymbol: string;  // exact string to pass to provider API
+  contractValue: number;   // units per 1 lot (used for P&L math)
 }
 
 export const BACKTEST_INSTRUMENTS: BacktestInstrument[] = [
-  // Crypto (Binance — free, no key)
-  { symbol: "BTC/USDT", display: "Bitcoin (BTC/USDT)",  assetClass: "crypto",  dataSource: "binance",    providerSymbol: "BTCUSDT" },
-  { symbol: "ETH/USDT", display: "Ethereum (ETH/USDT)", assetClass: "crypto",  dataSource: "binance",    providerSymbol: "ETHUSDT" },
-  { symbol: "BNB/USDT", display: "BNB (BNB/USDT)",      assetClass: "crypto",  dataSource: "binance",    providerSymbol: "BNBUSDT" },
-  { symbol: "SOL/USDT", display: "Solana (SOL/USDT)",   assetClass: "crypto",  dataSource: "binance",    providerSymbol: "SOLUSDT" },
-  { symbol: "XRP/USDT", display: "Ripple (XRP/USDT)",   assetClass: "crypto",  dataSource: "binance",    providerSymbol: "XRPUSDT" },
-  // Forex (TwelveData — free key required)
-  { symbol: "EUR/USD",  display: "Euro / Dollar",       assetClass: "forex",   dataSource: "twelvedata", providerSymbol: "EUR/USD" },
-  { symbol: "GBP/USD",  display: "Pound / Dollar",      assetClass: "forex",   dataSource: "twelvedata", providerSymbol: "GBP/USD" },
-  { symbol: "USD/JPY",  display: "Dollar / Yen",        assetClass: "forex",   dataSource: "twelvedata", providerSymbol: "USD/JPY" },
-  { symbol: "AUD/USD",  display: "Aussie / Dollar",     assetClass: "forex",   dataSource: "twelvedata", providerSymbol: "AUD/USD" },
-  { symbol: "USD/CAD",  display: "Dollar / Loonie",     assetClass: "forex",   dataSource: "twelvedata", providerSymbol: "USD/CAD" },
-  // Metals (TwelveData)
-  { symbol: "XAU/USD",  display: "Gold (XAU/USD)",      assetClass: "metals",  dataSource: "twelvedata", providerSymbol: "XAU/USD" },
-  { symbol: "XAG/USD",  display: "Silver (XAG/USD)",    assetClass: "metals",  dataSource: "twelvedata", providerSymbol: "XAG/USD" },
+  // Crypto (Binance — free, no key). 1 unit per lot on most MT5 brokers.
+  { symbol: "BTC/USDT", display: "Bitcoin (BTC/USDT)",  assetClass: "crypto",  dataSource: "binance",    providerSymbol: "BTCUSDT", contractValue: 1 },
+  { symbol: "ETH/USDT", display: "Ethereum (ETH/USDT)", assetClass: "crypto",  dataSource: "binance",    providerSymbol: "ETHUSDT", contractValue: 1 },
+  { symbol: "BNB/USDT", display: "BNB (BNB/USDT)",      assetClass: "crypto",  dataSource: "binance",    providerSymbol: "BNBUSDT", contractValue: 1 },
+  { symbol: "SOL/USDT", display: "Solana (SOL/USDT)",   assetClass: "crypto",  dataSource: "binance",    providerSymbol: "SOLUSDT", contractValue: 1 },
+  { symbol: "XRP/USDT", display: "Ripple (XRP/USDT)",   assetClass: "crypto",  dataSource: "binance",    providerSymbol: "XRPUSDT", contractValue: 1 },
+  // Forex (TwelveData — free key required). 100,000 units per standard lot.
+  { symbol: "EUR/USD",  display: "Euro / Dollar",       assetClass: "forex",   dataSource: "twelvedata", providerSymbol: "EUR/USD", contractValue: 100000 },
+  { symbol: "GBP/USD",  display: "Pound / Dollar",      assetClass: "forex",   dataSource: "twelvedata", providerSymbol: "GBP/USD", contractValue: 100000 },
+  { symbol: "USD/JPY",  display: "Dollar / Yen",        assetClass: "forex",   dataSource: "twelvedata", providerSymbol: "USD/JPY", contractValue: 100000 },
+  { symbol: "AUD/USD",  display: "Aussie / Dollar",     assetClass: "forex",   dataSource: "twelvedata", providerSymbol: "AUD/USD", contractValue: 100000 },
+  { symbol: "USD/CAD",  display: "Dollar / Loonie",     assetClass: "forex",   dataSource: "twelvedata", providerSymbol: "USD/CAD", contractValue: 100000 },
+  // Metals (TwelveData). Gold = 100 oz/lot, Silver = 5,000 oz/lot.
+  { symbol: "XAU/USD",  display: "Gold (XAU/USD)",      assetClass: "metals",  dataSource: "twelvedata", providerSymbol: "XAU/USD", contractValue: 100 },
+  { symbol: "XAG/USD",  display: "Silver (XAG/USD)",    assetClass: "metals",  dataSource: "twelvedata", providerSymbol: "XAG/USD", contractValue: 5000 },
 ];
 
 export interface Timeframe {
