@@ -5,6 +5,107 @@
 import Papa from "papaparse";
 import type { Direction, AssetClass } from "@/types/database";
 
+// ===========================================================
+// Broker format detection
+// ===========================================================
+export interface BrokerFormat {
+  name: string;
+  detect: (headers: string[]) => boolean;
+  mapping: Record<string, string>; // broker column name -> our field name
+}
+
+export const BROKER_FORMATS: BrokerFormat[] = [
+  {
+    name: "MetaTrader 4/5",
+    detect: (h) => h.some(c => c.toLowerCase() === "ticket") && h.some(c => c.toLowerCase() === "open price"),
+    mapping: {
+      "ticket": "external_trade_id",
+      "open price": "entry_price",
+      "close price": "exit_price",
+      "open time": "open_time",
+      "close time": "close_time",
+      "profit": "pnl",
+      "commission": "commission",
+      "swap": "swap",
+      "volume": "volume",
+      "type": "direction",
+      "symbol": "symbol",
+      "s/l": "stop_loss",
+      "t/p": "take_profit",
+    },
+  },
+  {
+    name: "cTrader",
+    detect: (h) => h.some(c => c.toLowerCase() === "position id") && h.some(c => c.toLowerCase() === "entry price"),
+    mapping: {
+      "position id": "external_trade_id",
+      "entry price": "entry_price",
+      "closing price": "exit_price",
+      "opening time": "open_time",
+      "closing time": "close_time",
+      "net profit": "pnl",
+      "commission": "commission",
+      "swap": "swap",
+      "quantity": "volume",
+      "direction": "direction",
+      "symbol name": "symbol",
+      "stop loss": "stop_loss",
+      "take profit": "take_profit",
+    },
+  },
+  {
+    name: "TradingView",
+    detect: (h) => h.some(c => c.toLowerCase() === "trade #") && h.some(c => c.toLowerCase() === "signal"),
+    mapping: {
+      "trade #": "external_trade_id",
+      "price": "entry_price",
+      "close price": "exit_price",
+      "date/time": "open_time",
+      "close date/time": "close_time",
+      "profit": "pnl",
+      "contracts": "volume",
+      "signal": "direction",
+      "symbol": "symbol",
+    },
+  },
+  {
+    name: "Interactive Brokers (Flex)",
+    detect: (h) => h.some(c => c.toLowerCase() === "tradeid") && h.some(c => c.toLowerCase() === "ibcommission"),
+    mapping: {
+      "tradeid": "external_trade_id",
+      "tradeprice": "entry_price",
+      "closeprice": "exit_price",
+      "datetime": "open_time",
+      "ibcommission": "commission",
+      "quantity": "volume",
+      "buysell": "direction",
+      "symbol": "symbol",
+      "realizedpnl": "pnl",
+    },
+  },
+  {
+    name: "Thinkorswim (TDA)",
+    detect: (h) => h.some(c => c.toLowerCase() === "exec time") && h.some(c => c.toLowerCase() === "spread"),
+    mapping: {
+      "exec time": "open_time",
+      "spread": "symbol",
+      "side": "direction",
+      "qty": "volume",
+      "price": "entry_price",
+      "net price": "exit_price",
+      "order id": "external_trade_id",
+    },
+  },
+];
+
+export function detectBrokerFormat(headers: string[]): BrokerFormat | null {
+  const lower = headers.map(h => h.toLowerCase().trim());
+  for (const fmt of BROKER_FORMATS) {
+    if (fmt.detect(lower)) return fmt;
+  }
+  return null;
+}
+
 export interface ParsedTradeRow {
   // mapped fields (all optional — we try our best, skip rows missing essentials)
   external_trade_id: string | null;

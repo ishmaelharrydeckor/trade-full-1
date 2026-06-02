@@ -10,6 +10,11 @@ import type {
   Trade,
   AccountTransaction,
   AccountSettings,
+  Playbook,
+  TradePlaybookEntry,
+  JournalEntry,
+  DailyHabit,
+  DailyLog,
 } from "@/types/database";
 
 export default async function AccountPage({
@@ -57,12 +62,60 @@ export default async function AccountPage({
     .eq("account_id", id)
     .maybeSingle<AccountSettings>();
 
+  // Playbooks
+  const { data: playbooks } = await supabase
+    .from("playbooks")
+    .select("*")
+    .eq("account_id", id)
+    .eq("archived", false)
+    .order("created_at", { ascending: false });
+
+  // Playbook entries (all entries for trades in this account)
+  const tradeIds = (trades ?? []).map((t: Trade) => t.id);
+  let playbookEntries: TradePlaybookEntry[] = [];
+  if (tradeIds.length > 0) {
+    const { data: entries } = await supabase
+      .from("trade_playbook_entries")
+      .select("*")
+      .in("trade_id", tradeIds.slice(0, 500));
+    playbookEntries = (entries as TradePlaybookEntry[]) ?? [];
+  }
+
+  // Journal entries
+  const { data: journalEntries } = await supabase
+    .from("journal_entries")
+    .select("*")
+    .eq("account_id", id)
+    .order("entry_date", { ascending: false })
+    .limit(90);
+
+  // Daily habits
+  const { data: habits } = await supabase
+    .from("daily_habits")
+    .select("*")
+    .eq("account_id", id)
+    .eq("archived", false)
+    .order("sort_order", { ascending: true });
+
+  // Daily logs
+  const { data: dailyLogs } = await supabase
+    .from("daily_logs")
+    .select("*")
+    .eq("account_id", id)
+    .order("log_date", { ascending: false })
+    .limit(365);
+
   return (
     <AccountDashboard
       account={account}
       trades={(trades as Trade[]) ?? []}
       transactions={(transactions as AccountTransaction[]) ?? []}
       settings={settings ?? null}
+      playbooks={(playbooks as Playbook[]) ?? []}
+      playbookEntries={playbookEntries}
+      journalEntries={(journalEntries as JournalEntry[]) ?? []}
+      habits={(habits as DailyHabit[]) ?? []}
+      dailyLogs={(dailyLogs as DailyLog[]) ?? []}
     />
   );
 }

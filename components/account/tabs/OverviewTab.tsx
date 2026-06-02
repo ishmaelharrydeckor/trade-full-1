@@ -6,6 +6,7 @@ import type { Account, Trade, AccountTransaction } from "@/types/database";
 import { computeKpis, buildEquityCurve, computeCurrentEquity } from "@/lib/stats";
 import KpiCards from "@/components/overview/KpiCards";
 import EquityCurve from "@/components/overview/EquityCurve";
+import DrawdownChart from "@/components/overview/DrawdownChart";
 import RecentTradesPreview from "@/components/overview/RecentTradesPreview";
 import OpenPositionsPanel from "@/components/overview/OpenPositionsPanel";
 import AiInsightsPanel from "@/components/insights/AiInsightsPanel";
@@ -47,6 +48,8 @@ export default function OverviewTab({
         currency={account.currency}
         startingBalance={account.starting_balance}
       />
+
+      <DrawdownChart equityCurve={equityCurve} />
 
       <AiInsightsPanel accountId={account.id} hasTrades={trades.length > 0} />
 

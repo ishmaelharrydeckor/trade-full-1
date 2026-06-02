@@ -49,6 +49,8 @@ export interface Trade {
   screenshot_url: string | null;
   is_backtest: boolean;
   backtest_session_id: string | null;
+  is_missed: boolean;
+  grade: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -86,6 +88,7 @@ export interface AccountSettings {
   user_id: string;
   account_id: string;
   risk_parts: number;
+  dashboard_layout: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 }
@@ -97,4 +100,95 @@ export interface AiInsight {
   content: unknown; // JSONB — shape depends on the Gemini schema
   trade_count_at_generation: number;
   generated_at: string;
+}
+
+export type TradeGrade = 'A+' | 'A' | 'B' | 'C' | 'D' | 'F';
+
+export interface PlaybookRule {
+  id: string;
+  text: string;
+  order: number;
+}
+
+export interface Playbook {
+  id: string;
+  user_id: string;
+  account_id: string;
+  name: string;
+  description: string | null;
+  rules: PlaybookRule[];
+  tags: string[] | null;
+  archived: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TradePlaybookEntry {
+  id: string;
+  user_id: string;
+  trade_id: string;
+  playbook_id: string;
+  rules_followed: string[];
+  rules_broken: string[];
+  created_at: string;
+}
+
+export interface JournalEntry {
+  id: string;
+  user_id: string;
+  account_id: string;
+  entry_date: string;
+  pre_session_plan: string | null;
+  post_session_review: string | null;
+  market_conditions: string | null;
+  mental_state: string | null;
+  lessons_learned: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DailyHabit {
+  id: string;
+  user_id: string;
+  account_id: string;
+  name: string;
+  category: string;
+  is_automated: boolean;
+  auto_rule: Record<string, unknown> | null;
+  sort_order: number;
+  archived: boolean;
+  created_at: string;
+}
+
+export interface DailyLog {
+  id: string;
+  user_id: string;
+  account_id: string;
+  log_date: string;
+  habits_completed: string[];
+  habits_violated: string[];
+  notes: string | null;
+  score: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MentorLink {
+  id: string;
+  mentor_id: string;
+  mentee_id: string;
+  account_id: string;
+  status: 'pending' | 'active' | 'revoked';
+  invite_code: string;
+  permissions: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TradeComment {
+  id: string;
+  user_id: string;
+  trade_id: string;
+  content: string;
+  created_at: string;
 }

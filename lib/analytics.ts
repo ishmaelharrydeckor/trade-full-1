@@ -3,7 +3,7 @@
 // All pure functions. Used by AnalyticsTab + CalendarTab.
 
 import type { Trade } from "@/types/database";
-import { tradeNetPnl } from "./stats";
+import { tradeNetPnl, computeRMultiple } from "./stats";
 
 export interface DimensionAggregate {
   label: string;
@@ -155,4 +155,68 @@ export function aggregateByDay(trades: Trade[]): Map<string, DayAggregate> {
     map.set(dateStr, bucket);
   }
   return map;
+}
+
+// ===========================================================
+// Grade aggregation
+// ===========================================================
+export function aggregateByGrade(trades: Trade[]): DimensionAggregate[] {
+  return aggregate(trades, (t) => (t as any).grade as string | null).sort(
+    (a, b) => {
+      const order = ["A+", "A", "B", "C", "D", "F"];
+      return order.indexOf(a.label) - order.indexOf(b.label);
+    }
+  );
+}
+
+// ===========================================================
+// R-Multiple bucket aggregation
+// ===========================================================
+export function aggregateByRBucket(trades: Trade[]): DimensionAggregate[] {
+  const bucketLabels = ["< -2R", "-2R to -1R", "-1R to 0", "0 to 1R", "1R to 2R", "2R to 3R", "> 3R"];
+  const map = new Map<string, { trades: number; netPnl: number; winners: number }>();
+  for (const label of bucketLabels) {
+    map.set(label, { trades: 0, netPnl: 0, winners: 0 });
+  }
+
+  for (const t of trades) {
+    const r = computeRMultiple(t);
+    if (r == null) continue;
+    let label: string;
+    if (r < -2) label = "< -2R";
+    else if (r < -1) label = "-2R to -1R";
+    else if (r < 0) label = "-1R to 0";
+    else if (r < 1) label = "0 to 1R";
+    else if (r < 2) label = "1R to 2R";
+    else if (r < 3) label = "2R to 3R";
+    else label = "> 3R";
+
+    const bucket = map.get(label)!;
+    const net = tradeNetPnl(t);
+    bucket.trades++;
+    bucket.netPnl += net;
+    if (net > 0) bucket.winners++;
+  }
+
+  return bucketLabels
+    .map((label) => {
+      const b = map.get(label)!;
+      return {
+        label,
+        trades: b.trades,
+        netPnl: b.netPnl,
+        winners: b.winners,
+        winRate: b.trades > 0 ? (b.winners / b.trades) * 100 : 0,
+      };
+    })
+    .filter((b) => b.trades > 0);
+}
+
+// ===========================================================
+// Missed trades aggregation
+// ===========================================================
+export function aggregateByMissed(trades: Trade[]): DimensionAggregate[] {
+  return aggregate(trades, (t) => (t as any).is_missed ? "Missed" : "Executed").sort(
+    (a, b) => (a.label === "Executed" ? -1 : 1)
+  );
 }

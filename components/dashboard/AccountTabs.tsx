@@ -8,12 +8,18 @@ import {
   LineChart,
   Calendar,
   Wallet,
+  BookOpen,
+  BookText,
+  Target,
 } from "lucide-react";
 
 const TABS = [
   { id: "overview",  label: "Overview",  icon: LayoutDashboard },
   { id: "trades",    label: "Trades",    icon: ListChecks },
   { id: "analytics", label: "Analytics", icon: LineChart },
+  { id: "playbook",  label: "Playbook",  icon: BookOpen },
+  { id: "notebook",  label: "Notebook",  icon: BookText },
+  { id: "progress",  label: "Progress",  icon: Target },
   { id: "calendar",  label: "Calendar",  icon: Calendar },
   { id: "account",   label: "Account",   icon: Wallet },
 ] as const;

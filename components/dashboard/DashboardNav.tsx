@@ -1,6 +1,6 @@
 // components/dashboard/DashboardNav.tsx
 import Link from "next/link";
-import { LogOut, LayoutGrid } from "lucide-react";
+import { LogOut, LayoutGrid, Users } from "lucide-react";
 
 export default function DashboardNav({
   displayName,
@@ -28,6 +28,13 @@ export default function DashboardNav({
           >
             <LayoutGrid className="h-3.5 w-3.5" />
             Accounts
+          </Link>
+          <Link
+            href="/dashboard/mentoring"
+            className="hidden items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-slate-300 transition hover:bg-white/5 hover:text-white sm:inline-flex"
+          >
+            <Users className="h-3.5 w-3.5" />
+            Mentoring
           </Link>
           <div
             className="ml-2 hidden text-right md:block"

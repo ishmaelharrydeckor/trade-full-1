@@ -171,3 +171,184 @@ export function computeCurrentEquity(
   );
   return startingBalance + tradeNet + txNet;
 }
+
+// ===========================================================
+// R-Multiple calculations
+// ===========================================================
+
+/**
+ * Compute the R-multiple for a single trade.
+ * R = risk per unit = |entry_price - stop_loss|
+ * R-multiple = net P&L / (R * volume)
+ * Returns null if stop_loss is missing.
+ */
+export function computeRMultiple(t: Trade): number | null {
+  if (t.stop_loss == null || t.entry_price == null) return null;
+  const riskPerUnit = Math.abs(t.entry_price - t.stop_loss);
+  if (riskPerUnit === 0) return null;
+  const net = tradeNetPnl(t);
+  // R-multiple = actual outcome / initial risk
+  return net / (riskPerUnit * t.volume);
+}
+
+/**
+ * Compute R-multiple summary stats for a set of trades.
+ */
+export interface RMultipleSummary {
+  avgR: number | null;
+  bestR: number | null;
+  worstR: number | null;
+  rExpectancy: number | null;
+  tradesWithR: number;
+}
+
+export function computeRSummary(trades: Trade[]): RMultipleSummary {
+  const rValues = trades
+    .map(computeRMultiple)
+    .filter((r): r is number => r !== null);
+
+  if (rValues.length === 0) {
+    return { avgR: null, bestR: null, worstR: null, rExpectancy: null, tradesWithR: 0 };
+  }
+
+  const sum = rValues.reduce((s, r) => s + r, 0);
+  const avgR = sum / rValues.length;
+  const bestR = Math.max(...rValues);
+  const worstR = Math.min(...rValues);
+
+  const winners = rValues.filter((r) => r > 0);
+  const losers = rValues.filter((r) => r < 0);
+  const winRate = winners.length / rValues.length;
+  const avgWinR = winners.length > 0 ? winners.reduce((s, r) => s + r, 0) / winners.length : 0;
+  const avgLoseR = losers.length > 0 ? losers.reduce((s, r) => s + r, 0) / losers.length : 0;
+  const rExpectancy = winRate * avgWinR + (1 - winRate) * avgLoseR;
+
+  return { avgR, bestR, worstR, rExpectancy, tradesWithR: rValues.length };
+}
+
+// ===========================================================
+// Drawdown calculations
+// ===========================================================
+
+export interface DrawdownPeriod {
+  peakDate: string;
+  troughDate: string;
+  recoveryDate: string | null;
+  drawdownPct: number;
+  drawdownAbs: number;
+  durationDays: number;
+}
+
+export interface DrawdownMetrics {
+  maxDrawdownPct: number;
+  maxDrawdownAbs: number;
+  currentDrawdownPct: number;
+  currentDrawdownAbs: number;
+  maxDrawdownDuration: number; // days
+  drawdownPeriods: DrawdownPeriod[];
+}
+
+/**
+ * Compute drawdown metrics from an equity curve.
+ */
+export function computeDrawdown(equityCurve: EquityPoint[]): DrawdownMetrics {
+  if (equityCurve.length === 0) {
+    return {
+      maxDrawdownPct: 0, maxDrawdownAbs: 0,
+      currentDrawdownPct: 0, currentDrawdownAbs: 0,
+      maxDrawdownDuration: 0, drawdownPeriods: [],
+    };
+  }
+
+  let peak = equityCurve[0].equity;
+  let peakDate = equityCurve[0].time;
+  let maxDDPct = 0;
+  let maxDDAbs = 0;
+  let maxDDDuration = 0;
+
+  const periods: DrawdownPeriod[] = [];
+  let currentPeriod: {
+    peakDate: string;
+    peakEquity: number;
+    troughDate: string;
+    troughEquity: number;
+  } | null = null;
+
+  for (const point of equityCurve) {
+    if (point.equity >= peak) {
+      // New peak — close any open drawdown period
+      if (currentPeriod && currentPeriod.troughEquity < currentPeriod.peakEquity) {
+        const ddAbs = currentPeriod.peakEquity - currentPeriod.troughEquity;
+        const ddPct = currentPeriod.peakEquity > 0 ? (ddAbs / currentPeriod.peakEquity) * 100 : 0;
+        const duration = Math.ceil(
+          (new Date(point.time).getTime() - new Date(currentPeriod.peakDate).getTime()) /
+          (1000 * 60 * 60 * 24)
+        );
+        periods.push({
+          peakDate: currentPeriod.peakDate,
+          troughDate: currentPeriod.troughDate,
+          recoveryDate: point.time,
+          drawdownPct: ddPct,
+          drawdownAbs: ddAbs,
+          durationDays: duration,
+        });
+        if (duration > maxDDDuration) maxDDDuration = duration;
+      }
+      peak = point.equity;
+      peakDate = point.time;
+      currentPeriod = null;
+    } else {
+      // In drawdown
+      const ddAbs = peak - point.equity;
+      const ddPct = peak > 0 ? (ddAbs / peak) * 100 : 0;
+
+      if (ddAbs > maxDDAbs) maxDDAbs = ddAbs;
+      if (ddPct > maxDDPct) maxDDPct = ddPct;
+
+      if (!currentPeriod) {
+        currentPeriod = {
+          peakDate,
+          peakEquity: peak,
+          troughDate: point.time,
+          troughEquity: point.equity,
+        };
+      } else if (point.equity < currentPeriod.troughEquity) {
+        currentPeriod.troughDate = point.time;
+        currentPeriod.troughEquity = point.equity;
+      }
+    }
+  }
+
+  // Handle open drawdown period (not yet recovered)
+  let currentDrawdownPct = 0;
+  let currentDrawdownAbs = 0;
+  if (currentPeriod) {
+    currentDrawdownAbs = currentPeriod.peakEquity - currentPeriod.troughEquity;
+    currentDrawdownPct = currentPeriod.peakEquity > 0
+      ? (currentDrawdownAbs / currentPeriod.peakEquity) * 100
+      : 0;
+    const duration = Math.ceil(
+      (new Date(equityCurve[equityCurve.length - 1].time).getTime() -
+       new Date(currentPeriod.peakDate).getTime()) /
+      (1000 * 60 * 60 * 24)
+    );
+    periods.push({
+      peakDate: currentPeriod.peakDate,
+      troughDate: currentPeriod.troughDate,
+      recoveryDate: null,
+      drawdownPct: currentDrawdownPct,
+      drawdownAbs: currentDrawdownAbs,
+      durationDays: duration,
+    });
+    if (duration > maxDDDuration) maxDDDuration = duration;
+  }
+
+  return {
+    maxDrawdownPct: maxDDPct,
+    maxDrawdownAbs: maxDDAbs,
+    currentDrawdownPct,
+    currentDrawdownAbs,
+    maxDrawdownDuration: maxDDDuration,
+    drawdownPeriods: periods,
+  };
+}

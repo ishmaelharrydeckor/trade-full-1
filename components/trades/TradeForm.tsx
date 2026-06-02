@@ -2,9 +2,9 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Image, Award } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import type { Trade, AssetClass, Direction } from "@/types/database";
+import type { Trade, AssetClass, Direction, TradeGrade } from "@/types/database";
 import { useRouter } from "next/navigation";
 
 const ASSET_CLASSES: { id: AssetClass; label: string }[] = [
@@ -75,6 +75,10 @@ export default function TradeForm({
     initial?.tags?.join(", ") ?? ""
   );
   const [notes, setNotes] = useState<string>(initial?.notes ?? "");
+  const [screenshotUrl, setScreenshotUrl] = useState<string>(
+    initial?.screenshot_url ?? ""
+  );
+  const [grade, setGrade] = useState<string>(initial?.grade ?? "");
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -124,6 +128,8 @@ export default function TradeForm({
       mindset: mindset || null,
       tags,
       notes: notes.trim() || null,
+      screenshot_url: screenshotUrl.trim() || null,
+      grade: grade || null,
     };
 
     const { error: writeErr } = editing
@@ -338,6 +344,40 @@ export default function TradeForm({
                   placeholder="What was the setup? Why did you take it? What did you learn?"
                   className={`${inputClass} resize-none`}
                 />
+              </Field>
+              <Field label="Screenshot URL">
+                <input
+                  type="url"
+                  value={screenshotUrl}
+                  onChange={(e) => setScreenshotUrl(e.target.value)}
+                  placeholder="https://i.imgur.com/... or TradingView link"
+                  className={inputClass}
+                />
+                {screenshotUrl && (
+                  <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={screenshotUrl}
+                      alt="Trade screenshot"
+                      className="max-h-40 w-full object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  </div>
+                )}
+              </Field>
+              <Field label="Trade grade">
+                <select
+                  value={grade}
+                  onChange={(e) => setGrade(e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="" className="bg-slate-900">— none —</option>
+                  {(["A+", "A", "B", "C", "D", "F"] as const).map((g) => (
+                    <option key={g} value={g} className="bg-slate-900">
+                      {g}
+                    </option>
+                  ))}
+                </select>
               </Field>
             </div>
           </details>
