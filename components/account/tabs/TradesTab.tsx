@@ -1,7 +1,7 @@
 // components/account/tabs/TradesTab.tsx
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Plus, Edit2, Trash2, Search, FileText, Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -24,6 +24,16 @@ export default function TradesTab({
   const [formOpen, setFormOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [search, setSearch] = useState("");
+
+  // Listen for calendar click → open trade form
+  useEffect(() => {
+    const handler = () => {
+      setEditingTrade(null);
+      setFormOpen(true);
+    };
+    window.addEventListener("tradefull:opentrade", handler);
+    return () => window.removeEventListener("tradefull:opentrade", handler);
+  }, []);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return trades;

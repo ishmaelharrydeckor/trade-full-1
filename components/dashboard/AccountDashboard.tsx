@@ -71,8 +71,19 @@ export default function AccountDashboard({
       const detail = (e as CustomEvent).detail as TabId;
       if (detail) setTab(detail);
     };
+    const addTradeHandler = (e: Event) => {
+      setTab("trades");
+      // Re-dispatch after a tick so TradesTab is mounted and can listen
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("tradefull:opentrade", { detail: (e as CustomEvent).detail }));
+      }, 50);
+    };
     window.addEventListener("tradefull:gototab", handler);
-    return () => window.removeEventListener("tradefull:gototab", handler);
+    window.addEventListener("tradefull:addtrade", addTradeHandler);
+    return () => {
+      window.removeEventListener("tradefull:gototab", handler);
+      window.removeEventListener("tradefull:addtrade", addTradeHandler);
+    };
   }, []);
 
   const showFilter = FILTERED_TABS.includes(tab);
