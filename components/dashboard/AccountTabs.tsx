@@ -2,7 +2,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import InfoTooltip from "@/components/ui/InfoTooltip";
 import {
   LayoutDashboard,
   ListChecks,
@@ -55,7 +54,7 @@ const TABS = [
     id: "calendar",
     label: "Calendar",
     icon: Calendar,
-    tooltip: "See your trading P&L on a calendar. Quickly spot your best and worst days at a glance.",
+    tooltip: "See your trading P&L on a calendar. Click any day to log trades or write journal entries.",
   },
   {
     id: "account",
@@ -86,6 +85,7 @@ export default function AccountTabs({
                 key={t.id}
                 type="button"
                 onClick={() => onSelect(t.id)}
+                title={t.tooltip}
                 className={cn(
                   "inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm transition",
                   isActive
@@ -95,10 +95,6 @@ export default function AccountTabs({
               >
                 <Icon className="h-3.5 w-3.5" />
                 {t.label}
-                <InfoTooltip
-                  text={t.tooltip}
-                  className={isActive ? "[&_svg]:text-slate-400" : ""}
-                />
               </button>
             );
           })}

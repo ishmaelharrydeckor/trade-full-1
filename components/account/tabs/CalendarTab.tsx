@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Plus, BookText } from "lucide-react";
 import { aggregateByDay, type DayAggregate } from "@/lib/analytics";
 import { fmtSignedUsd, fmtCompactNumber, fmtDateTime } from "@/lib/format";
 import { tradeNetPnl } from "@/lib/stats";
@@ -182,6 +182,7 @@ export default function CalendarTab({
                   );
                 }
               }}
+              isFuture={cell.date ? cell.date > new Date() : false}
             />
           ))}
         </div>
@@ -225,7 +226,35 @@ export default function CalendarTab({
           </div>
 
           {selectedTrades.length === 0 ? (
-            <p className="text-sm text-slate-500">No trades on this day.</p>
+            <div className="space-y-3">
+              <p className="text-sm text-slate-400">No trades on this day.</p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.dispatchEvent(
+                      new CustomEvent("tradefull:gototab", { detail: "trades" })
+                    );
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-slate-900 hover:bg-slate-100"
+                >
+                  <Plus className="h-3 w-3" />
+                  Add a trade
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.dispatchEvent(
+                      new CustomEvent("tradefull:gototab", { detail: "notebook" })
+                    );
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-slate-300 hover:bg-white/10"
+                >
+                  <BookText className="h-3 w-3" />
+                  Write journal entry
+                </button>
+              </div>
+            </div>
           ) : (
             <div className="overflow-x-auto rounded-xl border border-white/10">
               <table className="w-full min-w-[500px] text-sm">
@@ -298,12 +327,14 @@ function DayCell({
   day,
   isSelected,
   onClick,
+  isFuture,
 }: {
   date: Date | null;
   dateStr: string | null;
   day: DayAggregate | undefined;
   isSelected: boolean;
   onClick: () => void;
+  isFuture?: boolean;
 }) {
   if (!date) {
     return <div />;
@@ -322,11 +353,11 @@ function DayCell({
     <button
       type="button"
       onClick={onClick}
-      disabled={!day}
+      disabled={!!isFuture}
       title={
         day
           ? `${dateStr}: ${day.trades} trade${day.trades !== 1 ? "s" : ""}, ${fmtSignedUsd(day.netPnl)}`
-          : dateStr ?? ""
+          : dateStr ? `${dateStr}: Click to add a trade or journal entry` : ""
       }
       className={cn(
         "group flex aspect-square flex-col items-center justify-center gap-0.5 rounded-lg border p-1.5 text-xs transition",
@@ -337,9 +368,11 @@ function DayCell({
             : isLoss
               ? "border-red-500/30 bg-red-500/15 text-red-100"
               : "border-white/10 bg-white/5 text-slate-300"
-          : "border-white/5 bg-transparent text-slate-600",
+          : isFuture
+            ? "border-white/5 bg-transparent text-slate-700 cursor-not-allowed"
+            : "border-white/5 bg-transparent text-slate-500 cursor-pointer hover:border-white/20 hover:bg-white/[0.03]",
         // Interaction states
-        day && "cursor-pointer hover:scale-105",
+        !isFuture && "cursor-pointer hover:scale-105",
         day && isWin && "hover:bg-emerald-500/25",
         day && isLoss && "hover:bg-red-500/25",
         // Selected
@@ -349,11 +382,13 @@ function DayCell({
       )}
     >
       <div className="text-[10px] font-medium">{date.getDate()}</div>
-      {day && (
+      {day ? (
         <div className="font-mono text-[9px] tabular-nums opacity-80">
           {fmtCompactNumber(day.netPnl)}
         </div>
-      )}
+      ) : !isFuture ? (
+        <div className="text-[8px] text-slate-600 opacity-0 transition group-hover:opacity-100">+</div>
+      ) : null}
     </button>
   );
 }

@@ -130,7 +130,7 @@ export default function CreateAccountForm() {
         </button>
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => router.push("/dashboard/accounts")}
           className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-5 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white"
         >
           Cancel
