@@ -1,21 +1,107 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ===== DARK THEME (default) ===== */
 :root {
-  --bg-app: #0a0e17;
-  --bg-panel: #131b2e;
-  --bg-subtle: #0f1623;
-  --border-panel: #1e293b;
-  --text-primary: #ffffff;
+  --bg-app: #0d0f14;
+  --bg-panel: #13161e;
+  --bg-subtle: #1a1d27;
+  --bg-hover: #1e2130;
+  --border-panel: rgba(255, 255, 255, 0.07);
+  --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-muted: #475569;
+  --accent-blue: #3b82f6;
+  --accent-indigo: #6366f1;
   --accent-profit: #22c55e;
   --accent-loss: #ef4444;
   --accent-equity: #3b82f6;
   --accent-warm: #f59e0b;
+  --nav-bg: rgba(13, 15, 20, 0.85);
+  --card-bg: #13161e;
+  --card-border: rgba(255, 255, 255, 0.07);
+  --card-hover-border: rgba(59, 130, 246, 0.3);
+  --card-hover-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+  --input-bg: rgba(0, 0, 0, 0.3);
+  --badge-bg: rgba(255, 255, 255, 0.05);
+  --scrollbar-thumb: #1e2130;
+}
+
+/* ===== LIGHT THEME ===== */
+[data-theme="light"] {
+  --bg-app: #f8fafc;
+  --bg-panel: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --bg-hover: #e2e8f0;
+  --border-panel: rgba(0, 0, 0, 0.08);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --accent-blue: #2563eb;
+  --accent-indigo: #4f46e5;
+  --accent-profit: #16a34a;
+  --accent-loss: #dc2626;
+  --accent-equity: #2563eb;
+  --accent-warm: #d97706;
+  --nav-bg: rgba(255, 255, 255, 0.85);
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.08);
+  --card-hover-border: rgba(37, 99, 235, 0.3);
+  --card-hover-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15), 0 4px 12px rgba(0, 0, 0, 0.05);
+  --input-bg: rgba(241, 245, 249, 0.8);
+  --badge-bg: rgba(0, 0, 0, 0.04);
+  --scrollbar-thumb: #cbd5e1;
+}
+
+/* Light theme overrides for Tailwind color classes */
+[data-theme="light"] .text-white { color: #0f172a; }
+[data-theme="light"] .text-slate-300 { color: #334155; }
+[data-theme="light"] .text-slate-400 { color: #475569; }
+[data-theme="light"] .text-slate-500 { color: #64748b; }
+[data-theme="light"] .text-slate-600 { color: #94a3b8; }
+[data-theme="light"] .text-blue-300 { color: #2563eb; }
+[data-theme="light"] .text-blue-400 { color: #3b82f6; }
+[data-theme="light"] .text-emerald-300 { color: #16a34a; }
+[data-theme="light"] .text-red-300 { color: #dc2626; }
+[data-theme="light"] .text-amber-300 { color: #d97706; }
+
+[data-theme="light"] .bg-white\/5,
+[data-theme="light"] .bg-white\/\[0\.02\],
+[data-theme="light"] .bg-white\/\[0\.01\],
+[data-theme="light"] .bg-white\/\[0\.05\] {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+[data-theme="light"] .bg-white\/10,
+[data-theme="light"] .hover\:bg-white\/10:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] .bg-white\/\[0\.04\] {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+[data-theme="light"] .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+[data-theme="light"] .bg-black\/20,
+[data-theme="light"] .bg-black\/30 {
+  background-color: rgba(241, 245, 249, 0.8);
+}
+[data-theme="light"] .border-white\/5,
+[data-theme="light"] .border-white\/10,
+[data-theme="light"] .border-white\/20 {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .divide-white\/5 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(0, 0, 0, 0.06);
+}
+[data-theme="light"] .bg-white.text-slate-900 {
+  background-color: #0f172a;
+  color: #ffffff;
+}
+[data-theme="light"] .hover\:bg-slate-100:hover {
+  background-color: #1e293b;
 }
 
 * {
@@ -27,14 +113,16 @@ html,
 body {
   background: var(--bg-app);
   color: var(--text-primary);
-  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-family: "Inter", "IBM Plex Sans", system-ui, sans-serif;
+  line-height: 1.6;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .tnum {
   font-variant-numeric: tabular-nums;
 }
 
-/* Subtle ambient gradient that gives the dark theme depth */
+/* Subtle ambient gradient for dark theme */
 .ambient-bg {
   background:
     radial-gradient(
@@ -48,4 +136,32 @@ body {
       transparent
     ),
     var(--bg-app);
+}
+
+[data-theme="light"] .ambient-bg {
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 50% -20%,
+      rgba(59, 130, 246, 0.06),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 60% 50% at 80% 120%,
+      rgba(34, 197, 94, 0.03),
+      transparent
+    ),
+    var(--bg-app);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 3px;
 }

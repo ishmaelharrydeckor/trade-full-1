@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"IBM Plex Sans"', "system-ui", "sans-serif"],
+        sans: ['"Inter"', '"IBM Plex Sans"', "system-ui", "sans-serif"],
         serif: ['"Instrument Serif"', '"Cormorant Garamond"', "Georgia", "serif"],
         mono: ['"IBM Plex Mono"', '"JetBrains Mono"', "monospace"],
       },
@@ -18,6 +18,7 @@ const config: Config = {
           app: "var(--bg-app)",
           panel: "var(--bg-panel)",
           subtle: "var(--bg-subtle)",
+          hover: "var(--bg-hover)",
         },
         border: {
           panel: "var(--border-panel)",
@@ -28,6 +29,8 @@ const config: Config = {
           muted: "var(--text-muted)",
         },
         accent: {
+          blue: "var(--accent-blue)",
+          indigo: "var(--accent-indigo)",
           profit: "var(--accent-profit)",
           loss: "var(--accent-loss)",
           equity: "var(--accent-equity)",
