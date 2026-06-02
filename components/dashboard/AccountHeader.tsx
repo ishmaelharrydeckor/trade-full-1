@@ -1,6 +1,6 @@
 // components/dashboard/AccountHeader.tsx
 import Link from "next/link";
-import { ChevronLeft, Settings } from "lucide-react";
+import { ChevronLeft, Settings, PlayCircle } from "lucide-react";
 import type { Account } from "@/types/database";
 
 export default function AccountHeader({
@@ -40,13 +40,22 @@ export default function AccountHeader({
             )}
           </p>
         </div>
-        <Link
-          href={`/dashboard/accounts/${account.id}/settings`}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-1.5 text-xs text-slate-300 transition hover:bg-white/5 hover:text-white"
-          title="Account settings"
-        >
-          <Settings className="h-3.5 w-3.5" /> Settings
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/dashboard/accounts/${account.id}/backtest`}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-1.5 text-xs font-medium text-blue-200 transition hover:bg-blue-500/20"
+            title="Open the backtester"
+          >
+            <PlayCircle className="h-3.5 w-3.5" /> Backtester
+          </Link>
+          <Link
+            href={`/dashboard/accounts/${account.id}/settings`}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-1.5 text-xs text-slate-300 transition hover:bg-white/5 hover:text-white"
+            title="Account settings"
+          >
+            <Settings className="h-3.5 w-3.5" /> Settings
+          </Link>
+        </div>
       </div>
     </header>
   );
