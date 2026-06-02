@@ -1,7 +1,7 @@
 // app/dashboard/accounts/page.tsx
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Plus, TrendingUp } from "lucide-react";
+import { Plus, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default async function AccountsPage() {
   const supabase = await createClient();
@@ -12,6 +12,13 @@ export default async function AccountsPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      <Link
+        href="/dashboard"
+        className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white"
+      >
+        <ChevronLeft className="h-3.5 w-3.5" /> Back to dashboard
+      </Link>
+
       <header className="flex items-center justify-between">
         <div>
           <h1 className="font-serif text-3xl tracking-tight">Accounts</h1>
@@ -41,13 +48,17 @@ export default async function AccountsPage() {
       ) : (
         <div className="space-y-3">
           {accounts.map((acc) => (
-            <div
+            <Link
               key={acc.id}
-              className="rounded-xl border border-white/10 bg-white/[0.02] p-5"
+              href={`/dashboard/accounts/${acc.id}`}
+              className="group block rounded-xl border border-white/10 bg-white/[0.02] p-5 transition hover:border-white/20 hover:bg-white/[0.04]"
             >
               <div className="mb-3 flex items-start justify-between gap-4">
                 <div>
-                  <h3 className="font-serif text-xl">{acc.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-serif text-xl">{acc.name}</h3>
+                    <ChevronRight className="h-4 w-4 text-slate-600 transition group-hover:text-white group-hover:translate-x-0.5" />
+                  </div>
                   <p className="text-xs text-slate-400">
                     {acc.broker ?? "No broker"} ·{" "}
                     {acc.account_number ?? "No account number"} · {acc.currency}
@@ -77,7 +88,7 @@ export default async function AccountsPage() {
                   the next update.)
                 </p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

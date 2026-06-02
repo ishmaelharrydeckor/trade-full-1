@@ -23,6 +23,12 @@ export default function DashboardNav({
 
         <nav className="flex items-center gap-1">
           <Link
+            href="/dashboard"
+            className="hidden items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-slate-300 transition hover:bg-white/5 hover:text-white sm:inline-flex"
+          >
+            Dashboard
+          </Link>
+          <Link
             href="/dashboard/accounts"
             className="hidden items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-slate-300 transition hover:bg-white/5 hover:text-white sm:inline-flex"
           >

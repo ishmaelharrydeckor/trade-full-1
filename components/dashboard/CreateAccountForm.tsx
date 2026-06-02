@@ -34,14 +34,18 @@ export default function CreateAccountForm() {
       return;
     }
 
-    const { error: insertErr } = await supabase.from("accounts").insert({
-      user_id: user.id,
-      name: name.trim(),
-      broker: broker.trim() || null,
-      account_number: accountNumber.trim() || null,
-      currency,
-      starting_balance: startingBalance ? Number(startingBalance) : null,
-    });
+    const { data: newAccount, error: insertErr } = await supabase
+      .from("accounts")
+      .insert({
+        user_id: user.id,
+        name: name.trim(),
+        broker: broker.trim() || null,
+        account_number: accountNumber.trim() || null,
+        currency,
+        starting_balance: startingBalance ? Number(startingBalance) : null,
+      })
+      .select("id")
+      .single();
 
     if (insertErr) {
       setError(insertErr.message);
@@ -49,7 +53,7 @@ export default function CreateAccountForm() {
       return;
     }
 
-    router.push("/dashboard/accounts");
+    router.push(`/dashboard/accounts/${newAccount.id}`);
     router.refresh();
   }
 
