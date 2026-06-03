@@ -15,10 +15,8 @@ export default function AccountHeader({
     <header className="flex flex-col gap-3">
       <Link
         href="/dashboard"
-        className="inline-flex w-fit items-center gap-1 text-xs font-medium transition duration-150"
+        className="inline-flex w-fit items-center gap-1 text-xs font-medium transition duration-150 hover:opacity-100"
         style={{ color: 'var(--text-secondary)' }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
-        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
       >
         <ChevronLeft className="h-3.5 w-3.5" /> All accounts
       </Link>
