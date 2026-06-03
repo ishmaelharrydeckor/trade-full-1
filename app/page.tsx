@@ -107,15 +107,18 @@ export default async function LandingPage() {
       {/* Feature row */}
       <section className="mx-auto max-w-5xl px-6 pb-20">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Feature
+          <FeatureCard
+            icon="sync"
             title="Auto-sync from MT5"
             body="Drop the expert advisor on your chart. Every closed trade lands here in seconds — with stop loss, R-multiple, and dollar risk."
           />
-          <Feature
+          <FeatureCard
+            icon="ai"
             title="AI insights, free"
             body="Powered by Gemini. Weekly observations about your edge, your blind spots, your discipline patterns."
           />
-          <Feature
+          <FeatureCard
+            icon="calc"
             title="Position sizing built in"
             body="Configure your risk strategy once. Calculator tells you exactly how many lots to take on every setup."
           />
@@ -133,15 +136,24 @@ export default async function LandingPage() {
   );
 }
 
-function Feature({ title, body }: { title: string; body: string }) {
+function FeatureCard({
+  icon,
+  title,
+  body,
+}: {
+  icon: "sync" | "ai" | "calc";
+  title: string;
+  body: string;
+}) {
   return (
     <div
-      className="rounded-xl p-6 backdrop-blur transition"
+      className="group rounded-xl p-6 pt-8 text-center backdrop-blur transition"
       style={{
         border: '1px solid var(--card-border)',
         backgroundColor: 'var(--card-bg)',
       }}
     >
+      <FeatureAnimation type={icon} />
       <h3 className="mb-2 text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</h3>
       <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{body}</p>
     </div>

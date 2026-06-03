@@ -215,3 +215,64 @@ textarea::placeholder {
 .tj-btn-primary:hover {
   box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
 }
+
+/* ===== Feature icon animations (landing page) ===== */
+.feature-icon-wrap {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 1rem;
+}
+
+/* Chart line draws itself */
+.chart-draw {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: drawChart 2s ease-out forwards;
+  animation-delay: 0.5s;
+}
+@keyframes drawChart {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Brain hemispheres pulse */
+.brain-pulse {
+  animation: brainPulse 3s ease-in-out infinite;
+}
+@keyframes brainPulse {
+  0%, 100% { opacity: 0.8; stroke-width: 2; }
+  50% { opacity: 1; stroke-width: 2.5; }
+}
+
+/* Gauge arc fills */
+.gauge-fill {
+  stroke-dasharray: 130;
+  stroke-dashoffset: 130;
+  animation: fillGauge 1.5s ease-out forwards;
+  animation-delay: 0.3s;
+}
+@keyframes fillGauge {
+  to { stroke-dashoffset: 45; }
+}
+
+/* Gauge needle swings */
+.gauge-needle {
+  animation: swingNeedle 1.5s ease-out forwards;
+  animation-delay: 0.3s;
+}
+@keyframes swingNeedle {
+  0% { transform: rotate(-90deg); }
+  60% { transform: rotate(-25deg); }
+  80% { transform: rotate(-35deg); }
+  100% { transform: rotate(-30deg); }
+}
+
+/* Calculator number fade-in */
+.calc-number {
+  animation: fadeUp 0.6s ease-out forwards;
+  animation-delay: 1.2s;
+  opacity: 0;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
