@@ -161,7 +161,7 @@ export function aggregateByDay(trades: Trade[]): Map<string, DayAggregate> {
 // Grade aggregation
 // ===========================================================
 export function aggregateByGrade(trades: Trade[]): DimensionAggregate[] {
-  return aggregate(trades, (t) => (t as any).grade as string | null).sort(
+  return aggregate(trades, (t) => t.grade).sort(
     (a, b) => {
       const order = ["A+", "A", "B", "C", "D", "F"];
       return order.indexOf(a.label) - order.indexOf(b.label);
@@ -216,7 +216,7 @@ export function aggregateByRBucket(trades: Trade[]): DimensionAggregate[] {
 // Missed trades aggregation
 // ===========================================================
 export function aggregateByMissed(trades: Trade[]): DimensionAggregate[] {
-  return aggregate(trades, (t) => (t as any).is_missed ? "Missed" : "Executed").sort(
+  return aggregate(trades, (t) => t.is_missed ? "Missed" : "Executed").sort(
     (a, b) => (a.label === "Executed" ? -1 : 1)
   );
 }
