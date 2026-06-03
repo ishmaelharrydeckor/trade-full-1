@@ -33,14 +33,14 @@ export default function StudentView({ accountId }: { accountId: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+        <Loader2 className="h-6 w-6 animate-spin" style={{ color: 'var(--text-secondary)' }} />
       </div>
     );
   }
 
   if (error || !account) {
     return (
-      <div className="flex items-start gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+      <div className="flex items-start gap-2 rounded-2xl p-4 text-sm" style={{ border: '1px solid color-mix(in srgb, var(--negative) 30%, transparent)', backgroundColor: 'color-mix(in srgb, var(--negative) 10%, transparent)', color: 'var(--negative)' }}>
         <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
         <div>{error ?? "Account not found"}</div>
       </div>
@@ -54,13 +54,13 @@ export default function StudentView({ accountId }: { accountId: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-blue-500/20 bg-blue-500/[0.05] p-5 backdrop-blur">
+      <div className="rounded-2xl p-5 backdrop-blur" style={{ border: '1px solid color-mix(in srgb, var(--accent) 20%, transparent)', backgroundColor: 'color-mix(in srgb, var(--accent) 5%, transparent)' }}>
         <div className="flex items-center gap-2">
-          <Eye className="h-4 w-4 text-blue-400" />
-          <span className="text-sm text-blue-300">Read-only mentor view</span>
+          <Eye className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+          <span className="text-sm" style={{ color: 'var(--accent)' }}>Read-only mentor view</span>
         </div>
         <h1 className="mt-2 font-serif text-2xl">{menteeName} — {account.name}</h1>
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
           {account.broker ?? ""} · {account.currency}
         </p>
       </div>
@@ -79,33 +79,42 @@ export default function StudentView({ accountId }: { accountId: string }) {
       />
 
       {/* Recent trades table (read-only) */}
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
+      <div className="rounded-2xl p-5 backdrop-blur" style={{ border: '1px solid var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
         <h3 className="mb-3 font-serif text-lg">Recent Trades</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/5 bg-white/[0.02]">
-                <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wider text-slate-400">Symbol</th>
-                <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wider text-slate-400">Dir</th>
-                <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wider text-slate-400">P&L</th>
-                <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wider text-slate-400">Date</th>
+              <tr style={{ borderBottom: '1px solid var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
+                <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Symbol</th>
+                <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Dir</th>
+                <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>P&L</th>
+                <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y" style={{ borderColor: 'var(--app-border)' }}>
               {trades.slice(0, 20).map((t) => {
                 const net = (t.pnl ?? 0) - (t.commission ?? 0) - (t.swap ?? 0);
                 return (
-                  <tr key={t.id} className="hover:bg-white/[0.02]">
+                  <tr key={t.id} className="transition-colors duration-150" style={{ backgroundColor: 'transparent' }}>
                     <td className="px-3 py-2 font-medium">{t.symbol}</td>
                     <td className="px-3 py-2">
-                      <span className={`rounded px-1.5 py-0.5 text-[10px] uppercase ${t.direction === "long" ? "bg-emerald-500/10 text-emerald-300" : "bg-red-500/10 text-red-300"}`}>
+                      <span
+                        className="rounded px-1.5 py-0.5 text-[10px] uppercase"
+                        style={t.direction === "long"
+                          ? { backgroundColor: 'color-mix(in srgb, var(--positive) 10%, transparent)', color: 'var(--positive)' }
+                          : { backgroundColor: 'color-mix(in srgb, var(--negative) 10%, transparent)', color: 'var(--negative)' }
+                        }
+                      >
                         {t.direction}
                       </span>
                     </td>
-                    <td className={`px-3 py-2 text-right font-mono tabular-nums ${net >= 0 ? "text-emerald-300" : "text-red-300"}`}>
+                    <td
+                      className="px-3 py-2 text-right font-mono tabular-nums"
+                      style={{ color: net >= 0 ? 'var(--positive)' : 'var(--negative)' }}
+                    >
                       {net >= 0 ? "+" : ""}{net.toFixed(2)}
                     </td>
-                    <td className="px-3 py-2 text-right text-xs text-slate-400">
+                    <td className="px-3 py-2 text-right text-xs" style={{ color: 'var(--text-secondary)' }}>
                       {t.close_time ? fmtDate(t.close_time) : "Open"}
                     </td>
                   </tr>

@@ -67,15 +67,17 @@ export default function NewSessionForm({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+      style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
       onClick={onClose}
     >
       <div
-        className="w-full max-w-xl rounded-2xl border border-white/10 bg-[color:var(--bg-panel)] p-6"
+        className="w-full max-w-xl rounded-2xl border p-6"
+        style={{ borderColor: 'var(--app-border)', backgroundColor: 'var(--app-elevated)' }}
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="mb-1 font-serif text-2xl">Start new backtest</h2>
-        <p className="mb-6 text-sm text-slate-400">
+        <p className="mb-6 text-sm" style={{ color: 'var(--text-secondary)' }}>
           Pick an instrument and a historical window. Playback controls and
           trade simulation will be added in the next drop.
         </p>
@@ -85,13 +87,13 @@ export default function NewSessionForm({
             <select
               value={symbol}
               onChange={(e) => setSymbol(e.target.value)}
-              className={inputClass}
+              className="tj-input"
             >
               <optgroup label="Crypto (Binance — free)">
                 {BACKTEST_INSTRUMENTS.filter(
                   (i) => i.assetClass === "crypto"
                 ).map((i) => (
-                  <option key={i.symbol} value={i.symbol} className="bg-slate-900">
+                  <option key={i.symbol} value={i.symbol} style={{ backgroundColor: 'var(--app-bg)' }}>
                     {i.display}
                   </option>
                 ))}
@@ -100,7 +102,7 @@ export default function NewSessionForm({
                 {BACKTEST_INSTRUMENTS.filter(
                   (i) => i.assetClass === "forex"
                 ).map((i) => (
-                  <option key={i.symbol} value={i.symbol} className="bg-slate-900">
+                  <option key={i.symbol} value={i.symbol} style={{ backgroundColor: 'var(--app-bg)' }}>
                     {i.display}
                   </option>
                 ))}
@@ -109,21 +111,22 @@ export default function NewSessionForm({
                 {BACKTEST_INSTRUMENTS.filter(
                   (i) => i.assetClass === "metals"
                 ).map((i) => (
-                  <option key={i.symbol} value={i.symbol} className="bg-slate-900">
+                  <option key={i.symbol} value={i.symbol} style={{ backgroundColor: 'var(--app-bg)' }}>
                     {i.display}
                   </option>
                 ))}
               </optgroup>
             </select>
             {instrument?.dataSource === "twelvedata" && (
-              <p className="mt-1.5 text-xs text-amber-300">
+              <p className="mt-1.5 text-xs" style={{ color: 'var(--warning)' }}>
                 ⚠ Needs <code className="font-mono">TWELVEDATA_API_KEY</code> in your
                 Vercel environment. Get a free key at{" "}
                 <a
                   href="https://twelvedata.com/account/api-keys"
                   target="_blank"
                   rel="noreferrer"
-                  className="underline hover:text-amber-200"
+                  className="underline"
+                  style={{ color: 'var(--warning)' }}
                 >
                   twelvedata.com/account/api-keys
                 </a>
@@ -141,15 +144,20 @@ export default function NewSessionForm({
                   className={cn(
                     "flex-1 rounded-md px-2 py-1.5 text-xs transition",
                     timeframe === tf.id
-                      ? "bg-white font-semibold text-slate-900"
-                      : "border border-white/10 text-slate-300 hover:bg-white/5"
+                      ? "font-semibold"
+                      : "border"
                   )}
+                  style={
+                    timeframe === tf.id
+                      ? { backgroundColor: 'var(--text-primary)', color: 'var(--app-bg)' }
+                      : { borderColor: 'var(--app-border)', color: 'var(--text-secondary)' }
+                  }
                 >
                   {tf.id}
                 </button>
               ))}
             </div>
-            <p className="mt-1 text-[10px] text-slate-500">
+            <p className="mt-1 text-[10px]" style={{ color: 'var(--text-muted)' }}>
               Smaller timeframes pack more bars into the same date range; cap is
               1000 bars per session for now.
             </p>
@@ -161,7 +169,7 @@ export default function NewSessionForm({
                 type="date"
                 value={rangeStart}
                 onChange={(e) => setRangeStart(e.target.value)}
-                className={inputClass}
+                className="tj-input"
               />
             </Field>
             <Field label="End date">
@@ -169,7 +177,7 @@ export default function NewSessionForm({
                 type="date"
                 value={rangeEnd}
                 onChange={(e) => setRangeEnd(e.target.value)}
-                className={inputClass}
+                className="tj-input"
               />
             </Field>
           </div>
@@ -180,7 +188,7 @@ export default function NewSessionForm({
                 type="number"
                 value={startingBalance}
                 onChange={(e) => setStartingBalance(e.target.value)}
-                className={inputClass}
+                className="tj-input"
               />
             </Field>
             <Field label="Session name (optional)">
@@ -189,14 +197,21 @@ export default function NewSessionForm({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={`${symbol} ${timeframe}`}
-                className={inputClass}
+                className="tj-input"
               />
             </Field>
           </div>
         </div>
 
         {error && (
-          <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
+          <div
+            className="mt-4 rounded-lg border p-3 text-sm"
+            style={{
+              borderColor: 'color-mix(in srgb, var(--negative) 30%, transparent)',
+              backgroundColor: 'color-mix(in srgb, var(--negative) 10%, transparent)',
+              color: 'var(--negative)',
+            }}
+          >
             {error}
           </div>
         )}
@@ -205,7 +220,7 @@ export default function NewSessionForm({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 hover:bg-white/10"
+            className="tj-btn-secondary rounded-lg px-4 py-2 text-sm"
           >
             Cancel
           </button>
@@ -213,7 +228,7 @@ export default function NewSessionForm({
             type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-400 disabled:opacity-50"
+            className="tj-btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             Start backtest
@@ -224,9 +239,6 @@ export default function NewSessionForm({
   );
 }
 
-const inputClass =
-  "w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none transition focus:border-blue-500/50";
-
 function Field({
   label,
   children,
@@ -236,7 +248,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">
+      <label className="mb-1 block text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
         {label}
       </label>
       {children}

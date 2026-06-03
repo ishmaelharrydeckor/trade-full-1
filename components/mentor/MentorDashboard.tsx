@@ -60,7 +60,7 @@ export default function MentorDashboard({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+        <Loader2 className="h-6 w-6 animate-spin" style={{ color: 'var(--text-secondary)' }} />
       </div>
     );
   }
@@ -70,27 +70,28 @@ export default function MentorDashboard({
       {/* As Mentor: My Students */}
       <section>
         <div className="mb-4 flex items-center gap-2">
-          <Users className="h-4 w-4 text-blue-400" />
+          <Users className="h-4 w-4" style={{ color: 'var(--accent)' }} />
           <h2 className="font-serif text-xl">My Students</h2>
         </div>
 
         {myStudentLinks.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center backdrop-blur">
-            <Eye className="mx-auto mb-3 h-8 w-8 text-slate-500" />
-            <p className="text-sm text-slate-400">No students yet. Ask a trader to share their invite code with you.</p>
+          <div className="rounded-2xl border border-dashed p-10 text-center backdrop-blur" style={{ borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
+            <Eye className="mx-auto mb-3 h-8 w-8" style={{ color: 'var(--text-muted)' }} />
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>No students yet. Ask a trader to share their invite code with you.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {myStudentLinks.map((link) => (
-              <div key={link.id} className="rounded-xl border border-white/10 bg-white/[0.02] p-4 backdrop-blur">
+              <div key={link.id} className="rounded-xl p-4 backdrop-blur" style={{ border: '1px solid var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-sm font-medium">Account: {link.account_id.slice(0, 8)}…</div>
-                    <div className="text-xs text-slate-500">Since {fmtDate(link.created_at)}</div>
+                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Since {fmtDate(link.created_at)}</div>
                   </div>
                   <Link
                     href={`/dashboard/mentoring/student/${link.account_id}`}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-blue-500/10 px-3 py-1.5 text-xs text-blue-300 transition hover:bg-blue-500/20"
+                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition"
+                    style={{ backgroundColor: 'color-mix(in srgb, var(--accent) 10%, transparent)', color: 'var(--accent)' }}
                   >
                     <Eye className="h-3 w-3" /> View dashboard
                   </Link>
@@ -104,7 +105,7 @@ export default function MentorDashboard({
       {/* Accept invite */}
       <section>
         <div className="mb-4 flex items-center gap-2">
-          <UserPlus className="h-4 w-4 text-emerald-400" />
+          <UserPlus className="h-4 w-4" style={{ color: 'var(--positive)' }} />
           <h2 className="font-serif text-xl">Accept an Invite</h2>
         </div>
         <AcceptInvite onAccepted={(link) => setLinks((prev) => [...prev, link])} />
@@ -113,9 +114,9 @@ export default function MentorDashboard({
       {/* As Mentee: Shared Access */}
       <section>
         <div className="mb-4 flex items-center gap-2">
-          <Shield className="h-4 w-4 text-amber-400" />
+          <Shield className="h-4 w-4" style={{ color: 'var(--warning)' }} />
           <h2 className="font-serif text-xl">My Shared Access</h2>
-          <span className="text-xs text-slate-500">(accounts I&apos;ve shared with mentors)</span>
+          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>(accounts I&apos;ve shared with mentors)</span>
         </div>
 
         <InviteManager accounts={accounts} links={myMentorLinks} onRevoke={revokeLink} />
@@ -153,26 +154,27 @@ function AcceptInvite({ onAccepted }: { onAccepted: (link: MentorLink) => void }
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 backdrop-blur">
+    <div className="rounded-xl p-4 backdrop-blur" style={{ border: '1px solid var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
       <div className="flex gap-2">
         <input
           value={code}
           onChange={(e) => { setCode(e.target.value); setSuccess(false); }}
           placeholder="Paste invite code…"
-          className="flex-1 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none transition focus:border-blue-500/50"
+          className="tj-input flex-1"
         />
         <button
           type="button"
           onClick={handleAccept}
           disabled={loading || !code.trim()}
-          className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-400 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50"
+          style={{ backgroundColor: 'var(--positive)', color: 'var(--text-primary)' }}
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
           Accept
         </button>
       </div>
-      {error && <p className="mt-2 text-xs text-red-300">{error}</p>}
-      {success && <p className="mt-2 text-xs text-emerald-300">Invite accepted! You can now view their dashboard.</p>}
+      {error && <p className="mt-2 text-xs" style={{ color: 'var(--negative)' }}>{error}</p>}
+      {success && <p className="mt-2 text-xs" style={{ color: 'var(--positive)' }}>Invite accepted! You can now view their dashboard.</p>}
     </div>
   );
 }

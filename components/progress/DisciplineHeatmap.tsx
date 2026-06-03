@@ -53,29 +53,29 @@ export default function DisciplineHeatmap({ logs }: { logs: DailyLog[] }) {
     return { grid, months };
   }, [logs]);
 
-  function getColor(score: number | null): string {
-    if (score === null) return "bg-white/[0.03]";
-    if (score >= 80) return "bg-emerald-500/70";
-    if (score >= 60) return "bg-emerald-500/40";
-    if (score >= 40) return "bg-amber-500/40";
-    if (score >= 20) return "bg-red-500/30";
-    if (score > 0) return "bg-red-500/50";
-    return "bg-white/[0.05]";
+  function getCellStyle(score: number | null): React.CSSProperties {
+    if (score === null) return { backgroundColor: 'color-mix(in srgb, var(--text-primary) 3%, transparent)' };
+    if (score >= 80) return { backgroundColor: 'color-mix(in srgb, var(--positive) 70%, transparent)' };
+    if (score >= 60) return { backgroundColor: 'color-mix(in srgb, var(--positive) 40%, transparent)' };
+    if (score >= 40) return { backgroundColor: 'color-mix(in srgb, var(--warning) 40%, transparent)' };
+    if (score >= 20) return { backgroundColor: 'color-mix(in srgb, var(--negative) 30%, transparent)' };
+    if (score > 0) return { backgroundColor: 'color-mix(in srgb, var(--negative) 50%, transparent)' };
+    return { backgroundColor: 'color-mix(in srgb, var(--text-primary) 5%, transparent)' };
   }
 
   const dayLabels = ["S", "M", "T", "W", "T", "F", "S"];
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
-      <h3 className="mb-4 font-serif text-lg">Discipline Heatmap</h3>
+    <div className="rounded-2xl p-5 backdrop-blur" style={{ borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
+      <h3 className="mb-4 font-serif text-lg" style={{ color: 'var(--text-primary)' }}>Discipline Heatmap</h3>
 
       {/* Month labels */}
       <div className="mb-1 flex pl-6">
         {months.map((m, i) => (
           <div
             key={i}
-            className="text-[10px] text-slate-500"
-            style={{ position: "relative", left: `${m.col * 16}px` }}
+            className="text-[10px]"
+            style={{ position: "relative", left: `${m.col * 16}px`, color: 'var(--text-muted)' }}
           >
             {m.label}
           </div>
@@ -86,7 +86,7 @@ export default function DisciplineHeatmap({ logs }: { logs: DailyLog[] }) {
         {/* Day labels */}
         <div className="flex flex-col gap-0.5 pr-1">
           {dayLabels.map((label, i) => (
-            <div key={i} className="flex h-3 w-4 items-center justify-center text-[8px] text-slate-600">
+            <div key={i} className="flex h-3 w-4 items-center justify-center text-[8px]" style={{ color: 'var(--text-muted)' }}>
               {i % 2 === 1 ? label : ""}
             </div>
           ))}
@@ -98,10 +98,8 @@ export default function DisciplineHeatmap({ logs }: { logs: DailyLog[] }) {
             {week.map((day) => (
               <div
                 key={day.date}
-                className={cn(
-                  "h-3 w-3 rounded-[2px] transition-colors",
-                  getColor(day.score)
-                )}
+                className="h-3 w-3 rounded-[2px] transition-colors"
+                style={getCellStyle(day.score)}
                 title={`${day.date}: ${day.score !== null ? `${day.score}%` : "No data"}`}
               />
             ))}
@@ -110,13 +108,13 @@ export default function DisciplineHeatmap({ logs }: { logs: DailyLog[] }) {
       </div>
 
       {/* Legend */}
-      <div className="mt-3 flex items-center gap-2 text-[10px] text-slate-500">
+      <div className="mt-3 flex items-center gap-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>
         <span>Less</span>
-        <div className="h-3 w-3 rounded-[2px] bg-white/[0.05]" />
-        <div className="h-3 w-3 rounded-[2px] bg-red-500/30" />
-        <div className="h-3 w-3 rounded-[2px] bg-amber-500/40" />
-        <div className="h-3 w-3 rounded-[2px] bg-emerald-500/40" />
-        <div className="h-3 w-3 rounded-[2px] bg-emerald-500/70" />
+        <div className="h-3 w-3 rounded-[2px]" style={{ backgroundColor: 'color-mix(in srgb, var(--text-primary) 5%, transparent)' }} />
+        <div className="h-3 w-3 rounded-[2px]" style={{ backgroundColor: 'color-mix(in srgb, var(--negative) 30%, transparent)' }} />
+        <div className="h-3 w-3 rounded-[2px]" style={{ backgroundColor: 'color-mix(in srgb, var(--warning) 40%, transparent)' }} />
+        <div className="h-3 w-3 rounded-[2px]" style={{ backgroundColor: 'color-mix(in srgb, var(--positive) 40%, transparent)' }} />
+        <div className="h-3 w-3 rounded-[2px]" style={{ backgroundColor: 'color-mix(in srgb, var(--positive) 70%, transparent)' }} />
         <span>More</span>
       </div>
     </div>

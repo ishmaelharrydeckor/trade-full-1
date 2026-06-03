@@ -383,17 +383,20 @@ export default function BacktestSessionClient({
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
+      <div
+        className="rounded-2xl border p-5 backdrop-blur"
+        style={{ borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}
+      >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="font-serif text-2xl">{initialSession.name}</h1>
-            <p className="mt-0.5 text-sm text-slate-400">
+            <p className="mt-0.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
               {initialSession.symbol} · {initialSession.timeframe} ·{" "}
               <span className="capitalize">{initialSession.asset_class}</span>
             </p>
           </div>
           <div className="text-right">
-            <div className="text-[10px] uppercase tracking-wider text-slate-400">
+            <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
               Starting balance
             </div>
             <div className="font-mono text-xl tabular-nums">
@@ -404,14 +407,24 @@ export default function BacktestSessionClient({
       </div>
 
       {loading ? (
-        <div className="flex h-[480px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.02]">
-          <div className="flex items-center gap-2 text-sm text-slate-400">
+        <div
+          className="flex h-[480px] items-center justify-center rounded-2xl border"
+          style={{ borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}
+        >
+          <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
             <Loader2 className="h-4 w-4 animate-spin" />
             Loading {initialSession.symbol} {initialSession.timeframe} candles…
           </div>
         </div>
       ) : error ? (
-        <div className="flex items-start gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+        <div
+          className="flex items-start gap-2 rounded-2xl border p-4 text-sm"
+          style={{
+            borderColor: 'color-mix(in srgb, var(--negative) 30%, transparent)',
+            backgroundColor: 'color-mix(in srgb, var(--negative) 10%, transparent)',
+            color: 'var(--negative)',
+          }}
+        >
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
             <div className="font-semibold">Failed to load chart data</div>
@@ -469,11 +482,18 @@ export default function BacktestSessionClient({
         </>
       )}
 
-      <div className="flex items-start gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.05] p-4 text-sm text-emerald-100">
-        <Info className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+      <div
+        className="flex items-start gap-2 rounded-xl border p-4 text-sm"
+        style={{
+          borderColor: 'color-mix(in srgb, var(--positive) 20%, transparent)',
+          backgroundColor: 'color-mix(in srgb, var(--positive) 5%, transparent)',
+          color: 'var(--positive)',
+        }}
+      >
+        <Info className="mt-0.5 h-4 w-4 shrink-0" style={{ color: 'var(--positive)' }} />
         <div>
           <p className="font-semibold">M4.3 — Trade simulation shipped.</p>
-          <p className="mt-1 text-xs text-emerald-100/80">
+          <p className="mt-1 text-xs" style={{ opacity: 0.8 }}>
             Open positions auto-close when price touches SL or TP as bars
             advance. All closed trades land in your <strong>trades</strong>{" "}
             table flagged as backtest. Open positions persist across page

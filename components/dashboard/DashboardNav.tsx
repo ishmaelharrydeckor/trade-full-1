@@ -21,7 +21,14 @@ export default function DashboardNav({
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 md:px-8">
         {/* Logo */}
         <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-extrabold text-white shadow-lg shadow-blue-500/20">
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-extrabold shadow-lg"
+            style={{
+              background: 'linear-gradient(to bottom right, var(--accent), var(--accent-hover))',
+              color: '#fff',
+              boxShadow: '0 10px 15px -3px var(--accent-glow)',
+            }}
+          >
             T
           </div>
           <span

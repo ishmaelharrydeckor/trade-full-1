@@ -75,14 +75,14 @@ export default function RecentTradesPreview({
                         {Number(t.volume).toFixed(2)}
                       </td>
                       <td
-                        className={cn(
-                          "px-3 py-2 text-right tabular-nums",
-                          isWin
-                            ? "text-emerald-300"
+                        className="px-3 py-2 text-right tabular-nums"
+                        style={{
+                          color: isWin
+                            ? 'var(--positive)'
                             : net < 0
-                              ? "text-red-300"
-                              : "text-slate-400"
-                        )}
+                              ? 'var(--negative)'
+                              : 'var(--text-secondary)'
+                        }}
                       >
                         {fmtSignedUsd(net)}
                       </td>

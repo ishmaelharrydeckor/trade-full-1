@@ -84,9 +84,9 @@ export default function PlaybookAnalytics({
 
   if (stats.length === 0 || stats.every((s) => s.trades === 0)) {
     return (
-      <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center backdrop-blur">
-        <BarChart3 className="mx-auto mb-2 h-8 w-8 text-slate-500" />
-        <p className="text-sm text-slate-400">
+      <div className="rounded-2xl border border-dashed p-8 text-center backdrop-blur" style={{ borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
+        <BarChart3 className="mx-auto mb-2 h-8 w-8" style={{ color: 'var(--text-muted)' }} />
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
           Tag trades to your playbooks to see performance analytics here.
         </p>
       </div>
@@ -98,42 +98,42 @@ export default function PlaybookAnalytics({
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-2">
-        <BarChart3 className="h-4 w-4 text-blue-400" />
-        <h3 className="font-serif text-lg">Strategy Performance</h3>
+        <BarChart3 className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+        <h3 className="font-serif text-lg" style={{ color: 'var(--text-primary)' }}>Strategy Performance</h3>
       </div>
 
       {/* P&L by strategy chart */}
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
+      <div className="rounded-2xl p-5 backdrop-blur" style={{ borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
         <div className="h-52">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <XAxis
                 dataKey="name"
-                tick={{ fontSize: 11, fill: "#94a3b8" }}
-                stroke="rgba(255,255,255,0.1)"
+                tick={{ fontSize: 11, fill: "var(--text-secondary)" }}
+                stroke="var(--app-border)"
                 interval={0}
                 angle={-20}
                 textAnchor="end"
                 height={60}
               />
               <YAxis
-                tick={{ fontSize: 10, fill: "#64748b" }}
-                stroke="rgba(255,255,255,0.1)"
+                tick={{ fontSize: 10, fill: "var(--text-muted)" }}
+                stroke="var(--app-border)"
                 tickFormatter={(v: number) => `$${v >= 1000 ? `${(v/1000).toFixed(0)}k` : v.toFixed(0)}`}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#131b2e",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  backgroundColor: "var(--app-elevated)",
+                  border: "1px solid var(--app-border)",
                   borderRadius: "8px",
                   fontSize: "12px",
-                  color: "#fff",
+                  color: "var(--text-primary)",
                 }}
                 formatter={(v: number) => [fmtSignedUsd(v), "Net P&L"]}
               />
               <Bar dataKey="netPnl" radius={[6, 6, 0, 0]}>
                 {chartData.map((entry, i) => (
-                  <Cell key={i} fill={entry.netPnl >= 0 ? "#22c55e" : "#ef4444"} fillOpacity={0.7} />
+                  <Cell key={i} fill={entry.netPnl >= 0 ? "var(--positive)" : "var(--negative)"} fillOpacity={0.7} />
                 ))}
               </Bar>
             </BarChart>
@@ -142,38 +142,38 @@ export default function PlaybookAnalytics({
       </div>
 
       {/* Stats table */}
-      <div className="overflow-x-auto rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur">
+      <div className="overflow-x-auto rounded-xl backdrop-blur" style={{ borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/5 bg-white/[0.02]">
-              <th className="px-4 py-2.5 text-left text-[10px] uppercase tracking-wider text-slate-400">Strategy</th>
-              <th className="px-3 py-2.5 text-right text-[10px] uppercase tracking-wider text-slate-400">Trades</th>
-              <th className="px-3 py-2.5 text-right text-[10px] uppercase tracking-wider text-slate-400">Net P&L</th>
-              <th className="px-3 py-2.5 text-right text-[10px] uppercase tracking-wider text-slate-400">Win Rate</th>
-              <th className="px-3 py-2.5 text-right text-[10px] uppercase tracking-wider text-slate-400">PF</th>
-              <th className="px-3 py-2.5 text-right text-[10px] uppercase tracking-wider text-slate-400">Rule Compliance</th>
+            <tr style={{ borderBottom: '1px solid var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
+              <th className="px-4 py-2.5 text-left text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Strategy</th>
+              <th className="px-3 py-2.5 text-right text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Trades</th>
+              <th className="px-3 py-2.5 text-right text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Net P&L</th>
+              <th className="px-3 py-2.5 text-right text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Win Rate</th>
+              <th className="px-3 py-2.5 text-right text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>PF</th>
+              <th className="px-3 py-2.5 text-right text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Rule Compliance</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y" style={{ '--tw-divide-opacity': '1' } as React.CSSProperties}>
             {stats.filter((s) => s.trades > 0).map((s) => (
-              <tr key={s.name} className="hover:bg-white/[0.02]">
-                <td className="px-4 py-2.5 font-medium">{s.name}</td>
-                <td className="px-3 py-2.5 text-right font-mono tabular-nums text-slate-300">{s.trades}</td>
-                <td className={`px-3 py-2.5 text-right font-mono tabular-nums ${s.netPnl >= 0 ? "text-emerald-300" : "text-red-300"}`}>
+              <tr key={s.name} className="transition" style={{ borderBottom: '1px solid var(--app-border)' }}>
+                <td className="px-4 py-2.5 font-medium" style={{ color: 'var(--text-primary)' }}>{s.name}</td>
+                <td className="px-3 py-2.5 text-right font-mono tabular-nums" style={{ color: 'var(--text-secondary)' }}>{s.trades}</td>
+                <td className="px-3 py-2.5 text-right font-mono tabular-nums" style={{ color: s.netPnl >= 0 ? 'var(--positive)' : 'var(--negative)' }}>
                   {fmtSignedUsd(s.netPnl)}
                 </td>
-                <td className="px-3 py-2.5 text-right font-mono tabular-nums text-slate-300">{fmtPct(s.winRate, 1)}</td>
-                <td className="px-3 py-2.5 text-right font-mono tabular-nums text-slate-300">
+                <td className="px-3 py-2.5 text-right font-mono tabular-nums" style={{ color: 'var(--text-secondary)' }}>{fmtPct(s.winRate, 1)}</td>
+                <td className="px-3 py-2.5 text-right font-mono tabular-nums" style={{ color: 'var(--text-secondary)' }}>
                   {s.profitFactor === Infinity ? "∞" : fmtNumber(s.profitFactor, 2)}
                 </td>
                 <td className="px-3 py-2.5 text-right">
                   <div className="flex items-center justify-end gap-1.5">
                     {s.ruleCompliance >= 80 ? (
-                      <CheckCircle className="h-3 w-3 text-emerald-400" />
+                      <CheckCircle className="h-3 w-3" style={{ color: 'var(--positive)' }} />
                     ) : (
-                      <XCircle className="h-3 w-3 text-amber-400" />
+                      <XCircle className="h-3 w-3" style={{ color: 'var(--warning)' }} />
                     )}
-                    <span className="font-mono tabular-nums text-slate-300">
+                    <span className="font-mono tabular-nums" style={{ color: 'var(--text-secondary)' }}>
                       {fmtPct(s.ruleCompliance, 0)}
                     </span>
                   </div>

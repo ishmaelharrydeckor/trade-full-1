@@ -119,7 +119,7 @@ function ConnectionPanel({ account }: { account: Account }) {
           Or copy the token manually
         </summary>
         <div className="mt-2 flex items-center gap-2">
-          <code className="flex-1 break-all font-mono text-xs text-slate-200">
+          <code className="flex-1 break-all font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>
             {account.ea_token}
           </code>
           <button

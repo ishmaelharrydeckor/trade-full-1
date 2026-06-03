@@ -61,15 +61,15 @@ export default function PlaybookSelector({
   }
 
   return (
-    <div className="rounded-lg border border-white/10 bg-black/20 p-3">
+    <div className="rounded-lg p-3" style={{ borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--app-border)', backgroundColor: 'var(--app-elevated)' }}>
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center gap-2 text-left"
       >
-        <BookOpen className="h-3.5 w-3.5 text-blue-400" />
-        <span className="text-xs uppercase tracking-wider text-slate-400">Playbook</span>
-        <ChevronDown className={cn("ml-auto h-3.5 w-3.5 text-slate-500 transition", expanded && "rotate-180")} />
+        <BookOpen className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
+        <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Playbook</span>
+        <ChevronDown className={cn("ml-auto h-3.5 w-3.5 transition", expanded && "rotate-180")} style={{ color: 'var(--text-muted)' }} />
       </button>
 
       {expanded && (
@@ -80,12 +80,12 @@ export default function PlaybookSelector({
                 key={pb.id}
                 type="button"
                 onClick={() => selectPlaybook(pb.id)}
-                className={cn(
-                  "rounded-lg px-3 py-1.5 text-xs transition",
+                className="rounded-lg px-3 py-1.5 text-xs transition"
+                style={
                   value?.playbookId === pb.id
-                    ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                    : "border border-white/10 text-slate-300 hover:bg-white/5"
-                )}
+                    ? { backgroundColor: 'color-mix(in srgb, var(--accent) 20%, transparent)', color: 'var(--accent)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'color-mix(in srgb, var(--accent) 30%, transparent)' }
+                    : { borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--app-border)', color: 'var(--text-secondary)' }
+                }
               >
                 {pb.name}
               </button>
@@ -94,7 +94,7 @@ export default function PlaybookSelector({
 
           {selected && rules.length > 0 && (
             <div className="mt-2 space-y-1">
-              <p className="text-[10px] uppercase tracking-wider text-slate-500">
+              <p className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                 Check rules you followed (click again to mark as broken)
               </p>
               {rules.map((rule) => {
@@ -105,25 +105,25 @@ export default function PlaybookSelector({
                     key={rule.id}
                     type="button"
                     onClick={() => toggleRule(rule.id)}
-                    className={cn(
-                      "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition",
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition"
+                    style={
                       isFollowed
-                        ? "bg-emerald-500/10 text-emerald-300"
+                        ? { backgroundColor: 'color-mix(in srgb, var(--positive) 10%, transparent)', color: 'var(--positive)' }
                         : isBroken
-                          ? "bg-red-500/10 text-red-300"
-                          : "text-slate-400 hover:bg-white/5"
-                    )}
+                          ? { backgroundColor: 'color-mix(in srgb, var(--negative) 10%, transparent)', color: 'var(--negative)' }
+                          : { color: 'var(--text-secondary)' }
+                    }
                   >
                     {isFollowed ? (
-                      <CheckSquare className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                      <CheckSquare className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--positive)' }} />
                     ) : isBroken ? (
-                      <Square className="h-3.5 w-3.5 shrink-0 text-red-400" />
+                      <Square className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--negative)' }} />
                     ) : (
-                      <Square className="h-3.5 w-3.5 shrink-0 text-slate-500" />
+                      <Square className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--text-muted)' }} />
                     )}
                     <span>{rule.text}</span>
                     {isBroken && (
-                      <span className="ml-auto text-[10px] uppercase tracking-wider text-red-400">broken</span>
+                      <span className="ml-auto text-[10px] uppercase tracking-wider" style={{ color: 'var(--negative)' }}>broken</span>
                     )}
                   </button>
                 );

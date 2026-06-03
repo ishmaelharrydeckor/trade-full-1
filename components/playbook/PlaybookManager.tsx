@@ -60,30 +60,30 @@ export default function PlaybookManager({
     <div>
       <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <BookOpen className="h-4 w-4 text-blue-400" />
-          <h3 className="font-serif text-lg">Your Playbooks</h3>
+          <BookOpen className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+          <h3 className="font-serif text-lg" style={{ color: 'var(--text-primary)' }}>Your Playbooks</h3>
         </div>
         <button
           type="button"
           onClick={() => { setEditing(null); setShowForm(true); }}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-blue-500 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-blue-400"
+          className="tj-btn-primary inline-flex items-center gap-1.5"
         >
           <Plus className="h-3.5 w-3.5" /> New playbook
         </button>
       </div>
 
       {playbooks.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-12 text-center backdrop-blur">
-          <BookOpen className="mx-auto mb-3 h-10 w-10 text-slate-500" />
-          <h3 className="font-serif text-xl">No playbooks yet</h3>
-          <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">
+        <div className="rounded-2xl border border-dashed p-12 text-center backdrop-blur" style={{ borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
+          <BookOpen className="mx-auto mb-3 h-10 w-10" style={{ color: 'var(--text-muted)' }} />
+          <h3 className="font-serif text-xl" style={{ color: 'var(--text-primary)' }}>No playbooks yet</h3>
+          <p className="mx-auto mt-2 max-w-md text-sm" style={{ color: 'var(--text-secondary)' }}>
             Define your trading strategies with rule checklists. Tag trades to playbooks
             to see which setups actually make money.
           </p>
           <button
             type="button"
             onClick={() => setShowForm(true)}
-            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-400"
+            className="tj-btn-primary mt-5 inline-flex items-center gap-2"
           >
             <Plus className="h-4 w-4" /> Create your first playbook
           </button>
@@ -93,20 +93,22 @@ export default function PlaybookManager({
           {playbooks.map((pb) => (
             <div
               key={pb.id}
-              className="group rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur transition hover:border-blue-500/20"
+              className="group rounded-2xl p-5 backdrop-blur transition"
+              style={{ borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h4 className="truncate font-serif text-lg">{pb.name}</h4>
+                  <h4 className="truncate font-serif text-lg" style={{ color: 'var(--text-primary)' }}>{pb.name}</h4>
                   {pb.description && (
-                    <p className="mt-1 text-xs text-slate-400 line-clamp-2">{pb.description}</p>
+                    <p className="mt-1 text-xs line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{pb.description}</p>
                   )}
                 </div>
                 <div className="flex shrink-0 gap-1 opacity-0 transition group-hover:opacity-100">
                   <button
                     type="button"
                     onClick={() => { setEditing(pb); setShowForm(true); }}
-                    className="rounded-md p-1.5 text-slate-400 hover:bg-white/10 hover:text-white"
+                    className="rounded-md p-1.5 transition"
+                    style={{ color: 'var(--text-secondary)' }}
                   >
                     <Edit3 className="h-3.5 w-3.5" />
                   </button>
@@ -114,7 +116,8 @@ export default function PlaybookManager({
                     type="button"
                     onClick={() => handleDelete(pb.id)}
                     disabled={deletingId === pb.id}
-                    className="rounded-md p-1.5 text-slate-400 hover:bg-red-500/20 hover:text-red-300 disabled:opacity-50"
+                    className="rounded-md p-1.5 disabled:opacity-50 transition"
+                    style={{ color: 'var(--text-secondary)' }}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -124,13 +127,13 @@ export default function PlaybookManager({
               {pb.rules && (pb.rules as PlaybookRule[]).length > 0 && (
                 <div className="mt-3 space-y-1">
                   {(pb.rules as PlaybookRule[]).slice(0, 4).map((rule) => (
-                    <div key={rule.id} className="flex items-center gap-2 text-xs text-slate-400">
-                      <CheckCircle className="h-3 w-3 shrink-0 text-slate-500" />
+                    <div key={rule.id} className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                      <CheckCircle className="h-3 w-3 shrink-0" style={{ color: 'var(--text-muted)' }} />
                       <span className="truncate">{rule.text}</span>
                     </div>
                   ))}
                   {(pb.rules as PlaybookRule[]).length > 4 && (
-                    <p className="text-[10px] text-slate-500">
+                    <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
                       +{(pb.rules as PlaybookRule[]).length - 4} more rules
                     </p>
                   )}
@@ -142,7 +145,8 @@ export default function PlaybookManager({
                   {pb.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-md bg-white/5 px-2 py-0.5 text-[10px] text-slate-400"
+                      className="rounded-md px-2 py-0.5 text-[10px]"
+                      style={{ backgroundColor: 'var(--app-surface)', color: 'var(--text-secondary)' }}
                     >
                       {tag}
                     </span>
@@ -229,37 +233,35 @@ function PlaybookForm({
     }
   }
 
-  const inputClass = "w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none transition focus:border-blue-500/50";
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
-      <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-[color:var(--bg-panel)] p-6" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }} onClick={onClose}>
+      <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl p-6" style={{ borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--app-border)', backgroundColor: 'var(--app-bg)' }} onClick={(e) => e.stopPropagation()}>
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-serif text-2xl">{initial ? "Edit playbook" : "New playbook"}</h2>
-          <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-white/5 hover:text-white">
+          <h2 className="font-serif text-2xl" style={{ color: 'var(--text-primary)' }}>{initial ? "Edit playbook" : "New playbook"}</h2>
+          <button type="button" onClick={onClose} className="rounded-lg p-1.5 transition" style={{ color: 'var(--text-secondary)' }}>
             <X className="h-5 w-5" />
           </button>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">Name *</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Break of Structure + FVG" className={inputClass} />
+            <label className="mb-1 block text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Name *</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Break of Structure + FVG" className="tj-input w-full" />
           </div>
 
           <div>
-            <label className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">Description</label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} placeholder="When do you take this setup?" className={inputClass} />
+            <label className="mb-1 block text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Description</label>
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} placeholder="When do you take this setup?" className="tj-input w-full" />
           </div>
 
           <div>
-            <label className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">Rules / Checklist</label>
+            <label className="mb-1 block text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Rules / Checklist</label>
             <div className="space-y-1.5">
               {rules.map((rule, i) => (
-                <div key={rule.id} className="flex items-center gap-2 rounded-lg border border-white/5 bg-black/20 px-3 py-2">
-                  <GripVertical className="h-3 w-3 shrink-0 text-slate-600" />
-                  <span className="flex-1 text-sm">{rule.text}</span>
-                  <button type="button" onClick={() => removeRule(rule.id)} className="shrink-0 text-slate-500 hover:text-red-300">
+                <div key={rule.id} className="flex items-center gap-2 rounded-lg px-3 py-2" style={{ borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--app-border)', backgroundColor: 'var(--app-elevated)' }}>
+                  <GripVertical className="h-3 w-3 shrink-0" style={{ color: 'var(--text-muted)' }} />
+                  <span className="flex-1 text-sm" style={{ color: 'var(--text-primary)' }}>{rule.text}</span>
+                  <button type="button" onClick={() => removeRule(rule.id)} className="shrink-0 transition" style={{ color: 'var(--text-muted)' }}>
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -271,27 +273,27 @@ function PlaybookForm({
                 onChange={(e) => setNewRule(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addRule(); } }}
                 placeholder="Add a rule…"
-                className={cn(inputClass, "flex-1")}
+                className="tj-input flex-1"
               />
-              <button type="button" onClick={addRule} className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300 hover:bg-white/10">
+              <button type="button" onClick={addRule} className="tj-btn-secondary shrink-0">
                 Add
               </button>
             </div>
           </div>
 
           <div>
-            <label className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">Tags (comma-separated)</label>
-            <input value={tagsRaw} onChange={(e) => setTagsRaw(e.target.value)} placeholder="breakout, reversal, scalp" className={inputClass} />
+            <label className="mb-1 block text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Tags (comma-separated)</label>
+            <input value={tagsRaw} onChange={(e) => setTagsRaw(e.target.value)} placeholder="breakout, reversal, scalp" className="tj-input w-full" />
           </div>
         </div>
 
         {error && (
-          <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</div>
+          <div className="mt-4 rounded-lg p-3 text-sm" style={{ borderWidth: '1px', borderStyle: 'solid', borderColor: 'color-mix(in srgb, var(--negative) 30%, transparent)', backgroundColor: 'color-mix(in srgb, var(--negative) 10%, transparent)', color: 'var(--negative)' }}>{error}</div>
         )}
 
         <div className="mt-6 flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 hover:bg-white/10">Cancel</button>
-          <button type="button" onClick={handleSubmit} disabled={saving} className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-400 disabled:opacity-50">
+          <button type="button" onClick={onClose} className="tj-btn-secondary">Cancel</button>
+          <button type="button" onClick={handleSubmit} disabled={saving} className="tj-btn-primary inline-flex items-center gap-2">
             {saving && <Loader2 className="h-4 w-4 animate-spin" />}
             {initial ? "Save changes" : "Create playbook"}
           </button>

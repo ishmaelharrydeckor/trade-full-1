@@ -136,23 +136,31 @@ export default function ProgressTab({
   return (
     <div className="space-y-6">
       {/* Today's checklist */}
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
+      <div
+        className="rounded-xl p-5 backdrop-blur"
+        style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}
+      >
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Target className="h-4 w-4 text-emerald-400" />
-            <h3 className="font-serif text-lg">Today&apos;s Discipline</h3>
+            <Target className="h-4 w-4" style={{ color: 'var(--positive)' }} />
+            <h3 className="text-lg font-bold">Today&apos;s Discipline</h3>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <div className="text-[10px] uppercase tracking-wider text-slate-500">Score</div>
-              <div className={cn("text-xl font-semibold tabular-nums", score >= 80 ? "text-emerald-300" : score >= 50 ? "text-amber-300" : "text-red-300")}>
+              <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Score</div>
+              <div
+                className="text-xl font-bold tabular-nums"
+                style={{
+                  color: score >= 80 ? 'var(--positive)' : score >= 50 ? 'var(--warning)' : 'var(--negative)'
+                }}
+              >
                 {score}%
               </div>
             </div>
             <button
               type="button"
               onClick={() => setShowManager(true)}
-              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 hover:bg-white/10"
+              className="tj-btn-secondary px-3 py-1.5 text-xs"
             >
               Manage habits
             </button>
@@ -160,10 +168,13 @@ export default function ProgressTab({
         </div>
 
         {habits.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.01] p-8 text-center">
-            <Target className="mx-auto mb-2 h-8 w-8 text-slate-500" />
-            <p className="text-sm text-slate-400">No habits defined yet.</p>
-            <button type="button" onClick={() => setShowManager(true)} className="mt-3 text-sm text-blue-400 hover:underline">
+          <div
+            className="rounded-xl border-dashed p-8 text-center"
+            style={{ border: '1px dashed var(--app-muted)', backgroundColor: 'var(--app-elevated)' }}
+          >
+            <Target className="mx-auto mb-2 h-8 w-8" style={{ color: 'var(--text-muted)' }} />
+            <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>No habits defined yet.</p>
+            <button type="button" onClick={() => setShowManager(true)} className="mt-3 text-sm font-medium hover:underline" style={{ color: 'var(--accent)' }}>
               Set up your daily checklist
             </button>
           </div>
@@ -179,26 +190,40 @@ export default function ProgressTab({
                   onClick={() => !habit.is_automated && toggleHabit(habit.id)}
                   disabled={habit.is_automated || saving}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition",
-                    isCompleted && !isViolated ? "bg-emerald-500/10" : isViolated ? "bg-red-500/10" : "hover:bg-white/5",
+                    "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition",
                     habit.is_automated && "cursor-default"
                   )}
+                  style={{
+                    backgroundColor: isCompleted && !isViolated
+                      ? 'color-mix(in srgb, var(--positive) 10%, transparent)'
+                      : isViolated
+                        ? 'color-mix(in srgb, var(--negative) 10%, transparent)'
+                        : 'transparent',
+                    color: isCompleted && !isViolated
+                      ? 'var(--positive)'
+                      : isViolated
+                        ? 'var(--negative)'
+                        : 'var(--text-secondary)',
+                  }}
                 >
                   {isViolated ? (
-                    <XCircle className="h-4 w-4 shrink-0 text-red-400" />
+                    <XCircle className="h-4 w-4 shrink-0" style={{ color: 'var(--negative)' }} />
                   ) : isCompleted ? (
-                    <CheckCircle className="h-4 w-4 shrink-0 text-emerald-400" />
+                    <CheckCircle className="h-4 w-4 shrink-0" style={{ color: 'var(--positive)' }} />
                   ) : (
-                    <div className="h-4 w-4 shrink-0 rounded-full border border-white/20" />
+                    <div className="h-4 w-4 shrink-0 rounded-full" style={{ border: '1px solid var(--app-muted)' }} />
                   )}
-                  <span className={cn(isCompleted && !isViolated ? "text-emerald-300" : isViolated ? "text-red-300" : "text-slate-300")}>
-                    {habit.name}
-                  </span>
+                  <span>{habit.name}</span>
                   {habit.is_automated && (
-                    <span className="ml-auto text-[10px] uppercase tracking-wider text-slate-600">auto</span>
+                    <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>auto</span>
                   )}
                   {habit.category !== "trading" && (
-                    <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-500">{habit.category}</span>
+                    <span
+                      className="rounded px-1.5 py-0.5 text-[10px] font-medium"
+                      style={{ backgroundColor: 'var(--badge-bg)', color: 'var(--text-muted)' }}
+                    >
+                      {habit.category}
+                    </span>
                   )}
                 </button>
               );
@@ -209,17 +234,26 @@ export default function ProgressTab({
 
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-center backdrop-blur">
-          <div className="text-[10px] uppercase tracking-wider text-slate-500">Current streak</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-300">{streak.current}d</div>
+        <div
+          className="rounded-xl p-4 text-center backdrop-blur"
+          style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}
+        >
+          <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Current streak</div>
+          <div className="mt-1 text-2xl font-bold tabular-nums" style={{ color: 'var(--positive)' }}>{streak.current}d</div>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-center backdrop-blur">
-          <div className="text-[10px] uppercase tracking-wider text-slate-500">Best streak</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums">{streak.best}d</div>
+        <div
+          className="rounded-xl p-4 text-center backdrop-blur"
+          style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}
+        >
+          <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Best streak</div>
+          <div className="mt-1 text-2xl font-bold tabular-nums" style={{ color: 'var(--text-primary)' }}>{streak.best}d</div>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-center backdrop-blur">
-          <div className="text-[10px] uppercase tracking-wider text-slate-500">Avg score</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums">
+        <div
+          className="rounded-xl p-4 text-center backdrop-blur"
+          style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}
+        >
+          <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Avg score</div>
+          <div className="mt-1 text-2xl font-bold tabular-nums" style={{ color: 'var(--text-primary)' }}>
             {logs.length > 0 ? Math.round(logs.reduce((s, l) => s + (l.score ?? 0), 0) / logs.length) : 0}%
           </div>
         </div>

@@ -9,12 +9,21 @@ export default function ComingSoonTab({
   description: string;
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-12 text-center backdrop-blur">
-      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10">
-        <Construction className="h-6 w-6 text-amber-400" />
+    <div
+      className="rounded-xl border-dashed p-12 text-center backdrop-blur"
+      style={{
+        border: '1px dashed var(--app-muted)',
+        backgroundColor: 'var(--app-surface)',
+      }}
+    >
+      <div
+        className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
+        style={{ backgroundColor: 'color-mix(in srgb, var(--warning) 10%, transparent)' }}
+      >
+        <Construction className="h-6 w-6" style={{ color: 'var(--warning)' }} />
       </div>
-      <h2 className="font-serif text-2xl tracking-tight">{title}</h2>
-      <p className="mx-auto mt-3 max-w-md text-sm text-slate-400">{description}</p>
+      <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
+      <p className="mx-auto mt-3 max-w-md text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{description}</p>
     </div>
   );
 }

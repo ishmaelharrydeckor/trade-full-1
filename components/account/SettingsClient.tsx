@@ -33,7 +33,7 @@ export default function SettingsClient({ account }: { account: Account }) {
     <div className="space-y-6">
       <div>
         <h1 className="font-serif text-3xl">Settings</h1>
-        <p className="mt-1 text-sm text-slate-400">
+        <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
           Configure your account. Changes save individually per section.
         </p>
       </div>
@@ -101,7 +101,7 @@ function AccountInfoSection({
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className={inputClass}
+            className="tj-input"
           />
         </Field>
         <Field label="Broker">
@@ -109,7 +109,7 @@ function AccountInfoSection({
             value={broker}
             onChange={(e) => setBroker(e.target.value)}
             placeholder="e.g. FBS, Exness, Pepperstone"
-            className={inputClass}
+            className="tj-input"
           />
         </Field>
         <Field label="Account number">
@@ -117,7 +117,7 @@ function AccountInfoSection({
             value={accountNumber}
             onChange={(e) => setAccountNumber(e.target.value)}
             placeholder="MT5 login"
-            className={inputClass}
+            className="tj-input"
           />
         </Field>
         <Field label={`Starting balance (${account.currency})`}>
@@ -126,11 +126,20 @@ function AccountInfoSection({
             step="any"
             value={startingBalance}
             onChange={(e) => setStartingBalance(e.target.value)}
-            className={inputClass}
+            className="tj-input"
           />
         </Field>
       </div>
-      <div className="mt-2 rounded-lg border border-amber-500/20 bg-amber-500/5 p-2.5 text-xs text-amber-100/90">
+      <div
+        className="mt-2 rounded-lg p-2.5 text-xs"
+        style={{
+          borderWidth: '1px',
+          borderStyle: 'solid',
+          borderColor: 'color-mix(in srgb, var(--warning) 20%, transparent)',
+          backgroundColor: 'color-mix(in srgb, var(--warning) 5%, transparent)',
+          color: 'var(--warning)',
+        }}
+      >
         ⚠ Changing the starting balance recomputes all your KPIs and the equity
         curve. Use it to correct a wrong initial value, not to manipulate
         history.
@@ -193,16 +202,23 @@ function EaTokenSection({ account }: { account: Account }) {
         <input
           readOnly
           value={token}
-          className="flex-1 min-w-0 rounded-lg border border-white/10 bg-black/40 px-3 py-2 font-mono text-xs text-slate-300"
+          className="flex-1 min-w-0 rounded-lg px-3 py-2 font-mono text-xs"
+          style={{
+            borderWidth: '1px',
+            borderStyle: 'solid',
+            borderColor: 'var(--app-border)',
+            backgroundColor: 'var(--input-bg)',
+            color: 'var(--text-secondary)',
+          }}
           onFocus={(e) => e.target.select()}
         />
         <button
           type="button"
           onClick={copyToken}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-300 hover:bg-white/10"
+          className="tj-btn-secondary inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs"
         >
           {copied ? (
-            <Check className="h-3.5 w-3.5 text-emerald-400" />
+            <Check className="h-3.5 w-3.5" style={{ color: 'var(--positive)' }} />
           ) : (
             <Copy className="h-3.5 w-3.5" />
           )}
@@ -212,7 +228,14 @@ function EaTokenSection({ account }: { account: Account }) {
           type="button"
           onClick={rotate}
           disabled={rotating}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200 hover:bg-amber-500/20 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs disabled:opacity-50"
+          style={{
+            borderWidth: '1px',
+            borderStyle: 'solid',
+            borderColor: 'color-mix(in srgb, var(--warning) 30%, transparent)',
+            backgroundColor: 'color-mix(in srgb, var(--warning) 10%, transparent)',
+            color: 'var(--warning)',
+          }}
         >
           {rotating ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -222,13 +245,22 @@ function EaTokenSection({ account }: { account: Account }) {
           {rotating ? "Rotating…" : "Rotate token"}
         </button>
       </div>
-      <p className="mt-2 text-xs text-slate-500">
+      <p className="mt-2 text-xs" style={{ color: 'var(--text-muted)' }}>
         Rotate the token if you suspect it leaked (e.g. shared the wrong file,
         used a public computer). After rotation, re-download the EA from your
         Account tab and reinstall it in MT5.
       </p>
       {error && (
-        <div className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-200">
+        <div
+          className="mt-2 rounded-lg p-2 text-xs"
+          style={{
+            borderWidth: '1px',
+            borderStyle: 'solid',
+            borderColor: 'color-mix(in srgb, var(--negative) 30%, transparent)',
+            backgroundColor: 'color-mix(in srgb, var(--negative) 10%, transparent)',
+            color: 'var(--negative)',
+          }}
+        >
           {error}
         </div>
       )}
@@ -287,20 +319,36 @@ function DangerZone({ account }: { account: Account }) {
   }
 
   return (
-    <div className="rounded-2xl border border-red-500/20 bg-red-500/[0.04] p-5">
+    <div
+      className="rounded-2xl p-5"
+      style={{
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: 'color-mix(in srgb, var(--negative) 20%, transparent)',
+        backgroundColor: 'color-mix(in srgb, var(--negative) 4%, transparent)',
+      }}
+    >
       <div className="mb-4 flex items-center gap-2">
-        <AlertTriangle className="h-4 w-4 text-red-400" />
-        <h3 className="font-serif text-lg text-red-100">Danger zone</h3>
+        <AlertTriangle className="h-4 w-4" style={{ color: 'var(--negative)' }} />
+        <h3 className="font-serif text-lg" style={{ color: 'var(--negative)' }}>Danger zone</h3>
       </div>
 
       <div className="space-y-3">
         {/* Archive */}
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-white/10 bg-black/20 p-3">
+        <div
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg p-3"
+          style={{
+            borderWidth: '1px',
+            borderStyle: 'solid',
+            borderColor: 'var(--app-border)',
+            backgroundColor: 'var(--app-elevated)',
+          }}
+        >
           <div>
             <div className="text-sm font-medium">
               {account.archived ? "Unarchive account" : "Archive account"}
             </div>
-            <div className="text-xs text-slate-400">
+            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
               {account.archived
                 ? "This account is hidden from your dashboard. Restore it to view again."
                 : "Hide this account from your dashboard without deleting any data. Reversible."}
@@ -310,7 +358,14 @@ function DangerZone({ account }: { account: Account }) {
             type="button"
             onClick={toggleArchive}
             disabled={archiving}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200 hover:bg-amber-500/20 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs disabled:opacity-50"
+            style={{
+              borderWidth: '1px',
+              borderStyle: 'solid',
+              borderColor: 'color-mix(in srgb, var(--warning) 30%, transparent)',
+              backgroundColor: 'color-mix(in srgb, var(--warning) 10%, transparent)',
+              color: 'var(--warning)',
+            }}
           >
             {archiving ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -324,13 +379,21 @@ function DangerZone({ account }: { account: Account }) {
         </div>
 
         {/* Delete */}
-        <div className="rounded-lg border border-red-500/20 bg-black/20 p-3">
+        <div
+          className="rounded-lg p-3"
+          style={{
+            borderWidth: '1px',
+            borderStyle: 'solid',
+            borderColor: 'color-mix(in srgb, var(--negative) 20%, transparent)',
+            backgroundColor: 'var(--app-elevated)',
+          }}
+        >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="text-sm font-medium text-red-200">
+              <div className="text-sm font-medium" style={{ color: 'var(--negative)' }}>
                 Delete account permanently
               </div>
-              <div className="text-xs text-slate-400">
+              <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                 Wipes the account + every trade, transaction, position, AI
                 insight, and backtest session attached to it. Cannot be undone.
               </div>
@@ -339,7 +402,14 @@ function DangerZone({ account }: { account: Account }) {
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-200 hover:bg-red-500/20"
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs"
+                style={{
+                  borderWidth: '1px',
+                  borderStyle: 'solid',
+                  borderColor: 'color-mix(in srgb, var(--negative) 30%, transparent)',
+                  backgroundColor: 'color-mix(in srgb, var(--negative) 10%, transparent)',
+                  color: 'var(--negative)',
+                }}
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete account
               </button>
@@ -347,10 +417,24 @@ function DangerZone({ account }: { account: Account }) {
           </div>
 
           {showDeleteConfirm && (
-            <div className="mt-3 rounded-md border border-red-500/30 bg-red-500/5 p-3">
-              <p className="text-xs text-red-100">
+            <div
+              className="mt-3 rounded-md p-3"
+              style={{
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                borderColor: 'color-mix(in srgb, var(--negative) 30%, transparent)',
+                backgroundColor: 'color-mix(in srgb, var(--negative) 5%, transparent)',
+              }}
+            >
+              <p className="text-xs" style={{ color: 'var(--negative)' }}>
                 Type{" "}
-                <code className="rounded bg-black/30 px-1 font-mono text-red-200">
+                <code
+                  className="rounded px-1 font-mono"
+                  style={{
+                    backgroundColor: 'var(--app-elevated)',
+                    color: 'var(--negative)',
+                  }}
+                >
                   {account.name}
                 </code>{" "}
                 below to confirm.
@@ -359,7 +443,13 @@ function DangerZone({ account }: { account: Account }) {
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
                 placeholder={account.name}
-                className="mt-2 w-full rounded-md border border-red-500/30 bg-black/40 px-3 py-2 font-mono text-sm outline-none focus:border-red-500"
+                className="mt-2 w-full rounded-md px-3 py-2 font-mono text-sm outline-none"
+                style={{
+                  borderWidth: '1px',
+                  borderStyle: 'solid',
+                  borderColor: 'color-mix(in srgb, var(--negative) 30%, transparent)',
+                  backgroundColor: 'var(--input-bg)',
+                }}
                 autoFocus
               />
               <div className="mt-2 flex justify-end gap-2">
@@ -369,7 +459,7 @@ function DangerZone({ account }: { account: Account }) {
                     setShowDeleteConfirm(false);
                     setConfirmText("");
                   }}
-                  className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 hover:bg-white/10"
+                  className="tj-btn-secondary rounded-lg px-3 py-1.5 text-xs"
                 >
                   Cancel
                 </button>
@@ -379,11 +469,20 @@ function DangerZone({ account }: { account: Account }) {
                   disabled={deleting || confirmText !== account.name}
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition",
-                    confirmText === account.name
-                      ? "bg-red-500 text-white hover:bg-red-400"
-                      : "bg-red-500/30 text-red-200 cursor-not-allowed",
                     "disabled:opacity-50"
                   )}
+                  style={
+                    confirmText === account.name
+                      ? {
+                          backgroundColor: 'var(--negative)',
+                          color: 'var(--text-primary)',
+                        }
+                      : {
+                          backgroundColor: 'color-mix(in srgb, var(--negative) 30%, transparent)',
+                          color: 'var(--negative)',
+                          cursor: 'not-allowed',
+                        }
+                  }
                 >
                   {deleting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                   Permanently delete
@@ -394,7 +493,16 @@ function DangerZone({ account }: { account: Account }) {
         </div>
 
         {error && (
-          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-200">
+          <div
+            className="rounded-lg p-2 text-xs"
+            style={{
+              borderWidth: '1px',
+              borderStyle: 'solid',
+              borderColor: 'color-mix(in srgb, var(--negative) 30%, transparent)',
+              backgroundColor: 'color-mix(in srgb, var(--negative) 10%, transparent)',
+              color: 'var(--negative)',
+            }}
+          >
             {error}
           </div>
         )}
@@ -406,8 +514,7 @@ function DangerZone({ account }: { account: Account }) {
 // ============================================================
 // Shared bits
 // ============================================================
-const inputClass =
-  "w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none transition focus:border-blue-500/50";
+const inputClass = "tj-input";
 
 function Field({
   label,
@@ -418,7 +525,10 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">
+      <label
+        className="mb-1 block text-[10px] uppercase tracking-wider"
+        style={{ color: 'var(--text-secondary)' }}
+      >
         {label}
       </label>
       {children}
@@ -436,11 +546,19 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
+    <div
+      className="rounded-2xl p-5 backdrop-blur"
+      style={{
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: 'var(--app-border)',
+        backgroundColor: 'var(--app-surface)',
+      }}
+    >
       <div className="mb-4">
         <h3 className="font-serif text-lg">{title}</h3>
         {subtitle && (
-          <p className="mt-0.5 text-xs text-slate-500">{subtitle}</p>
+          <p className="mt-0.5 text-xs" style={{ color: 'var(--text-muted)' }}>{subtitle}</p>
         )}
       </div>
       {children}
@@ -463,17 +581,17 @@ function ActionFooter({
     <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
       <div className="text-xs">
         {success && (
-          <span className="text-emerald-300">
+          <span style={{ color: 'var(--positive)' }}>
             ✓ Saved
           </span>
         )}
-        {error && <span className="text-red-300">{error}</span>}
+        {error && <span style={{ color: 'var(--negative)' }}>{error}</span>}
       </div>
       <button
         type="button"
         onClick={onSave}
         disabled={saving}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-blue-500 px-3 py-2 text-sm font-medium text-white hover:bg-blue-400 disabled:opacity-50"
+        className="tj-btn-primary inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium disabled:opacity-50"
       >
         {saving ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" />

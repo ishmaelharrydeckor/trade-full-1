@@ -64,10 +64,13 @@ export default function OpenPositionsPanel({ accountId }: { accountId: string })
     <div className="rounded-xl p-5" style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Activity className="h-4 w-4 text-emerald-400" />
+          <Activity className="h-4 w-4" style={{ color: 'var(--positive)' }} />
           <h3 className="text-lg font-bold">Open positions</h3>
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] uppercase tracking-wider text-emerald-300">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+          <span
+            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider"
+            style={{ backgroundColor: 'color-mix(in srgb, var(--positive) 15%, transparent)', color: 'var(--positive)' }}
+          >
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full" style={{ backgroundColor: 'var(--positive)' }} />
             Live
           </span>
         </div>
@@ -75,14 +78,14 @@ export default function OpenPositionsPanel({ accountId }: { accountId: string })
           <span style={{ color: 'var(--text-secondary)' }}>
             Unrealized:{" "}
             <span
-              className={cn(
-                "font-semibold tabular-nums",
-                totalUnrealized > 0
-                  ? "text-emerald-300"
+              className="font-semibold tabular-nums"
+              style={{
+                color: totalUnrealized > 0
+                  ? 'var(--positive)'
                   : totalUnrealized < 0
-                    ? "text-red-300"
-                    : "text-slate-300"
-              )}
+                    ? 'var(--negative)'
+                    : 'var(--text-secondary)'
+              }}
             >
               {fmtSignedUsd(totalUnrealized)}
             </span>
@@ -156,14 +159,14 @@ export default function OpenPositionsPanel({ accountId }: { accountId: string })
                         : "—"}
                     </td>
                     <td
-                      className={cn(
-                        "px-3 py-2 text-right font-semibold tabular-nums",
-                        unrealized > 0
-                          ? "text-emerald-300"
+                      className="px-3 py-2 text-right font-semibold tabular-nums"
+                      style={{
+                        color: unrealized > 0
+                          ? 'var(--positive)'
                           : unrealized < 0
-                            ? "text-red-300"
-                            : "text-slate-400"
-                      )}
+                            ? 'var(--negative)'
+                            : 'var(--text-secondary)'
+                      }}
                     >
                       {fmtSignedUsd(unrealized)}
                     </td>
