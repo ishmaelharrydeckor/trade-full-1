@@ -150,15 +150,16 @@ export default function TradeForm({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm md:items-center">
-      <div className="relative w-full max-h-[90vh] overflow-y-auto rounded-t-2xl border border-white/10 bg-[color:var(--bg-panel)] p-5 md:max-w-2xl md:rounded-2xl md:p-7">
+      <div className="relative w-full max-h-[90vh] overflow-y-auto rounded-t-2xl p-5 md:max-w-2xl md:rounded-xl md:p-7" style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}>
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-serif text-2xl tracking-tight">
+          <h2 className="text-2xl font-bold tracking-tight">
             {editing ? "Edit trade" : "Add a trade"}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/5 hover:text-white"
+            className="rounded-lg p-1.5 transition duration-150 hover:opacity-80"
+            style={{ color: 'var(--text-muted)' }}
           >
             <X className="h-5 w-5" />
           </button>
@@ -268,8 +269,8 @@ export default function TradeForm({
             </Field>
           </div>
 
-          <details className="rounded-lg border border-white/10 bg-black/20 p-3">
-            <summary className="cursor-pointer text-xs uppercase tracking-wider text-slate-400">
+          <details className="rounded-lg p-3" style={{ backgroundColor: 'var(--app-elevated)', border: '1px solid var(--app-border)' }}>
+            <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
               Optional: stops, fees, mindset, tags
             </summary>
             <div className="mt-3 space-y-3">
@@ -383,7 +384,7 @@ export default function TradeForm({
           </details>
 
           {error && (
-            <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+            <div className="rounded-lg px-3 py-2 text-xs font-medium" style={{ border: '1px solid rgba(239,68,68,0.3)', backgroundColor: 'rgba(239,68,68,0.1)', color: 'var(--negative)' }}>
               {error}
             </div>
           )}
@@ -392,14 +393,14 @@ export default function TradeForm({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-white/10 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/5 hover:text-white"
+              className="tj-btn-secondary rounded-lg px-4 py-2 text-sm"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 disabled:cursor-wait disabled:opacity-60"
+              className="tj-btn-primary inline-flex items-center gap-2 rounded-lg px-5 py-2 text-sm disabled:cursor-wait disabled:opacity-60"
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {submitting ? "Saving…" : editing ? "Save changes" : "Add trade"}
@@ -412,7 +413,7 @@ export default function TradeForm({
 }
 
 const inputClass =
-  "w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none transition focus:border-blue-500/50";
+  "tj-input w-full rounded-lg px-3 py-2 text-sm font-medium";
 
 function Field({
   label,
@@ -423,7 +424,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">
+      <label className="kpi-label mb-1 block">
         {label}
       </label>
       {children}

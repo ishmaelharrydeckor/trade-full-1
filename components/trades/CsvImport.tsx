@@ -132,13 +132,14 @@ export default function CsvImport({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm md:items-center">
-      <div className="relative w-full max-h-[90vh] overflow-y-auto rounded-t-2xl border border-white/10 bg-[color:var(--bg-panel)] p-5 md:max-w-3xl md:rounded-2xl md:p-7">
+      <div className="relative w-full max-h-[90vh] overflow-y-auto rounded-t-2xl p-5 md:max-w-3xl md:rounded-xl md:p-7" style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}>
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-serif text-2xl tracking-tight">Import trades from CSV</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Import trades from CSV</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/5 hover:text-white"
+            className="rounded-lg p-1.5 transition duration-150 hover:opacity-80"
+            style={{ color: 'var(--text-muted)' }}
           >
             <X className="h-5 w-5" />
           </button>
@@ -185,7 +186,7 @@ export default function CsvImport({
         {step === "done" && (
           <div className="flex flex-col items-center py-10 text-center">
             <CheckCircle2 className="mb-4 h-12 w-12 text-emerald-400" />
-            <h3 className="font-serif text-2xl">Import complete</h3>
+            <h3 className="text-2xl font-bold">Import complete</h3>
             <div className="mt-4 grid grid-cols-2 gap-3 text-center">
               <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4">
                 <div className="text-2xl font-bold tabular-nums text-emerald-300">
@@ -211,7 +212,7 @@ export default function CsvImport({
             <button
               type="button"
               onClick={onClose}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-white px-6 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+              className="tj-btn-primary mt-6 inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm"
             >
               Done
             </button>
@@ -337,10 +338,10 @@ function PreviewStep({
       </div>
 
       {/* Detected columns */}
-      <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-        <h4 className="mb-3 text-xs uppercase tracking-wider text-slate-400">
-          Detected mapping
-        </h4>
+        <div className="rounded-xl p-4" style={{ backgroundColor: 'var(--app-elevated)', border: '1px solid var(--app-border)' }}>
+          <h4 className="kpi-label mb-3">
+            Detected mapping
+          </h4>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs md:grid-cols-3">
           {Object.entries(result.detectedColumns).map(([field, col]) => (
             <div key={field} className="flex items-center justify-between gap-2">
@@ -370,7 +371,7 @@ function PreviewStep({
           </h4>
           <div className="overflow-x-auto rounded-xl border border-white/10">
             <table className="w-full min-w-[600px] text-xs">
-              <thead className="bg-white/[0.02] text-[9px] uppercase tracking-wider text-slate-400">
+              <thead style={{ backgroundColor: 'var(--app-elevated)' }} className="text-[9px] uppercase tracking-wider font-semibold" >
                 <tr>
                   <th className="px-2 py-2 text-left">Symbol</th>
                   <th className="px-2 py-2 text-left">Dir</th>
@@ -448,7 +449,7 @@ function PreviewStep({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg border border-white/10 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/5 hover:text-white"
+          className="tj-btn-secondary rounded-lg px-4 py-2 text-sm"
         >
           Choose different file
         </button>
@@ -456,7 +457,7 @@ function PreviewStep({
           type="button"
           onClick={onImport}
           disabled={result.validCount === 0}
-          className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+          className="tj-btn-primary inline-flex items-center gap-2 rounded-lg px-5 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
         >
           <FileText className="h-4 w-4" />
           Import {result.validCount} trade{result.validCount !== 1 && "s"}
