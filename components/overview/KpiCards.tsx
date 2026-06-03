@@ -134,21 +134,21 @@ function Kpi({
   sub: string;
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 backdrop-blur">
-      <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-slate-400">
+    <div className="kpi-card rounded-xl p-3" style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}>
+      <div className="kpi-label flex items-center gap-1.5">
         {icon}
         {label}
         {tooltip && <InfoTooltip text={tooltip} />}
       </div>
       <div
         className={cn(
-          "mt-1 text-xl font-semibold tabular-nums",
+          "kpi-value mt-1 text-xl",
           primaryClass ?? "text-white"
         )}
       >
         {primary}
       </div>
-      <div className="mt-0.5 text-[10px] text-slate-500">{sub}</div>
+      <div className="mt-0.5 text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>{sub}</div>
     </div>
   );
 }

@@ -93,12 +93,12 @@ function ConnectionPanel({ account }: { account: Account }) {
   const downloadUrl = `/api/ea/download?accountId=${account.id}`;
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur lg:col-span-2">
+    <div className="rounded-xl p-5 lg:col-span-2" style={{ background: 'var(--app-surface)', border: '1px solid var(--app-border)' }}>
       <div className="mb-3 flex items-center gap-2">
-        <ShieldCheck className="h-4 w-4 text-blue-400" />
-        <h3 className="font-serif text-lg">Connect MT5 — live sync</h3>
+        <ShieldCheck className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+        <h3 className="text-lg font-bold">Connect MT5 — live sync</h3>
       </div>
-      <p className="mb-4 text-sm text-slate-400">
+      <p className="mb-4 text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
         Download our expert advisor, drop it on any MT5 chart, and every
         closed trade plus open position will sync here automatically.
       </p>
@@ -107,15 +107,15 @@ function ConnectionPanel({ account }: { account: Account }) {
       <a
         href={downloadUrl}
         download
-        className="mb-4 inline-flex items-center gap-2 rounded-lg bg-blue-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-400"
+        className="tj-btn-primary mb-4 inline-flex items-center gap-2 px-5 py-2.5 text-sm shadow-lg"
       >
         <Download className="h-4 w-4" />
         Download EA (.mq5)
       </a>
 
       {/* Token block (collapsible, in case people want to copy manually) */}
-      <details className="rounded-lg border border-white/10 bg-black/30 p-3">
-        <summary className="cursor-pointer text-[10px] uppercase tracking-wider text-slate-400">
+      <details className="rounded-lg p-3" style={{ border: '1px solid var(--app-border)', background: 'var(--app-elevated)' }}>
+        <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
           Or copy the token manually
         </summary>
         <div className="mt-2 flex items-center gap-2">
@@ -125,7 +125,7 @@ function ConnectionPanel({ account }: { account: Account }) {
           <button
             type="button"
             onClick={copyToken}
-            className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-slate-300 transition hover:bg-white/10 hover:text-white"
+            className="tj-btn-secondary inline-flex items-center gap-1 px-2 py-1 text-xs"
           >
             {copied ? (
               <>
@@ -138,14 +138,14 @@ function ConnectionPanel({ account }: { account: Account }) {
             )}
           </button>
         </div>
-        <p className="mt-2 text-[10px] text-slate-500">
+        <p className="mt-2 text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>
           Keep this private — anyone with the token can push trades to this account.
         </p>
       </details>
 
       {/* Setup instructions */}
       <details className="mt-4 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3" open>
-        <summary className="cursor-pointer text-sm font-medium text-amber-100">
+        <summary className="cursor-pointer text-sm font-bold" style={{ color: 'var(--warning)' }}>
           Setup steps (one time, ~3 minutes)
         </summary>
         <ol className="mt-3 space-y-2.5 pl-4 text-xs text-amber-100/90 list-decimal">
@@ -230,12 +230,12 @@ function RiskSettingsPanel({
   }
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
+    <div className="rounded-xl p-5" style={{ background: 'var(--app-surface)', border: '1px solid var(--app-border)' }}>
       <div className="mb-3 flex items-center gap-2">
-        <ShieldCheck className="h-4 w-4 text-amber-400" />
-        <h3 className="font-serif text-lg">Risk strategy</h3>
+        <ShieldCheck className="h-4 w-4" style={{ color: 'var(--warning)' }} />
+        <h3 className="text-lg font-bold">Risk strategy</h3>
       </div>
-      <p className="mb-4 text-sm text-slate-400">
+      <p className="mb-4 text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
         How many equal parts do you divide your account into per trade? A
         10-part strategy means each trade risks 1/10 of your current equity.
         The position calculator (coming in M2.3) uses this.
@@ -258,21 +258,21 @@ function RiskSettingsPanel({
             const v = Number(e.target.value);
             if (!isNaN(v)) setParts(Math.max(1, Math.min(100, v)));
           }}
-          className="w-16 rounded-lg border border-white/10 bg-black/30 px-2 py-1 text-center text-sm tabular-nums outline-none focus:border-blue-500/50"
+          className="tj-input w-16 text-center text-sm tabular-nums"
         />
-        <span className="text-xs text-slate-400">parts</span>
+        <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>parts</span>
       </div>
       <div className="mt-4 flex items-center justify-between gap-3">
-        <p className="text-xs text-slate-500">
+        <p className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
           Each trade risks ≈{" "}
-          <span className="text-slate-300 tabular-nums">{(100 / parts).toFixed(1)}%</span>{" "}
+          <span className="tabular-nums" style={{ color: 'var(--text-secondary)' }}>{(100 / parts).toFixed(1)}%</span>{" "}
           of equity
         </p>
         <button
           type="button"
           onClick={save}
           disabled={saving || parts === initialParts}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+          className="tj-btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-xs disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving && <Loader2 className="h-3 w-3 animate-spin" />}
           {savedAt ? "Saved ✓" : saving ? "Saving" : "Save"}
@@ -344,13 +344,13 @@ function TransactionsPanel({
   }
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
+    <div className="rounded-xl p-5" style={{ background: 'var(--app-surface)', border: '1px solid var(--app-border)' }}>
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="font-serif text-lg">Deposits & withdrawals</h3>
+        <h3 className="text-lg font-bold">Deposits & withdrawals</h3>
         <button
           type="button"
           onClick={() => setAddOpen((v) => !v)}
-          className="rounded-lg border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300 transition hover:bg-white/10 hover:text-white"
+          className="tj-btn-secondary px-3 py-1 text-xs"
         >
           {addOpen ? "Cancel" : "Add"}
         </button>
@@ -359,12 +359,12 @@ function TransactionsPanel({
       {addOpen && (
         <form
           onSubmit={handleAdd}
-          className="mb-4 grid grid-cols-1 gap-3 rounded-xl border border-white/10 bg-black/20 p-3 md:grid-cols-5"
+          className="mb-4 grid grid-cols-1 gap-3 rounded-xl p-3 md:grid-cols-5" style={{ border: '1px solid var(--app-border)', background: 'var(--app-elevated)' }}
         >
           <select
             value={type}
             onChange={(e) => setType(e.target.value as "deposit" | "withdrawal")}
-            className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-500/50"
+            className="tj-input text-sm"
           >
             <option value="deposit" className="bg-slate-900">Deposit</option>
             <option value="withdrawal" className="bg-slate-900">Withdrawal</option>
@@ -377,26 +377,26 @@ function TransactionsPanel({
             required
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-500/50"
+            className="tj-input text-sm"
           />
           <input
             type="datetime-local"
             required
             value={occurredAt}
             onChange={(e) => setOccurredAt(e.target.value)}
-            className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-500/50"
+            className="tj-input text-sm"
           />
           <input
             type="text"
             placeholder="Notes (optional)"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none focus:border-blue-500/50"
+            className="tj-input text-sm"
           />
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 disabled:opacity-60"
+            className="tj-btn-primary inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm disabled:opacity-60"
           >
             {saving && <Loader2 className="h-3 w-3 animate-spin" />}
             {saving ? "…" : "Save"}
@@ -405,13 +405,13 @@ function TransactionsPanel({
       )}
 
       {transactions.length === 0 ? (
-        <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-white/10 text-sm text-slate-500">
+        <div className="flex h-24 items-center justify-center rounded-xl border border-dashed text-sm font-medium" style={{ borderColor: 'var(--app-border)', color: 'var(--text-muted)' }}>
           No transactions yet.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-white/10">
-          <table className="w-full min-w-[500px] text-sm">
-            <thead className="bg-white/[0.02] text-[10px] uppercase tracking-wider text-slate-400">
+        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--app-border)' }}>
+          <table className="tj-table w-full min-w-[500px] text-sm">
+            <thead>
               <tr>
                 <th className="px-3 py-2 text-left">Type</th>
                 <th className="px-3 py-2 text-right">Amount</th>
@@ -420,11 +420,11 @@ function TransactionsPanel({
                 <th className="px-3 py-2"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody>
               {transactions.map((tx) => {
                 const isDeposit = tx.type === "deposit";
                 return (
-                  <tr key={tx.id} className="text-slate-200">
+                  <tr key={tx.id} style={{ color: 'var(--text-primary)' }}>
                     <td className="px-3 py-2">
                       <span
                         className={cn(
@@ -443,25 +443,23 @@ function TransactionsPanel({
                       </span>
                     </td>
                     <td
-                      className={cn(
-                        "px-3 py-2 text-right tabular-nums",
-                        isDeposit ? "text-emerald-300" : "text-amber-300"
-                      )}
+                      className="px-3 py-2 text-right font-bold tabular-nums"
+                      style={{ color: isDeposit ? 'var(--positive)' : 'var(--warning)' }}
                     >
                       {isDeposit ? "+" : "-"}
                       {currency} {Number(tx.amount).toFixed(2)}
                     </td>
-                    <td className="px-3 py-2 text-xs text-slate-400">
+                    <td className="px-3 py-2 text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
                       {fmtDate(tx.occurred_at)}
                     </td>
-                    <td className="px-3 py-2 text-xs text-slate-400">
+                    <td className="px-3 py-2 text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
                       {tx.notes ?? "—"}
                     </td>
                     <td className="px-3 py-2 text-right">
                       <button
                         type="button"
                         onClick={() => handleDelete(tx.id)}
-                        className="rounded-md p-1 text-slate-400 transition hover:bg-red-500/10 hover:text-red-300"
+                        className="rounded-md p-1 transition duration-150 hover:bg-red-500/10" style={{ color: 'var(--text-muted)' }}
                       >
                         ×
                       </button>

@@ -41,19 +41,19 @@ export default function DrawdownChart({
   if (chartData.length === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
+    <div className="rounded-xl p-5" style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}>
       <div className="mb-4 flex items-center gap-2">
         <TrendingDown className="h-4 w-4 text-red-400" />
-        <h3 className="font-serif text-lg">Drawdown</h3>
+        <h3 className="text-lg font-bold">Drawdown</h3>
         <InfoTooltip text="Drawdown measures the drop from your peak equity to the lowest point before recovering. It shows how much you could lose during a bad streak." />
-        <div className="ml-auto flex items-center gap-4 text-xs text-slate-400">
+        <div className="ml-auto flex items-center gap-4 text-xs" style={{ color: 'var(--text-secondary)' }}>
           <span>
-            Max: <span className="font-mono text-red-300">{fmtPct(dd.maxDrawdownPct, 1)}</span>
+            Max: <span className="font-medium tabular-nums" style={{ color: 'var(--negative)' }}>{fmtPct(dd.maxDrawdownPct, 1)}</span>
             {" "}({fmtSignedUsd(-dd.maxDrawdownAbs)})
           </span>
           {dd.currentDrawdownPct > 0 && (
             <span>
-              Current: <span className="font-mono text-amber-300">{fmtPct(dd.currentDrawdownPct, 1)}</span>
+              Current: <span className="font-medium tabular-nums" style={{ color: 'var(--warning)' }}>{fmtPct(dd.currentDrawdownPct, 1)}</span>
             </span>
           )}
         </div>
@@ -68,7 +68,7 @@ export default function DrawdownChart({
                 <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--app-border)" />
             <XAxis
               dataKey="time"
               tick={{ fontSize: 10, fill: "#64748b" }}
@@ -87,11 +87,11 @@ export default function DrawdownChart({
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#131b2e",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "8px",
-                fontSize: "12px",
-                color: "#fff",
+                backgroundColor: 'var(--app-surface)',
+                border: '1px solid var(--app-border)',
+                borderRadius: '8px',
+                fontSize: '12px',
+                color: 'var(--text-primary)',
               }}
               formatter={(value: number, name: string) => {
                 if (name === "drawdown") return [`${value.toFixed(2)}%`, "Drawdown"];

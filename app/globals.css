@@ -1,71 +1,120 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ===== DARK THEME (default) ===== */
+/* ============================================================
+   DESIGN TOKENS — DARK (default)
+   ============================================================ */
 :root {
-  --bg-app: #0d0f14;
-  --bg-panel: #13161e;
-  --bg-subtle: #1a1d27;
-  --bg-hover: #1e2130;
-  --border-panel: rgba(255, 255, 255, 0.07);
+  /* Surfaces */
+  --app-bg: #080b11;
+  --app-surface: #0f1318;
+  --app-elevated: #161c24;
+  --app-border: #1f2937;
+  --app-muted: #374151;
+
+  /* Text */
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
-  --text-muted: #475569;
+  --text-muted: #4b5563;
+
+  /* Accent */
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-glow: rgba(59, 130, 246, 0.15);
+
+  /* Semantic */
+  --positive: #10b981;
+  --negative: #ef4444;
+  --warning: #f59e0b;
+
+  /* Legacy compat (used by existing inline styles) */
+  --bg-app: #080b11;
+  --bg-panel: #0f1318;
+  --bg-subtle: #161c24;
+  --bg-hover: #161c24;
+  --border-panel: #1f2937;
   --accent-blue: #3b82f6;
   --accent-indigo: #6366f1;
-  --accent-profit: #22c55e;
+  --accent-profit: #10b981;
   --accent-loss: #ef4444;
   --accent-equity: #3b82f6;
   --accent-warm: #f59e0b;
-  --nav-bg: rgba(13, 15, 20, 0.85);
-  --card-bg: #13161e;
-  --card-border: rgba(255, 255, 255, 0.07);
-  --card-hover-border: rgba(59, 130, 246, 0.3);
-  --card-hover-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
-  --input-bg: rgba(0, 0, 0, 0.3);
-  --badge-bg: rgba(255, 255, 255, 0.05);
-  --scrollbar-thumb: #1e2130;
+  --nav-bg: rgba(8, 11, 17, 0.88);
+  --card-bg: #0f1318;
+  --card-border: #1f2937;
+  --card-hover-border: rgba(59, 130, 246, 0.35);
+  --card-hover-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3);
+  --input-bg: #161c24;
+  --badge-bg: rgba(255, 255, 255, 0.06);
+  --scrollbar-thumb: #1f2937;
 }
 
-/* ===== LIGHT THEME ===== */
+/* ============================================================
+   DESIGN TOKENS — LIGHT
+   ============================================================ */
 [data-theme="light"] {
+  /* Surfaces */
+  --app-bg: #f8fafc;
+  --app-surface: #ffffff;
+  --app-elevated: #f1f5f9;
+  --app-border: #e2e8f0;
+  --app-muted: #cbd5e1;
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  /* Accent */
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-glow: rgba(37, 99, 235, 0.1);
+
+  /* Semantic */
+  --positive: #059669;
+  --negative: #dc2626;
+  --warning: #d97706;
+
+  /* Legacy compat */
   --bg-app: #f8fafc;
   --bg-panel: #ffffff;
   --bg-subtle: #f1f5f9;
   --bg-hover: #e2e8f0;
-  --border-panel: rgba(0, 0, 0, 0.08);
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --border-panel: #e2e8f0;
   --accent-blue: #2563eb;
   --accent-indigo: #4f46e5;
-  --accent-profit: #16a34a;
+  --accent-profit: #059669;
   --accent-loss: #dc2626;
   --accent-equity: #2563eb;
   --accent-warm: #d97706;
-  --nav-bg: rgba(255, 255, 255, 0.85);
+  --nav-bg: rgba(255, 255, 255, 0.88);
   --card-bg: #ffffff;
-  --card-border: rgba(0, 0, 0, 0.08);
-  --card-hover-border: rgba(37, 99, 235, 0.3);
-  --card-hover-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15), 0 4px 12px rgba(0, 0, 0, 0.05);
-  --input-bg: rgba(241, 245, 249, 0.8);
+  --card-border: #e2e8f0;
+  --card-hover-border: rgba(37, 99, 235, 0.35);
+  --card-hover-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --input-bg: #ffffff;
   --badge-bg: rgba(0, 0, 0, 0.04);
   --scrollbar-thumb: #cbd5e1;
 }
 
-/* Light theme overrides for Tailwind color classes */
-[data-theme="light"] .text-white { color: #0f172a; }
+/* ============================================================
+   LIGHT THEME — Tailwind class overrides
+   (maps hardcoded dark-only Tailwind classes to light equivalents)
+   ============================================================ */
+[data-theme="light"] .text-white { color: var(--text-primary); }
 [data-theme="light"] .text-slate-300 { color: #334155; }
 [data-theme="light"] .text-slate-400 { color: #475569; }
 [data-theme="light"] .text-slate-500 { color: #64748b; }
 [data-theme="light"] .text-slate-600 { color: #94a3b8; }
 [data-theme="light"] .text-blue-300 { color: #2563eb; }
 [data-theme="light"] .text-blue-400 { color: #3b82f6; }
-[data-theme="light"] .text-emerald-300 { color: #16a34a; }
+[data-theme="light"] .text-emerald-300 { color: #059669; }
+[data-theme="light"] .text-emerald-400 { color: #059669; }
 [data-theme="light"] .text-red-300 { color: #dc2626; }
+[data-theme="light"] .text-red-400 { color: #dc2626; }
 [data-theme="light"] .text-amber-300 { color: #d97706; }
 
 [data-theme="light"] .bg-white\/5,
@@ -76,7 +125,7 @@
 }
 [data-theme="light"] .bg-white\/10,
 [data-theme="light"] .hover\:bg-white\/10:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 0, 0, 0.04);
 }
 [data-theme="light"] .bg-white\/\[0\.04\] {
   background-color: rgba(0, 0, 0, 0.03);
@@ -86,74 +135,111 @@
 }
 [data-theme="light"] .bg-black\/20,
 [data-theme="light"] .bg-black\/30 {
-  background-color: rgba(241, 245, 249, 0.8);
+  background-color: var(--app-elevated);
 }
 [data-theme="light"] .border-white\/5,
 [data-theme="light"] .border-white\/10,
 [data-theme="light"] .border-white\/20 {
-  border-color: rgba(0, 0, 0, 0.08);
+  border-color: var(--app-border);
 }
 [data-theme="light"] .divide-white\/5 > :not([hidden]) ~ :not([hidden]) {
-  border-color: rgba(0, 0, 0, 0.06);
+  border-color: var(--app-border);
 }
-[data-theme="light"] .bg-white.text-slate-900 {
-  background-color: #0f172a;
-  color: #ffffff;
-}
-[data-theme="light"] .hover\:bg-slate-100:hover {
-  background-color: #1e293b;
+[data-theme="light"] .border-dashed.border-white\/10 {
+  border-color: var(--app-muted);
 }
 
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-html,
-body {
-  background: var(--bg-app);
+html, body {
+  background: var(--app-bg);
   color: var(--text-primary);
   font-family: "Inter", "IBM Plex Sans", system-ui, sans-serif;
+  font-feature-settings: "cv11", "ss01";
+  font-weight: 500;
   line-height: 1.6;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
+/* ============================================================
+   TYPOGRAPHY HIERARCHY
+   ============================================================ */
+h1 {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+h2 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+h3 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Tabular numbers for financial data */
 .tnum {
   font-variant-numeric: tabular-nums;
 }
 
-/* Subtle ambient gradient for dark theme */
+/* KPI value styling */
+.kpi-value {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* KPI label */
+.kpi-label {
+  font-weight: 600;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   AMBIENT BACKGROUND
+   ============================================================ */
 .ambient-bg {
   background:
     radial-gradient(
       ellipse 80% 50% at 50% -20%,
-      rgba(59, 130, 246, 0.15),
+      rgba(59, 130, 246, 0.12),
       transparent
     ),
     radial-gradient(
       ellipse 60% 50% at 80% 120%,
-      rgba(34, 197, 94, 0.08),
+      rgba(16, 185, 129, 0.06),
       transparent
     ),
-    var(--bg-app);
+    var(--app-bg);
 }
 
 [data-theme="light"] .ambient-bg {
   background:
     radial-gradient(
       ellipse 80% 50% at 50% -20%,
-      rgba(59, 130, 246, 0.06),
+      rgba(37, 99, 235, 0.05),
       transparent
     ),
     radial-gradient(
       ellipse 60% 50% at 80% 120%,
-      rgba(34, 197, 94, 0.03),
+      rgba(5, 150, 105, 0.03),
       transparent
     ),
-    var(--bg-app);
+    var(--app-bg);
 }
 
-/* Custom scrollbar */
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -166,17 +252,55 @@ body {
   border-radius: 3px;
 }
 
-/* Account cards (server component — no JS hover) */
+/* ============================================================
+   COMPONENT CLASSES
+   ============================================================ */
+
+/* Cards */
+.tj-card {
+  background-color: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.tj-card:hover {
+  border-color: var(--card-hover-border);
+  box-shadow: var(--card-hover-shadow);
+}
+
+/* Account cards (server component) */
 .account-card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--card-border);
+  background-color: var(--app-surface);
+  border: 1px solid var(--app-border);
 }
 .account-card:hover {
   border-color: var(--card-hover-border);
   box-shadow: var(--card-hover-shadow);
 }
 
-/* Theme-aware form inputs */
+/* Form inputs */
+.tj-input {
+  background-color: var(--app-elevated);
+  border: 1px solid var(--app-border);
+  color: var(--text-primary);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.15s;
+}
+.tj-input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+[data-theme="light"] .tj-input {
+  background-color: #ffffff;
+  border-color: #cbd5e1;
+}
+[data-theme="light"] .tj-input:focus {
+  border-color: var(--accent);
+}
+
+/* Global input theming */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -193,37 +317,116 @@ textarea::placeholder {
   color: var(--text-muted);
 }
 
-/* Reusable input class */
-.tj-input {
-  background-color: var(--input-bg);
-  border: 1px solid var(--card-border);
-  color: var(--text-primary);
-  transition: border-color 0.15s;
-}
-.tj-input:focus {
-  border-color: var(--accent-blue);
-  outline: none;
-}
-
-/* Primary button — gradient blue/indigo, works in both themes */
+/* Buttons */
 .tj-btn-primary {
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+  background: var(--accent);
   color: #ffffff;
-  font-weight: 600;
-  transition: box-shadow 0.2s;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.15s, box-shadow 0.15s;
 }
 .tj-btn-primary:hover {
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
+  background: var(--accent-hover);
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+.tj-btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--app-bg), 0 0 0 4px var(--accent);
 }
 
-/* ===== Feature icon animations (landing page) ===== */
+.tj-btn-secondary {
+  background: var(--app-elevated);
+  border: 1px solid var(--app-border);
+  color: var(--text-primary);
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.tj-btn-secondary:hover {
+  background: var(--app-border);
+}
+
+.tj-btn-destructive {
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--negative);
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.15s;
+}
+.tj-btn-destructive:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Badges */
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+}
+.badge-buy {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--positive);
+}
+.badge-sell {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--negative);
+}
+
+/* Tables */
+.tj-table thead th {
+  background-color: var(--app-elevated);
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.5rem 0.75rem;
+}
+.tj-table tbody tr {
+  border-bottom: 1px solid var(--app-border);
+  transition: background-color 0.15s;
+}
+.tj-table tbody tr:hover {
+  background-color: var(--app-elevated);
+}
+
+/* KPI Card accent border */
+.kpi-card {
+  border-left: 2px solid var(--accent);
+}
+
+/* Navigation */
+.nav-item {
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: color 0.15s, background-color 0.15s;
+}
+.nav-item:hover {
+  color: var(--text-primary);
+  background-color: var(--app-elevated);
+}
+.nav-item-active {
+  color: var(--accent);
+  background-color: var(--accent-glow);
+  border-left: 2px solid var(--accent);
+  font-weight: 700;
+}
+
+/* ============================================================
+   FEATURE ICON ANIMATIONS (landing page)
+   ============================================================ */
 .feature-icon-wrap {
   width: 100px;
   height: 100px;
   margin: 0 auto 1rem;
 }
 
-/* Chart line draws itself */
 .chart-draw {
   stroke-dasharray: 200;
   stroke-dashoffset: 200;
@@ -234,7 +437,6 @@ textarea::placeholder {
   to { stroke-dashoffset: 0; }
 }
 
-/* Brain hemispheres pulse */
 .brain-pulse {
   animation: brainPulse 3s ease-in-out infinite;
 }
@@ -243,7 +445,6 @@ textarea::placeholder {
   50% { opacity: 1; stroke-width: 2.5; }
 }
 
-/* Gauge arc fills */
 .gauge-fill {
   stroke-dasharray: 130;
   stroke-dashoffset: 130;
@@ -254,7 +455,6 @@ textarea::placeholder {
   to { stroke-dashoffset: 45; }
 }
 
-/* Gauge needle swings */
 .gauge-needle {
   animation: swingNeedle 1.5s ease-out forwards;
   animation-delay: 0.3s;
@@ -266,7 +466,6 @@ textarea::placeholder {
   100% { transform: rotate(-30deg); }
 }
 
-/* Calculator number fade-in */
 .calc-number {
   animation: fadeUp 0.6s ease-out forwards;
   animation-delay: 1.2s;

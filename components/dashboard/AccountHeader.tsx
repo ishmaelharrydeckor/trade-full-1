@@ -15,16 +15,19 @@ export default function AccountHeader({
     <header className="flex flex-col gap-3">
       <Link
         href="/dashboard"
-        className="inline-flex w-fit items-center gap-1 text-xs text-slate-400 transition hover:text-white"
+        className="inline-flex w-fit items-center gap-1 text-xs font-medium transition duration-150"
+        style={{ color: 'var(--text-secondary)' }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
+        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
       >
         <ChevronLeft className="h-3.5 w-3.5" /> All accounts
       </Link>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-serif text-3xl tracking-tight md:text-4xl">
+          <h1 className="text-3xl font-extrabold tracking-tighter md:text-4xl" style={{ color: 'var(--text-primary)' }}>
             {account.name}
           </h1>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
             {account.broker ?? "—"}
             {account.account_number ? ` · ${account.account_number}` : ""}{" "}
             · <span className="font-mono">{account.currency}</span>
@@ -32,7 +35,7 @@ export default function AccountHeader({
               <>
                 {" · "}
                 Starting:{" "}
-                <span className="tabular-nums text-slate-300">
+                <span className="tabular-nums" style={{ color: 'var(--text-primary)' }}>
                   {account.currency}{" "}
                   {Number(account.starting_balance).toFixed(2)}
                 </span>
@@ -43,14 +46,16 @@ export default function AccountHeader({
         <div className="flex items-center gap-2">
           <Link
             href={`/dashboard/accounts/${account.id}/backtest`}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-1.5 text-xs font-medium text-blue-200 transition hover:bg-blue-500/20"
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold text-white transition duration-150"
+            style={{ backgroundColor: 'var(--accent)', borderColor: 'var(--accent)' }}
             title="Open the backtester"
           >
             <PlayCircle className="h-3.5 w-3.5" /> Backtester
           </Link>
           <Link
             href={`/dashboard/accounts/${account.id}/settings`}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-1.5 text-xs text-slate-300 transition hover:bg-white/5 hover:text-white"
+            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition duration-150"
+            style={{ borderColor: 'var(--app-border)', color: 'var(--text-secondary)' }}
             title="Account settings"
           >
             <Settings className="h-3.5 w-3.5" /> Settings

@@ -15,14 +15,14 @@ export default function RecentTradesPreview({
   const recent = trades.slice(0, 8);
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
+    <div className="rounded-xl p-5" style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}>
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-serif text-lg">Recent trades</h3>
+        <h3 className="text-lg font-bold">Recent trades</h3>
         {trades.length > 8 && (
           <button
             type="button"
             onClick={onOpenAll}
-            className="text-xs text-blue-400 hover:underline"
+            className="text-xs font-bold hover:underline" style={{ color: 'var(--accent)' }}
           >
             View all {trades.length}
           </button>
@@ -30,14 +30,14 @@ export default function RecentTradesPreview({
       </div>
 
       {recent.length === 0 ? (
-        <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-white/10 text-sm text-slate-500">
+        <div className="flex h-32 items-center justify-center rounded-xl border border-dashed text-sm" style={{ borderColor: 'var(--app-border)', color: 'var(--text-muted)' }}>
           No trades yet. Add one from the Trades tab.
         </div>
       ) : (
         <div className="relative">
-          <div className="overflow-x-auto rounded-xl border border-white/10">
-            <table className="w-full min-w-[600px] text-sm">
-              <thead className="bg-white/[0.02] text-[10px] uppercase tracking-wider text-slate-400">
+          <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--app-border)' }}>
+            <table className="tj-table w-full min-w-[600px] text-sm">
+              <thead className="text-[10px] uppercase tracking-wider font-semibold" style={{ backgroundColor: 'var(--app-elevated)', color: 'var(--text-muted)' }}>
                 <tr>
                   <th className="px-3 py-2 text-left">Symbol</th>
                   <th className="px-3 py-2 text-left">Dir</th>
@@ -46,21 +46,21 @@ export default function RecentTradesPreview({
                   <th className="px-3 py-2 text-left">Closed</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody>
                 {recent.map((t) => {
                   const net = tradeNetPnl(t);
                   const isLong = t.direction === "long";
                   const isWin = net > 0;
                   return (
-                    <tr key={t.id} className="text-slate-200">
+                    <tr key={t.id} className="transition-colors duration-150" style={{ color: 'var(--text-primary)' }}>
                       <td className="px-3 py-2 font-medium">{t.symbol}</td>
                       <td className="px-3 py-2">
                         <span
                           className={cn(
-                            "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase",
+                            "badge inline-flex items-center gap-1",
                             isLong
-                              ? "bg-emerald-500/10 text-emerald-300"
-                              : "bg-red-500/10 text-red-300"
+                              ? "badge-buy"
+                              : "badge-sell"
                           )}
                         >
                           {isLong ? (
@@ -86,7 +86,7 @@ export default function RecentTradesPreview({
                       >
                         {fmtSignedUsd(net)}
                       </td>
-                      <td className="px-3 py-2 text-xs text-slate-400">
+                      <td className="px-3 py-2 text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
                         {fmtDateTime(t.close_time)}
                       </td>
                     </tr>

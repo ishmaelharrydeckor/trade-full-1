@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { ArrowRight, Sparkles } from "lucide-react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import FeatureAnimation from "@/components/ui/FeatureAnimation";
 
 export default async function LandingPage() {
   const supabase = await createClient();
@@ -24,8 +25,8 @@ export default async function LandingPage() {
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-blue-500 to-indigo-600 text-xs font-bold text-white">
             T
           </div>
-          <span className="text-xl font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-            Trade<span style={{ color: 'var(--accent-blue)' }}>·</span>Journal
+          <span className="text-xl font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            Trade<span style={{ color: 'var(--accent)' }}>·</span>Journal
           </span>
         </div>
         <nav className="flex items-center gap-2 text-sm">

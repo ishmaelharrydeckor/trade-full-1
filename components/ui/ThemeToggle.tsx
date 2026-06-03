@@ -31,24 +31,24 @@ export default function ThemeToggle({ className }: { className?: string }) {
       onClick={toggle}
       title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
       className={cn(
-        "relative inline-flex h-8 w-14 items-center rounded-full border transition-colors duration-200",
+        "relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-150",
         theme === "dark"
-          ? "border-white/10 bg-white/5"
-          : "border-black/10 bg-black/5",
+          ? "bg-[#161c24] border border-[#1f2937]"
+          : "bg-slate-100 border border-slate-200",
         className
       )}
       aria-label="Toggle theme"
     >
       <span
         className={cn(
-          "absolute flex h-6 w-6 items-center justify-center rounded-full transition-transform duration-200",
+          "absolute flex h-6 w-6 items-center justify-center rounded-full transition-transform duration-150",
           theme === "dark"
-            ? "translate-x-1 bg-slate-700"
+            ? "translate-x-1 bg-[#1f2937]"
             : "translate-x-[1.625rem] bg-white shadow-sm"
         )}
       >
         {theme === "dark" ? (
-          <Moon className="h-3.5 w-3.5 text-blue-300" />
+          <Moon className="h-3.5 w-3.5 text-blue-400" />
         ) : (
           <Sun className="h-3.5 w-3.5 text-amber-500" />
         )}

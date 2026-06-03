@@ -43,7 +43,7 @@ export default async function DashboardPage() {
     <div className="flex flex-col gap-10">
       {/* Welcome hero */}
       <section className="pt-2">
-        <h1 className="text-3xl font-bold tracking-tight md:text-4xl" style={{ color: 'var(--text-primary)' }}>
+        <h1 className="text-3xl font-extrabold tracking-tighter md:text-4xl" style={{ color: 'var(--text-primary)' }}>
           Welcome,{" "}
           <span
             className="font-serif italic"
@@ -78,14 +78,14 @@ export default async function DashboardPage() {
             <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
               <Plus className="h-7 w-7 text-white" />
             </div>
-            <h2 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            <h2 className="text-3xl font-extrabold tracking-tighter" style={{ color: 'var(--text-primary)' }}>
               Create your first account
             </h2>
             <p className="mx-auto mt-3 max-w-md text-sm" style={{ color: 'var(--text-secondary)' }}>
               You can have multiple trading accounts — one per broker, demo,
               prop firm challenge, or strategy.
             </p>
-            <span className="mt-7 inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition group-hover:shadow-blue-500/40">
+            <span className="mt-7 inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/25 transition group-hover:shadow-blue-500/40">
               Get started
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
             </span>
@@ -100,7 +100,7 @@ export default async function DashboardPage() {
               className="account-card group rounded-2xl p-5 transition"
             >
               <div className="mb-2 flex items-center justify-between">
-                <h3 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>{acc.name}</h3>
+                <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{acc.name}</h3>
                 <span
                   className="rounded-md px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider"
                   style={{ backgroundColor: 'var(--badge-bg)', color: 'var(--text-secondary)' }}
@@ -114,7 +114,7 @@ export default async function DashboardPage() {
               {acc.starting_balance != null && (
                 <p className="mt-3 text-sm tabular-nums" style={{ color: 'var(--text-secondary)' }}>
                   Starting:{" "}
-                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  <span className="font-bold tabular-nums" style={{ color: 'var(--text-primary)' }}>
                     {acc.currency} {Number(acc.starting_balance).toFixed(2)}
                   </span>
                 </p>
@@ -139,13 +139,13 @@ export default async function DashboardPage() {
       <section
         className="rounded-2xl p-6"
         style={{
-          backgroundColor: 'var(--bg-subtle)',
-          border: '1px solid var(--card-border)',
+          backgroundColor: 'var(--app-elevated)',
+          border: '1px solid var(--app-border)',
         }}
       >
         <div className="mb-5 flex items-center gap-2">
           <Sparkles className="h-4 w-4" style={{ color: 'var(--accent-blue)' }} />
-          <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Build status</h3>
+          <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Build status</h3>
         </div>
         <div className="grid grid-cols-1 gap-6 text-sm md:grid-cols-3">
           <RoadmapItem
@@ -201,7 +201,7 @@ function RoadmapItem({
 }) {
   return (
     <div>
-      <div className="mb-2 flex items-center gap-1.5 text-[10px] uppercase tracking-wider">
+      <div className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider">
         {done ? (
           <>
             <Check className="h-3 w-3" style={{ color: 'var(--accent-profit)' }} />

@@ -34,16 +34,16 @@ export default function AnalyticsBarChart({
   const isEmpty = data.length === 0;
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
+    <div className="rounded-xl p-5" style={{ background: 'var(--app-surface)', border: '1px solid var(--app-border)' }}>
       <div className="mb-4">
-        <h3 className="font-serif text-lg">{title}</h3>
+        <h3 className="text-lg font-bold">{title}</h3>
         {subtitle && (
-          <p className="mt-0.5 text-xs text-slate-500">{subtitle}</p>
+          <p className="mt-0.5 text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{subtitle}</p>
         )}
       </div>
 
       {isEmpty ? (
-        <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-white/10 text-center text-sm text-slate-500">
+        <div className="flex h-64 items-center justify-center rounded-xl border border-dashed text-center text-sm font-medium" style={{ borderColor: 'var(--app-border)', color: 'var(--text-muted)' }}>
           {emptyMessage}
         </div>
       ) : (
@@ -58,14 +58,14 @@ export default function AnalyticsBarChart({
                 margin={{ top: 8, right: 12, left: 0, bottom: 4 }}
               >
                 <CartesianGrid
-                  stroke="#1e293b"
+                  stroke="var(--app-border)"
                   strokeDasharray="3 3"
                   vertical={false}
                 />
                 <XAxis
                   dataKey="label"
-                  stroke="#475569"
-                  tick={{ fontSize: 11, fill: "#94a3b8" }}
+                  stroke="var(--text-muted)"
+                  tick={{ fontSize: 11, fill: 'var(--text-secondary)' }}
                   tickLine={false}
                   axisLine={false}
                   interval={0}
@@ -74,8 +74,8 @@ export default function AnalyticsBarChart({
                   height={displayData.length > 6 ? 60 : 30}
                 />
                 <YAxis
-                  stroke="#475569"
-                  tick={{ fontSize: 11, fill: "#64748b" }}
+                  stroke="var(--text-muted)"
+                  tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                   tickFormatter={(v) => fmtCompactNumber(v)}
                   tickLine={false}
                   axisLine={false}
@@ -84,13 +84,13 @@ export default function AnalyticsBarChart({
                 <Tooltip
                   cursor={{ fill: "rgba(255,255,255,0.03)" }}
                   contentStyle={{
-                    backgroundColor: "#0f1623",
-                    border: "1px solid #1e293b",
+                    backgroundColor: 'var(--app-surface)',
+                    border: '1px solid var(--app-border)',
                     borderRadius: 8,
                     fontSize: 12,
-                    padding: "8px 12px",
+                    padding: '8px 12px',
                   }}
-                  labelStyle={{ color: "#94a3b8", marginBottom: 4 }}
+                  labelStyle={{ color: 'var(--text-secondary)', marginBottom: 4 }}
                   labelFormatter={(label, payload) => {
                     const p = payload?.[0]?.payload as
                       | DimensionAggregate
@@ -107,7 +107,7 @@ export default function AnalyticsBarChart({
                   {displayData.map((d, idx) => (
                     <Cell
                       key={idx}
-                      fill={d.netPnl >= 0 ? "#22c55e" : "#ef4444"}
+                      fill={d.netPnl >= 0 ? 'var(--positive)' : 'var(--negative)'}
                     />
                   ))}
                 </Bar>

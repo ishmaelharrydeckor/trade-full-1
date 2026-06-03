@@ -76,7 +76,7 @@ export default function AccountTabs({
   return (
     <div className="relative -mx-4 md:mx-0">
       <div className="overflow-x-auto px-4 md:px-0">
-        <nav className="inline-flex shrink-0 gap-1 rounded-xl border border-white/10 bg-white/[0.02] p-1 backdrop-blur">
+        <nav className="inline-flex shrink-0 gap-1 rounded-xl border p-1 backdrop-blur" style={{ borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
           {TABS.map((t) => {
             const isActive = t.id === active;
             const Icon = t.icon;
@@ -87,11 +87,15 @@ export default function AccountTabs({
                 onClick={() => onSelect(t.id)}
                 title={t.tooltip}
                 className={cn(
-                  "inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm transition",
+                  "inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm transition duration-150",
                   isActive
-                    ? "bg-white text-slate-900"
-                    : "text-slate-300 hover:bg-white/5 hover:text-white"
+                    ? "font-bold text-white"
+                    : "font-semibold"
                 )}
+                style={isActive
+                  ? { backgroundColor: 'var(--accent)' }
+                  : { color: 'var(--text-secondary)' }
+                }
               >
                 <Icon className="h-3.5 w-3.5" />
                 {t.label}
@@ -100,7 +104,7 @@ export default function AccountTabs({
           })}
         </nav>
       </div>
-      <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-[color:var(--bg-app)] to-transparent md:hidden" />
+      <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-[color:var(--app-bg)] to-transparent md:hidden" />
     </div>
   );
 }

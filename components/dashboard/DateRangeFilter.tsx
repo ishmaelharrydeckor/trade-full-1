@@ -115,18 +115,22 @@ export default function DateRangeFilter({
   return (
     <div className="relative -mx-4 md:mx-0">
       <div className="flex items-center gap-2 overflow-x-auto px-4 pb-1 md:flex-wrap md:px-0 md:pb-0">
-        <div className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-white/10 bg-white/[0.02] p-1">
+        <div className="inline-flex shrink-0 items-center gap-1 rounded-lg border p-1" style={{ borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
           {PRESETS.map((p) => (
             <button
               key={p.id}
               type="button"
               onClick={() => handlePreset(p.id)}
               className={cn(
-                "rounded-md px-2.5 py-1 text-xs transition",
+                "rounded-md px-2.5 py-1 text-xs transition duration-150",
                 value.preset === p.id
-                  ? "bg-white font-semibold text-slate-900"
-                  : "text-slate-300 hover:bg-white/5 hover:text-white"
+                  ? "font-bold text-white"
+                  : "font-semibold"
               )}
+              style={value.preset === p.id
+                ? { backgroundColor: 'var(--accent)' }
+                : { color: 'var(--text-secondary)' }
+              }
             >
               {p.label}
             </button>
@@ -134,28 +138,28 @@ export default function DateRangeFilter({
         </div>
 
         {showCustom && (
-          <div className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.02] px-2 py-1">
+          <div className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-2 py-1" style={{ borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
             <input
               type="date"
               value={value.start ? value.start.toISOString().slice(0, 10) : ""}
               onChange={(e) => handleCustomDate("start", e.target.value)}
-              className="rounded bg-black/30 px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500/50"
+              className="tj-input rounded px-2 py-1 text-xs font-medium outline-none"
             />
-            <span className="text-xs text-slate-500">→</span>
+            <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>→</span>
             <input
               type="date"
               value={value.end ? value.end.toISOString().slice(0, 10) : ""}
               onChange={(e) => handleCustomDate("end", e.target.value)}
-              className="rounded bg-black/30 px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-500/50"
+              className="tj-input rounded px-2 py-1 text-xs font-medium outline-none"
             />
           </div>
         )}
 
-        <span className="shrink-0 whitespace-nowrap text-xs text-slate-400">
+        <span className="shrink-0 whitespace-nowrap text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
           {tradeCount} {tradeCount === 1 ? "trade" : "trades"} in range
         </span>
       </div>
-      <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-[color:var(--bg-app)] to-transparent md:hidden" />
+      <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-[color:var(--app-bg)] to-transparent md:hidden" />
     </div>
   );
 }

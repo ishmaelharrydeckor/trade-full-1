@@ -61,18 +61,18 @@ export default function OpenPositionsPanel({ accountId }: { accountId: string })
   );
 
   return (
-    <div className="rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/[0.05] via-white/[0.02] to-transparent p-5 backdrop-blur">
+    <div className="rounded-xl p-5" style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Activity className="h-4 w-4 text-emerald-400" />
-          <h3 className="font-serif text-lg">Open positions</h3>
+          <h3 className="text-lg font-bold">Open positions</h3>
           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] uppercase tracking-wider text-emerald-300">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
             Live
           </span>
         </div>
         <div className="flex items-center gap-3 text-xs">
-          <span className="text-slate-400">
+          <span style={{ color: 'var(--text-secondary)' }}>
             Unrealized:{" "}
             <span
               className={cn(
@@ -88,7 +88,7 @@ export default function OpenPositionsPanel({ accountId }: { accountId: string })
             </span>
           </span>
           {lastSyncedAt && (
-            <span className="flex items-center gap-1 text-[10px] text-slate-500">
+            <span className="flex items-center gap-1 text-[10px]" style={{ color: 'var(--text-muted)' }}>
               <Wifi className="h-2.5 w-2.5" />
               synced {secondsAgo(lastSyncedAt)}s ago
             </span>
@@ -97,9 +97,9 @@ export default function OpenPositionsPanel({ accountId }: { accountId: string })
       </div>
 
       <div className="relative">
-        <div className="overflow-x-auto rounded-xl border border-white/10">
-          <table className="w-full min-w-[700px] text-sm">
-            <thead className="bg-white/[0.02] text-[10px] uppercase tracking-wider text-slate-400">
+        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--app-border)' }}>
+          <table className="tj-table w-full min-w-[700px] text-sm">
+            <thead className="text-[10px] uppercase tracking-wider font-semibold" style={{ backgroundColor: 'var(--app-elevated)', color: 'var(--text-muted)' }}>
               <tr>
                 <th className="px-3 py-2 text-left">Symbol</th>
                 <th className="px-3 py-2 text-left">Dir</th>
@@ -111,20 +111,20 @@ export default function OpenPositionsPanel({ accountId }: { accountId: string })
                 <th className="px-3 py-2 text-left">Opened</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody>
               {positions.map((p) => {
                 const isLong = p.direction === "long";
                 const unrealized = p.unrealized_pnl ?? 0;
                 return (
-                  <tr key={p.id} className="text-slate-200">
+                  <tr key={p.id} className="transition-colors duration-150" style={{ color: 'var(--text-primary)' }}>
                     <td className="px-3 py-2 font-medium">{p.symbol}</td>
                     <td className="px-3 py-2">
                       <span
                         className={cn(
-                          "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase",
+                          "badge inline-flex items-center gap-1",
                           isLong
-                            ? "bg-emerald-500/10 text-emerald-300"
-                            : "bg-red-500/10 text-red-300"
+                            ? "badge-buy"
+                            : "badge-sell"
                         )}
                       >
                         {isLong ? (
@@ -138,15 +138,15 @@ export default function OpenPositionsPanel({ accountId }: { accountId: string })
                     <td className="px-3 py-2 text-right tabular-nums">
                       {Number(p.volume).toFixed(2)}
                     </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-slate-300">
+                    <td className="px-3 py-2 text-right tabular-nums font-medium" style={{ color: 'var(--text-secondary)' }}>
                       {fmtNumber(p.entry_price, 4)}
                     </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-slate-300">
+                    <td className="px-3 py-2 text-right tabular-nums font-medium" style={{ color: 'var(--text-secondary)' }}>
                       {p.current_price != null
                         ? fmtNumber(p.current_price, 4)
                         : "—"}
                     </td>
-                    <td className="px-3 py-2 text-right text-xs tabular-nums text-slate-400">
+                    <td className="px-3 py-2 text-right text-xs tabular-nums font-medium" style={{ color: 'var(--text-muted)' }}>
                       {p.stop_loss != null && p.stop_loss > 0
                         ? fmtNumber(p.stop_loss, 4)
                         : "—"}
@@ -167,7 +167,7 @@ export default function OpenPositionsPanel({ accountId }: { accountId: string })
                     >
                       {fmtSignedUsd(unrealized)}
                     </td>
-                    <td className="px-3 py-2 text-xs text-slate-400">
+                    <td className="px-3 py-2 text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
                       {fmtDateTime(p.open_time)}
                     </td>
                   </tr>

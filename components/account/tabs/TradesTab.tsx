@@ -62,20 +62,20 @@ export default function TradesTab({
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-md">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
           <input
             type="search"
             placeholder="Filter by symbol, tag, or note…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-black/30 py-2 pl-9 pr-3 text-sm outline-none transition focus:border-blue-500/50"
+            className="tj-input w-full py-2 pl-9 pr-3 text-sm"
           />
         </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setImportOpen(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10"
+            className="tj-btn-secondary inline-flex items-center gap-2 px-3 py-2 text-sm"
           >
             <Upload className="h-4 w-4" /> Import CSV
           </button>
@@ -85,7 +85,7 @@ export default function TradesTab({
               setEditingTrade(null);
               setFormOpen(true);
             }}
-            className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+            className="tj-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm"
           >
             <Plus className="h-4 w-4" /> Add trade
           </button>
@@ -94,9 +94,9 @@ export default function TradesTab({
 
       {/* Table or empty state */}
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center">
-          <FileText className="mx-auto mb-3 h-8 w-8 text-slate-500" />
-          <p className="text-sm text-slate-400">
+        <div className="rounded-xl border border-dashed p-10 text-center" style={{ borderColor: 'var(--app-border)', background: 'var(--app-surface)' }}>
+          <FileText className="mx-auto mb-3 h-8 w-8" style={{ color: 'var(--text-muted)' }} />
+          <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
             {trades.length === 0
               ? "No trades yet."
               : "No trades match your filter."}
@@ -108,7 +108,7 @@ export default function TradesTab({
                 setEditingTrade(null);
                 setFormOpen(true);
               }}
-              className="mt-4 inline-flex items-center gap-1.5 text-sm text-blue-400 hover:underline"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold hover:underline" style={{ color: 'var(--accent)' }}
             >
               <Plus className="h-3.5 w-3.5" /> Add your first trade
             </button>
@@ -116,9 +116,9 @@ export default function TradesTab({
         </div>
       ) : (
         <div className="relative">
-          <div className="overflow-x-auto rounded-2xl border border-white/10">
-            <table className="w-full min-w-[900px] text-sm">
-              <thead className="bg-white/[0.02] text-[10px] uppercase tracking-wider text-slate-400">
+          <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--app-border)' }}>
+            <table className="tj-table w-full min-w-[900px] text-sm">
+              <thead>
                 <tr>
                   <th className="px-3 py-2 text-left">Symbol</th>
                   <th className="px-3 py-2 text-left">Dir</th>
@@ -131,12 +131,12 @@ export default function TradesTab({
                   <th className="px-3 py-2 text-right"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody>
                 {filtered.map((t) => {
                   const net = tradeNetPnl(t);
                   const isWin = net > 0;
                   return (
-                    <tr key={t.id} className="text-slate-200">
+                    <tr key={t.id} style={{ color: 'var(--text-primary)' }}>
                       <td className="px-3 py-2">
                         <div className="font-medium">{t.symbol}</div>
                         {t.tags && t.tags.length > 0 && (
@@ -144,7 +144,7 @@ export default function TradesTab({
                             {t.tags.slice(0, 3).map((tag) => (
                               <span
                                 key={tag}
-                                className="rounded-md bg-white/5 px-1 py-0 text-[9px] text-slate-400"
+                                className="rounded-md px-1 py-0 text-[9px] font-medium" style={{ background: 'var(--app-elevated)', color: 'var(--text-secondary)' }}
                               >
                                 {tag}
                               </span>
@@ -155,40 +155,40 @@ export default function TradesTab({
                       <td className="px-3 py-2">
                         <span
                           className={cn(
-                            "inline-block rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase",
+                            "badge uppercase",
                             t.direction === "long"
-                              ? "bg-emerald-500/10 text-emerald-300"
-                              : "bg-red-500/10 text-red-300"
+                              ? "badge-buy"
+                              : "badge-sell"
                           )}
                         >
                           {t.direction}
                         </span>
                       </td>
-                      <td className="px-3 py-2 text-right tabular-nums text-slate-300">
+                      <td className="px-3 py-2 text-right font-medium tabular-nums" style={{ color: 'var(--text-secondary)' }}>
                         {Number(t.volume).toFixed(2)}
                       </td>
-                      <td className="px-3 py-2 text-right tabular-nums text-slate-300">
+                      <td className="px-3 py-2 text-right font-medium tabular-nums" style={{ color: 'var(--text-secondary)' }}>
                         {fmtNumber(t.entry_price, 4)}
                       </td>
-                      <td className="px-3 py-2 text-right tabular-nums text-slate-300">
+                      <td className="px-3 py-2 text-right font-medium tabular-nums" style={{ color: 'var(--text-secondary)' }}>
                         {fmtNumber(t.exit_price, 4)}
                       </td>
                       <td
-                        className={cn(
-                          "px-3 py-2 text-right font-semibold tabular-nums",
-                          isWin
-                            ? "text-emerald-300"
+                        className="px-3 py-2 text-right font-bold tabular-nums"
+                        style={{
+                          color: isWin
+                            ? 'var(--positive)'
                             : net < 0
-                              ? "text-red-300"
-                              : "text-slate-400"
-                        )}
+                              ? 'var(--negative)'
+                              : 'var(--text-muted)'
+                        }}
                       >
                         {fmtSignedUsd(net)}
                       </td>
-                      <td className="px-3 py-2 text-xs capitalize text-slate-400">
+                      <td className="px-3 py-2 text-xs font-medium capitalize" style={{ color: 'var(--text-muted)' }}>
                         {t.mindset ?? "—"}
                       </td>
-                      <td className="px-3 py-2 text-xs text-slate-400">
+                      <td className="px-3 py-2 text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
                         {fmtDateTime(t.close_time)}
                       </td>
                       <td className="px-3 py-2 text-right">
@@ -199,7 +199,8 @@ export default function TradesTab({
                               setEditingTrade(t);
                               setFormOpen(true);
                             }}
-                            className="rounded-md p-1 text-slate-400 transition hover:bg-white/5 hover:text-white"
+                            className="rounded-md p-1 transition duration-150"
+                            style={{ color: 'var(--text-muted)' }}
                             title="Edit"
                           >
                             <Edit2 className="h-3.5 w-3.5" />
@@ -207,7 +208,8 @@ export default function TradesTab({
                           <button
                             type="button"
                             onClick={() => handleDelete(t.id)}
-                            className="rounded-md p-1 text-slate-400 transition hover:bg-red-500/10 hover:text-red-300"
+                            className="rounded-md p-1 transition duration-150 hover:bg-red-500/10"
+                            style={{ color: 'var(--text-muted)' }}
                             title="Delete"
                           >
                             <Trash2 className="h-3.5 w-3.5" />

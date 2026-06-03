@@ -32,10 +32,10 @@ export default function AnalyticsTab({
 
   if (trades.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-12 text-center backdrop-blur">
-        <BarChart3 className="mx-auto mb-3 h-10 w-10 text-slate-500" />
-        <h3 className="font-serif text-2xl">Analytics need trades to chew on</h3>
-        <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">
+      <div className="rounded-xl border border-dashed p-12 text-center" style={{ borderColor: 'var(--app-border)', background: 'var(--app-surface)' }}>
+        <BarChart3 className="mx-auto mb-3 h-10 w-10" style={{ color: 'var(--text-muted)' }} />
+        <h3 className="text-2xl font-bold tracking-tight">Analytics need trades to chew on</h3>
+        <p className="mx-auto mt-2 max-w-md text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
           Once you've added or imported some trades, this tab fills with charts
           showing your edge by pair, time of day, mindset, and more.
         </p>

@@ -118,7 +118,7 @@ export default function CreateAccountForm() {
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+        <div className="rounded-lg border px-3 py-2 text-xs font-medium" style={{ borderColor: 'color-mix(in srgb, var(--negative) 30%, transparent)', backgroundColor: 'color-mix(in srgb, var(--negative) 10%, transparent)', color: 'var(--negative)' }}>
           {error}
         </div>
       )}
@@ -127,7 +127,8 @@ export default function CreateAccountForm() {
         <button
           type="submit"
           disabled={submitting || !name.trim()}
-          className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+          className="tj-btn-primary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold text-white transition duration-150 disabled:cursor-not-allowed disabled:opacity-60"
+          style={{ backgroundColor: 'var(--accent)' }}
         >
           {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
           {submitting ? "Creating…" : "Create account"}
@@ -135,7 +136,8 @@ export default function CreateAccountForm() {
         <button
           type="button"
           onClick={() => router.push("/dashboard/accounts")}
-          className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-5 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white"
+          className="inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-medium transition duration-150"
+          style={{ borderColor: 'var(--app-border)', color: 'var(--text-secondary)' }}
         >
           Cancel
         </button>
@@ -145,7 +147,7 @@ export default function CreateAccountForm() {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500/50";
+  "tj-input w-full rounded-lg border px-3 py-2.5 text-sm font-medium outline-none transition duration-150";
 
 function Field({
   label,
@@ -158,11 +160,11 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
+      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
         {label}
       </label>
       {children}
-      {hint && <p className="mt-1 text-[10px] text-slate-500">{hint}</p>}
+      {hint && <p className="mt-1 text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>{hint}</p>}
     </div>
   );
 }

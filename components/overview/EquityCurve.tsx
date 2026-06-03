@@ -30,11 +30,11 @@ export default function EquityCurve({
 
   if (isEmpty) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
+      <div className="rounded-xl p-5" style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-serif text-lg">Equity curve</h3>
+          <h3 className="text-lg font-bold">Equity curve</h3>
         </div>
-        <div className="flex h-72 items-center justify-center rounded-xl border border-dashed border-white/10 text-sm text-slate-500">
+        <div className="flex h-72 items-center justify-center rounded-xl border border-dashed text-sm" style={{ borderColor: 'var(--app-border)', color: 'var(--text-muted)' }}>
           Add your first trade to see the equity curve.
         </div>
       </div>
@@ -45,15 +45,15 @@ export default function EquityCurve({
   const fillGradient = isPositive ? "equityFillUp" : "equityFillDown";
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
+    <div className="rounded-xl p-5" style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}>
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-1.5">
-          <h3 className="font-serif text-lg">Equity curve</h3>
+          <h3 className="text-lg font-bold">Equity curve</h3>
           <InfoTooltip text="Your account balance over time, adjusted for each trade's P&L plus deposits and withdrawals. An upward slope means you're growing your account." />
         </div>
         <div className="flex items-center gap-2 text-xs">
           <span className="h-2 w-2 rounded-full bg-blue-400" />
-          <span className="text-slate-400">{currency}</span>
+          <span style={{ color: 'var(--text-secondary)' }}>{currency}</span>
         </div>
       </div>
 
@@ -115,8 +115,8 @@ export default function EquityCurve({
               )}
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#0f1623",
-                  border: "1px solid #1e293b",
+                  backgroundColor: 'var(--app-surface)',
+                  border: '1px solid var(--app-border)',
                   borderRadius: 8,
                   fontSize: 12,
                 }}

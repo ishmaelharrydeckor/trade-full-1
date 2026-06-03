@@ -34,7 +34,7 @@ export default async function DashboardLayout({
     "trader";
 
   return (
-    <div className="min-h-screen bg-[color:var(--bg-app)]">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--app-bg)' }}>
       <DashboardNav displayName={displayName} email={user.email ?? ""} />
       <main className="mx-auto w-full max-w-7xl px-4 py-6 md:px-8 md:py-10">
         {children}

@@ -103,31 +103,38 @@ export default function CalendarTab({
   return (
     <div className="flex flex-col gap-5">
       {/* Month header with nav */}
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur">
+      <div className="rounded-xl p-5" style={{ background: 'var(--app-surface)', border: '1px solid var(--app-border)' }}>
         <div className="flex items-center justify-between gap-4">
           <button
             type="button"
             onClick={prevMonth}
-            className="rounded-lg border border-white/10 bg-white/5 p-2 text-slate-300 transition hover:bg-white/10 hover:text-white"
+            className="rounded-lg p-2 transition duration-150" style={{ border: '1px solid var(--app-border)', background: 'var(--app-elevated)', color: 'var(--text-secondary)' }}
             aria-label="Previous month"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
 
           <div className="flex-1 text-center">
-            <h3 className="font-serif text-2xl tracking-tight">{monthLabel}</h3>
-            <div className="mt-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-slate-400 tabular-nums">
+            <h3 className="text-2xl font-bold tracking-tight">{monthLabel}</h3>
+            <div className="mt-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs tabular-nums font-medium" style={{ color: 'var(--text-secondary)' }}>
               <span>
                 Net:{" "}
                 <span
                   className={cn(
                     "font-semibold",
                     monthTotal.netPnl > 0
-                      ? "text-emerald-300"
+                      ? ""
                       : monthTotal.netPnl < 0
-                        ? "text-red-300"
-                        : "text-slate-300"
+                        ? ""
+                        : ""
                   )}
+                  style={{
+                    color: monthTotal.netPnl > 0
+                      ? 'var(--positive)'
+                      : monthTotal.netPnl < 0
+                        ? 'var(--negative)'
+                        : 'var(--text-secondary)'
+                  }}
                 >
                   {fmtSignedUsd(monthTotal.netPnl)}
                 </span>
@@ -136,9 +143,9 @@ export default function CalendarTab({
               <span>{monthTotal.trades} trades</span>
               <span>·</span>
               <span>
-                <span className="text-emerald-300">{monthTotal.winningDays}W</span>
+                <span style={{ color: 'var(--positive)' }}>{monthTotal.winningDays}W</span>
                 {" / "}
-                <span className="text-red-300">{monthTotal.losingDays}L</span>
+                <span style={{ color: 'var(--negative)' }}>{monthTotal.losingDays}L</span>
                 {" days"}
               </span>
             </div>
@@ -147,7 +154,7 @@ export default function CalendarTab({
           <button
             type="button"
             onClick={nextMonth}
-            className="rounded-lg border border-white/10 bg-white/5 p-2 text-slate-300 transition hover:bg-white/10 hover:text-white"
+            className="rounded-lg p-2 transition duration-150" style={{ border: '1px solid var(--app-border)', background: 'var(--app-elevated)', color: 'var(--text-secondary)' }}
             aria-label="Next month"
           >
             <ChevronRight className="h-4 w-4" />
@@ -159,7 +166,7 @@ export default function CalendarTab({
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
             <div
               key={d}
-              className="text-center text-[10px] uppercase tracking-wider text-slate-500"
+              className="text-center text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}
             >
               {d}
             </div>
@@ -197,19 +204,19 @@ export default function CalendarTab({
         </div>
 
         {/* Legend */}
-        <div className="mt-4 flex items-center justify-center gap-4 text-[10px] text-slate-500">
+        <div className="mt-4 flex items-center justify-center gap-4 text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>
           <Legend dot="bg-emerald-500/60" label="Winning day" />
           <Legend dot="bg-red-500/60" label="Losing day" />
-          <Legend dot="bg-white/10" label="No trades" />
+          <Legend dot="" dotStyle={{ background: 'var(--app-elevated)' }} label="No trades" />
         </div>
       </div>
 
       {/* Selected day's trades */}
       {selectedDate && (
-        <div className="rounded-2xl border border-blue-500/30 bg-blue-500/[0.05] p-5 backdrop-blur">
+        <div className="rounded-xl p-5" style={{ border: '1px solid var(--accent)', background: 'var(--accent-glow)' }}>
           <div className="mb-3 flex items-center justify-between">
             <div>
-              <h4 className="font-serif text-lg">
+              <h4 className="text-lg font-bold">
                 {new Date(selectedDate + "T00:00:00").toLocaleDateString(
                   "default",
                   {
@@ -220,7 +227,7 @@ export default function CalendarTab({
                   }
                 )}
               </h4>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
                 {selectedTrades.length} trade
                 {selectedTrades.length !== 1 ? "s" : ""}
               </p>
@@ -228,7 +235,7 @@ export default function CalendarTab({
             <button
               type="button"
               onClick={() => setSelectedDate(null)}
-              className="text-xs text-slate-400 hover:text-white"
+              className="text-xs font-medium transition duration-150" style={{ color: 'var(--text-secondary)' }}
             >
               Clear
             </button>
@@ -236,7 +243,7 @@ export default function CalendarTab({
 
           {selectedTrades.length === 0 ? (
             <div className="space-y-3">
-              <p className="text-sm text-slate-400">No trades on this day.</p>
+              <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>No trades on this day.</p>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -245,7 +252,7 @@ export default function CalendarTab({
                       new CustomEvent("tradefull:addtrade", { detail: selectedDate })
                     );
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-slate-900 hover:bg-slate-100"
+                  className="tj-btn-primary inline-flex items-center gap-1.5 px-3 py-2 text-xs"
                 >
                   <Plus className="h-3 w-3" />
                   Add a trade
@@ -257,7 +264,7 @@ export default function CalendarTab({
                       new CustomEvent("tradefull:gototab", { detail: "notebook" })
                     );
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-slate-300 hover:bg-white/10"
+                  className="tj-btn-secondary inline-flex items-center gap-1.5 px-3 py-2 text-xs"
                 >
                   <BookText className="h-3 w-3" />
                   Write journal entry
@@ -265,9 +272,9 @@ export default function CalendarTab({
               </div>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-xl border border-white/10">
-              <table className="w-full min-w-[500px] text-sm">
-                <thead className="bg-white/[0.02] text-[10px] uppercase tracking-wider text-slate-400">
+            <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--app-border)' }}>
+              <table className="tj-table w-full min-w-[500px] text-sm">
+                <thead>
                   <tr>
                     <th className="px-3 py-2 text-left">Symbol</th>
                     <th className="px-3 py-2 text-left">Dir</th>
@@ -276,31 +283,33 @@ export default function CalendarTab({
                     <th className="px-3 py-2 text-left">Closed</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody>
                   {selectedTrades.map((t) => {
                     const net = tradeNetPnl(t);
                     return (
-                      <tr key={t.id} className="text-slate-200">
+                      <tr key={t.id} style={{ color: 'var(--text-primary)' }}>
                         <td className="px-3 py-2 font-medium">{t.symbol}</td>
-                        <td className="px-3 py-2 capitalize text-slate-400">
-                          {t.direction}
+                        <td className="px-3 py-2">
+                          <span className={cn("badge uppercase", t.direction === "long" ? "badge-buy" : "badge-sell")}>
+                            {t.direction}
+                          </span>
                         </td>
-                        <td className="px-3 py-2 text-right tabular-nums text-slate-400">
+                        <td className="px-3 py-2 text-right font-medium tabular-nums" style={{ color: 'var(--text-secondary)' }}>
                           {Number(t.volume).toFixed(2)}
                         </td>
                         <td
-                          className={cn(
-                            "px-3 py-2 text-right tabular-nums",
-                            net > 0
-                              ? "text-emerald-300"
+                          className="px-3 py-2 text-right font-bold tabular-nums"
+                          style={{
+                            color: net > 0
+                              ? 'var(--positive)'
                               : net < 0
-                                ? "text-red-300"
-                                : "text-slate-400"
-                          )}
+                                ? 'var(--negative)'
+                                : 'var(--text-muted)'
+                          }}
                         >
                           {fmtSignedUsd(net)}
                         </td>
-                        <td className="px-3 py-2 text-xs text-slate-400">
+                        <td className="px-3 py-2 text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
                           {fmtDateTime(t.close_time)}
                         </td>
                       </tr>
@@ -314,10 +323,10 @@ export default function CalendarTab({
       )}
 
       {trades.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-12 text-center backdrop-blur">
-          <CalendarIcon className="mx-auto mb-3 h-10 w-10 text-slate-500" />
-          <h3 className="font-serif text-2xl">No trades to plot yet</h3>
-          <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">
+        <div className="rounded-xl border border-dashed p-12 text-center" style={{ borderColor: 'var(--app-border)', background: 'var(--app-surface)' }}>
+          <CalendarIcon className="mx-auto mb-3 h-10 w-10" style={{ color: 'var(--text-muted)' }} />
+          <h3 className="text-2xl font-bold tracking-tight">No trades to plot yet</h3>
+          <p className="mx-auto mt-2 max-w-md text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
             Once you've added or imported some trades, this calendar shows
             green for winning days and red for losing days at a glance.
           </p>
@@ -369,43 +378,51 @@ function DayCell({
           : dateStr ? `${dateStr}: Click to add a trade or journal entry` : ""
       }
       className={cn(
-        "group flex aspect-square flex-col items-center justify-center gap-0.5 rounded-lg border p-1.5 text-xs transition",
+        "group flex aspect-square flex-col items-center justify-center gap-0.5 rounded-lg p-1.5 text-xs transition duration-150",
         // Base coloring
         day
           ? isWin
-            ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-100"
+            ? "text-emerald-100"
             : isLoss
-              ? "border-red-500/30 bg-red-500/15 text-red-100"
-              : "border-white/10 bg-white/5 text-slate-300"
+              ? "text-red-100"
+              : ""
           : isFuture
-            ? "border-white/5 bg-transparent text-slate-700 cursor-not-allowed"
-            : "border-white/5 bg-transparent text-slate-500 cursor-pointer hover:border-white/20 hover:bg-white/[0.03]",
+            ? "cursor-not-allowed"
+            : "cursor-pointer",
         // Interaction states
         !isFuture && "cursor-pointer hover:scale-105",
         day && isWin && "hover:bg-emerald-500/25",
         day && isLoss && "hover:bg-red-500/25",
         // Selected
-        isSelected && "ring-2 ring-blue-400 ring-offset-1 ring-offset-[color:var(--bg-app)]",
+        isSelected && "ring-2 ring-offset-1",
         // Today
         isToday && !isSelected && "ring-1 ring-slate-500"
       )}
+      style={{
+        border: `1px solid ${day ? (isWin ? 'rgba(16,185,129,0.3)' : isLoss ? 'rgba(239,68,68,0.3)' : 'var(--app-border)') : 'var(--app-border)'}`,
+        background: day
+          ? isWin ? 'rgba(16,185,129,0.15)' : isLoss ? 'rgba(239,68,68,0.15)' : 'var(--app-surface)'
+          : isFuture ? 'transparent' : 'var(--app-surface)',
+        color: !day && !isFuture ? 'var(--text-muted)' : undefined,
+        ...(isSelected ? { boxShadow: '0 0 0 2px var(--accent)', borderColor: 'var(--accent)' } : {}),
+      }}
     >
       <div className="text-[10px] font-medium">{date.getDate()}</div>
       {day ? (
-        <div className="font-mono text-[9px] tabular-nums opacity-80">
+        <div className="font-mono text-[9px] font-medium tabular-nums opacity-80">
           {fmtCompactNumber(day.netPnl)}
         </div>
       ) : !isFuture ? (
-        <div className="text-[8px] text-slate-600 opacity-0 transition group-hover:opacity-100">+</div>
+        <div className="text-[8px] opacity-0 transition group-hover:opacity-100" style={{ color: 'var(--text-muted)' }}>+</div>
       ) : null}
     </button>
   );
 }
 
-function Legend({ dot, label }: { dot: string; label: string }) {
+function Legend({ dot, label, dotStyle }: { dot: string; label: string; dotStyle?: React.CSSProperties }) {
   return (
     <span className="flex items-center gap-1.5">
-      <span className={`h-2 w-2 rounded-full ${dot}`} />
+      <span className={`h-2 w-2 rounded-full ${dot}`} style={dotStyle} />
       {label}
     </span>
   );
