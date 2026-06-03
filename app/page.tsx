@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { ArrowRight, Sparkles } from "lucide-react";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default async function LandingPage() {
   const supabase = await createClient();
@@ -20,23 +21,30 @@ export default async function LandingPage() {
       {/* Top bar */}
       <header className="flex items-center justify-between px-6 py-6 md:px-12 md:py-8">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-blue-500 to-blue-700 text-xs font-bold text-white">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-blue-500 to-indigo-600 text-xs font-bold text-white">
             T
           </div>
-          <span className="font-serif text-xl italic tracking-tight">
-            Trade<span className="text-blue-400">·</span>Journal
+          <span className="text-xl font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            Trade<span style={{ color: 'var(--accent-blue)' }}>·</span>Journal
           </span>
         </div>
         <nav className="flex items-center gap-2 text-sm">
+          <ThemeToggle />
           <Link
             href="/login"
-            className="px-3 py-1.5 text-slate-300 transition hover:text-white"
+            className="px-3 py-1.5 transition hover:opacity-80"
+            style={{ color: 'var(--text-secondary)' }}
           >
             Sign in
           </Link>
           <Link
             href="/signup"
-            className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 font-medium text-white backdrop-blur transition hover:border-blue-500/40 hover:bg-blue-500/10"
+            className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 font-medium transition"
+            style={{
+              color: 'var(--text-primary)',
+              border: '1px solid var(--card-border)',
+              backgroundColor: 'var(--badge-bg)',
+            }}
           >
             Get started <ArrowRight className="h-3.5 w-3.5" />
           </Link>
@@ -45,20 +53,27 @@ export default async function LandingPage() {
 
       {/* Hero */}
       <section className="mx-auto max-w-5xl px-6 pb-20 pt-16 text-center md:pt-28">
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-400 backdrop-blur">
-          <Sparkles className="h-3 w-3 text-blue-400" />
+        <div
+          className="mb-6 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs backdrop-blur"
+          style={{
+            border: '1px solid var(--card-border)',
+            backgroundColor: 'var(--badge-bg)',
+            color: 'var(--text-secondary)',
+          }}
+        >
+          <Sparkles className="h-3 w-3" style={{ color: 'var(--accent-blue)' }} />
           <span>Now with AI-powered insights</span>
         </div>
 
-        <h1 className="font-serif text-5xl leading-[1.05] tracking-tight md:text-7xl">
+        <h1 className="font-serif text-5xl leading-[1.05] tracking-tight md:text-7xl" style={{ color: 'var(--text-primary)' }}>
           Trade with{" "}
-          <span className="italic text-blue-300">discipline</span>.
+          <span className="italic" style={{ color: 'var(--accent-blue)' }}>discipline</span>.
           <br />
           Review with{" "}
-          <span className="italic text-emerald-300">honesty</span>.
+          <span className="italic" style={{ color: 'var(--accent-profit)' }}>honesty</span>.
         </h1>
 
-        <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-slate-400">
+        <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           A trading journal built for traders who want to know — not guess —
           whether their edge is real. Auto-synced from MetaTrader. Tagged,
           measured, replayed.
@@ -67,19 +82,24 @@ export default async function LandingPage() {
         <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/signup"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 font-medium text-slate-900 transition hover:bg-slate-100 sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-3 font-medium text-white shadow-lg shadow-blue-500/20 transition hover:shadow-blue-500/40 sm:w-auto"
           >
             Start free <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
             href="/login"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-6 py-3 font-medium text-white backdrop-blur transition hover:bg-white/10 sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3 font-medium backdrop-blur transition sm:w-auto"
+            style={{
+              border: '1px solid var(--card-border)',
+              backgroundColor: 'var(--badge-bg)',
+              color: 'var(--text-primary)',
+            }}
           >
             Sign in
           </Link>
         </div>
 
-        <p className="mt-6 text-xs text-slate-500">
+        <p className="mt-6 text-xs" style={{ color: 'var(--text-muted)' }}>
           Free for the first 6 months. No credit card required.
         </p>
       </section>
@@ -103,7 +123,7 @@ export default async function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 px-6 py-8 text-center text-xs text-slate-500">
+      <footer className="px-6 py-8 text-center text-xs" style={{ borderTop: '1px solid var(--card-border)', color: 'var(--text-muted)' }}>
         <p>
           Built in Ghana ·{" "}
           <span className="font-mono">v0.1 · trade-full-1</span>
@@ -115,9 +135,15 @@ export default async function LandingPage() {
 
 function Feature({ title, body }: { title: string; body: string }) {
   return (
-    <div className="rounded-xl border border-white/5 bg-white/[0.02] p-6 backdrop-blur transition hover:border-white/10">
-      <h3 className="mb-2 font-serif text-xl">{title}</h3>
-      <p className="text-sm leading-relaxed text-slate-400">{body}</p>
+    <div
+      className="rounded-xl p-6 backdrop-blur transition"
+      style={{
+        border: '1px solid var(--card-border)',
+        backgroundColor: 'var(--card-bg)',
+      }}
+    >
+      <h3 className="mb-2 text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</h3>
+      <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{body}</p>
     </div>
   );
 }

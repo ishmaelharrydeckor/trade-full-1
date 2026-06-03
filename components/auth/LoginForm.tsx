@@ -41,25 +41,30 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
+        <label className="mb-1.5 block text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
           Email
         </label>
         <div className="relative">
-          <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+          <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
           <input
             type="email"
             required
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500/50"
+            className="w-full rounded-lg py-2.5 pl-10 pr-3 text-sm outline-none transition"
+            style={{
+              border: '1px solid var(--card-border)',
+              backgroundColor: 'var(--input-bg)',
+              color: 'var(--text-primary)',
+            }}
             placeholder="you@example.com"
           />
         </div>
       </div>
 
       <div>
-        <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
+        <label className="mb-1.5 block text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
           Password
         </label>
         <PasswordInput
@@ -78,7 +83,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-white py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 disabled:cursor-wait disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:shadow-blue-500/40 disabled:cursor-wait disabled:opacity-60"
       >
         {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
         {submitting ? "Signing in…" : "Sign in"}

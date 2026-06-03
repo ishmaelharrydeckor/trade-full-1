@@ -25,7 +25,7 @@ export default function PasswordInput({
 
   return (
     <div className="relative">
-      <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+      <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
       <input
         type={visible ? "text" : "password"}
         required={required}
@@ -33,13 +33,14 @@ export default function PasswordInput({
         autoComplete={autoComplete}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-10 text-sm outline-none transition focus:border-blue-500/50"
+        className="tj-input w-full rounded-lg py-2.5 pl-10 pr-10 text-sm"
         placeholder={placeholder}
       />
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-slate-500 transition hover:bg-white/5 hover:text-white"
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 transition hover:opacity-80"
+        style={{ color: 'var(--text-muted)' }}
         tabIndex={-1}
         aria-label={visible ? "Hide password" : "Show password"}
       >

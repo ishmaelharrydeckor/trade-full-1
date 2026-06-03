@@ -175,3 +175,43 @@ body {
   border-color: var(--card-hover-border);
   box-shadow: var(--card-hover-shadow);
 }
+
+/* Theme-aware form inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="url"],
+input[type="date"],
+input[type="time"],
+textarea,
+select {
+  color: var(--text-primary);
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* Reusable input class */
+.tj-input {
+  background-color: var(--input-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
+  transition: border-color 0.15s;
+}
+.tj-input:focus {
+  border-color: var(--accent-blue);
+  outline: none;
+}
+
+/* Primary button — gradient blue/indigo, works in both themes */
+.tj-btn-primary {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+  color: #ffffff;
+  font-weight: 600;
+  transition: box-shadow 0.2s;
+}
+.tj-btn-primary:hover {
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
+}

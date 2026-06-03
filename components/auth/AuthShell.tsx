@@ -1,5 +1,6 @@
 // components/auth/AuthShell.tsx
 import Link from "next/link";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function AuthShell({
   title,
@@ -18,35 +19,43 @@ export default function AuthShell({
 }) {
   return (
     <main className="ambient-bg flex min-h-screen flex-col">
-      <header className="px-6 py-6 md:px-12">
+      <header className="flex items-center justify-between px-6 py-6 md:px-12">
         <Link href="/" className="inline-flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-blue-500 to-blue-700 text-xs font-bold text-white">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-blue-500 to-indigo-600 text-xs font-bold text-white">
             T
           </div>
-          <span className="font-serif text-xl italic tracking-tight">
-            Trade<span className="text-blue-400">·</span>Journal
+          <span className="text-xl font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            Trade<span style={{ color: 'var(--accent-blue)' }}>·</span>Journal
           </span>
         </Link>
+        <ThemeToggle />
       </header>
 
       <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
-            <h1 className="font-serif text-4xl tracking-tight md:text-5xl">
+            <h1 className="font-serif text-4xl tracking-tight md:text-5xl" style={{ color: 'var(--text-primary)' }}>
               {title}
             </h1>
-            <p className="mt-3 text-sm text-slate-400">{subtitle}</p>
+            <p className="mt-3 text-sm" style={{ color: 'var(--text-secondary)' }}>{subtitle}</p>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur md:p-8">
+          <div
+            className="rounded-2xl p-6 backdrop-blur md:p-8"
+            style={{
+              border: '1px solid var(--card-border)',
+              backgroundColor: 'var(--card-bg)',
+            }}
+          >
             {children}
           </div>
 
-          <p className="mt-6 text-center text-sm text-slate-400">
+          <p className="mt-6 text-center text-sm" style={{ color: 'var(--text-secondary)' }}>
             {altText}{" "}
             <Link
               href={altHref}
-              className="text-blue-400 underline-offset-4 hover:underline"
+              className="underline-offset-4 hover:underline"
+              style={{ color: 'var(--accent-blue)' }}
             >
               {altLabel}
             </Link>

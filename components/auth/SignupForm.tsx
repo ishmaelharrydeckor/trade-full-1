@@ -113,11 +113,11 @@ export default function SignupForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Name */}
       <div>
-        <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
+        <label className="mb-1.5 block text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
           Your name
         </label>
         <div className="relative">
-          <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+          <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
           <input
             type="text"
             required
@@ -126,7 +126,7 @@ export default function SignupForm() {
             autoComplete="name"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500/50"
+            className="tj-input w-full rounded-lg py-2.5 pl-10 pr-3 text-sm"
             placeholder="What should we call you?"
           />
         </div>
@@ -134,15 +134,15 @@ export default function SignupForm() {
 
       {/* Country */}
       <div>
-        <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
+        <label className="mb-1.5 block text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
           Country
         </label>
         <div className="relative">
-          <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+          <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
           <select
             value={country}
             onChange={(e) => setCountry(e.target.value)}
-            className="w-full appearance-none rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-8 text-sm outline-none transition focus:border-blue-500/50"
+            className="tj-input w-full appearance-none rounded-lg py-2.5 pl-10 pr-8 text-sm"
           >
             {COUNTRIES.map((c) => (
               <option key={c} value={c} className="bg-slate-900">
@@ -151,7 +151,8 @@ export default function SignupForm() {
             ))}
           </select>
           <svg
-            className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
+            className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2"
+            style={{ color: 'var(--text-muted)' }}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -168,18 +169,18 @@ export default function SignupForm() {
 
       {/* Email */}
       <div>
-        <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
+        <label className="mb-1.5 block text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
           Email
         </label>
         <div className="relative">
-          <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+          <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
           <input
             type="email"
             required
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500/50"
+            className="tj-input w-full rounded-lg py-2.5 pl-10 pr-3 text-sm"
             placeholder="you@example.com"
           />
         </div>
@@ -187,7 +188,7 @@ export default function SignupForm() {
 
       {/* Password */}
       <div>
-        <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
+        <label className="mb-1.5 block text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
           Password
         </label>
         <PasswordInput
@@ -209,13 +210,13 @@ export default function SignupForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-white py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 disabled:cursor-wait disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:shadow-blue-500/40 disabled:cursor-wait disabled:opacity-60"
       >
         {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
         {submitting ? "Creating account…" : "Create account"}
       </button>
 
-      <p className="text-center text-[11px] text-slate-500">
+      <p className="text-center text-[11px]" style={{ color: 'var(--text-muted)' }}>
         By signing up, you accept that this is an early-stage product and
         things may break.
       </p>
