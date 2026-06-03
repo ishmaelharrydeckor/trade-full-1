@@ -104,18 +104,30 @@ export default function AiInsightsPanel({
   const cooldownActive = cooldownSec > 0 && insight !== null;
 
   return (
-    <div className="rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-500/[0.05] via-white/[0.02] to-transparent p-5 backdrop-blur">
+    <div
+      className="rounded-xl p-5 backdrop-blur"
+      style={{
+        backgroundColor: 'var(--app-surface)',
+        border: '1px solid var(--app-border)',
+      }}
+    >
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-blue-400" />
-            <h3 className="font-serif text-lg">AI insights</h3>
-            <span className="rounded-md bg-blue-500/10 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-blue-300">
+            <Sparkles className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+            <h3 className="text-lg font-bold">AI insights</h3>
+            <span
+              className="rounded-md px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider"
+              style={{
+                backgroundColor: 'var(--accent-glow)',
+                color: 'var(--accent)',
+              }}
+            >
               Beta
             </span>
           </div>
           {insight && (
-            <p className="mt-1 text-[10px] text-slate-500">
+            <p className="mt-1 text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>
               Generated from your last {insight.trades_count} trades ·{" "}
               {formatAgo(insight.generated_at)}
             </p>
@@ -129,11 +141,11 @@ export default function AiInsightsPanel({
             (insight === null ? false : cooldownActive && cooldownSec > 60)
           }
           className={cn(
-            "inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition",
+            "inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold transition duration-150",
             "disabled:cursor-not-allowed disabled:opacity-50",
             insight === null
-              ? "border-blue-500/50 bg-blue-500 text-white hover:bg-blue-400"
-              : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
+              ? "tj-btn-primary"
+              : "tj-btn-secondary"
           )}
         >
           {generating ? (
@@ -152,7 +164,14 @@ export default function AiInsightsPanel({
       </div>
 
       {error && (
-        <div className="mb-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
+        <div
+          className="mb-3 rounded-lg p-3 text-xs font-medium"
+          style={{
+            border: '1px solid color-mix(in srgb, var(--negative) 30%, transparent)',
+            backgroundColor: 'color-mix(in srgb, var(--negative) 8%, transparent)',
+            color: 'var(--negative)',
+          }}
+        >
           {error}
         </div>
       )}
@@ -161,7 +180,7 @@ export default function AiInsightsPanel({
         <EmptyHint message="Add or import some trades, then AI will spot patterns in your behaviour." />
       ) : loading ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-5 w-5 animate-spin text-slate-500" />
+          <Loader2 className="h-5 w-5 animate-spin" style={{ color: 'var(--text-muted)' }} />
         </div>
       ) : !insight ? (
         <EmptyHint message="Click 'Generate' for AI-powered observations and blindspots from your recent trades." />
@@ -169,12 +188,21 @@ export default function AiInsightsPanel({
         <div className="space-y-4">
           {/* Discipline note — the headline */}
           {insight.discipline_notes && (
-            <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.05] p-4">
-              <div className="mb-1 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-amber-400">
+            <div
+              className="rounded-xl p-4"
+              style={{
+                border: '1px solid color-mix(in srgb, var(--warning) 25%, transparent)',
+                backgroundColor: 'color-mix(in srgb, var(--warning) 6%, transparent)',
+              }}
+            >
+              <div
+                className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider"
+                style={{ color: 'var(--warning)' }}
+              >
                 <Quote className="h-3 w-3" />
                 Focus this week
               </div>
-              <p className="text-sm text-amber-100">
+              <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                 {insight.discipline_notes}
               </p>
             </div>
@@ -183,17 +211,25 @@ export default function AiInsightsPanel({
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {/* Observations */}
             <div>
-              <div className="mb-2 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-emerald-400">
+              <div
+                className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider"
+                style={{ color: 'var(--positive)' }}
+              >
                 <TrendingUp className="h-3 w-3" />
-                What's working
+                What&apos;s working
               </div>
-              <ul className="space-y-2 text-sm text-slate-200">
+              <ul className="space-y-2 text-sm">
                 {insight.observations.map((o, i) => (
                   <li
                     key={i}
-                    className="flex gap-2 rounded-lg border border-emerald-500/10 bg-emerald-500/[0.03] p-2.5"
+                    className="flex gap-2 rounded-lg p-2.5 font-medium"
+                    style={{
+                      border: '1px solid color-mix(in srgb, var(--positive) 15%, transparent)',
+                      backgroundColor: 'color-mix(in srgb, var(--positive) 5%, transparent)',
+                      color: 'var(--text-primary)',
+                    }}
                   >
-                    <span className="text-emerald-400">·</span>
+                    <span style={{ color: 'var(--positive)' }}>·</span>
                     <span>{o}</span>
                   </li>
                 ))}
@@ -202,17 +238,25 @@ export default function AiInsightsPanel({
 
             {/* Blindspots */}
             <div>
-              <div className="mb-2 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-red-400">
+              <div
+                className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider"
+                style={{ color: 'var(--negative)' }}
+              >
                 <AlertTriangle className="h-3 w-3" />
                 Blindspots
               </div>
-              <ul className="space-y-2 text-sm text-slate-200">
+              <ul className="space-y-2 text-sm">
                 {insight.blindspots.map((o, i) => (
                   <li
                     key={i}
-                    className="flex gap-2 rounded-lg border border-red-500/10 bg-red-500/[0.03] p-2.5"
+                    className="flex gap-2 rounded-lg p-2.5 font-medium"
+                    style={{
+                      border: '1px solid color-mix(in srgb, var(--negative) 15%, transparent)',
+                      backgroundColor: 'color-mix(in srgb, var(--negative) 5%, transparent)',
+                      color: 'var(--text-primary)',
+                    }}
                   >
-                    <span className="text-red-400">·</span>
+                    <span style={{ color: 'var(--negative)' }}>·</span>
                     <span>{o}</span>
                   </li>
                 ))}
@@ -220,7 +264,7 @@ export default function AiInsightsPanel({
             </div>
           </div>
 
-          <p className="text-[10px] text-slate-500">
+          <p className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>
             AI-generated — not financial advice. Cross-check with your own analysis.
           </p>
         </div>
@@ -231,7 +275,13 @@ export default function AiInsightsPanel({
 
 function EmptyHint({ message }: { message: string }) {
   return (
-    <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-white/10 p-4 text-center text-sm text-slate-500">
+    <div
+      className="flex h-32 items-center justify-center rounded-xl border-dashed p-4 text-center text-sm font-medium"
+      style={{
+        border: '1px dashed var(--app-muted)',
+        color: 'var(--text-muted)',
+      }}
+    >
       {message}
     </div>
   );
