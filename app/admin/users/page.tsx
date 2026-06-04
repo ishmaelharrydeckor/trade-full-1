@@ -4,7 +4,9 @@ import Link from "next/link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { isCurrentUserAdmin } from "@/lib/admin";
-import AdminUsersTable, { type AdminUserRow } from "@/components/admin/AdminUsersTable";
+import AdminDashboardTabs from "@/components/admin/AdminDashboardTabs";
+import { type AdminUserRow } from "@/components/admin/AdminUsersTable";
+import { type BetaFeedbackRow } from "@/components/admin/AdminFeedbackTable";
 
 export const dynamic = "force-dynamic"; // never cache
 
@@ -55,12 +57,15 @@ WHERE id = '${user.id}';`}
     );
   }
 
-  // Fetch profiles, account counts, trade counts in parallel
-  const [profilesRes, accountsRes, tradesRes] = await Promise.all([
+  // Fetch profiles, account counts, trade counts, and beta feedback in parallel
+  const [profilesRes, accountsRes, tradesRes, feedbackRes] = await Promise.all([
     admin.from("profiles").select("id, display_name, country, is_admin"),
     admin.from("accounts").select("user_id"),
     admin.from("trades").select("user_id"),
+    admin.from("beta_feedback").select("*").order("submitted_at", { ascending: false }),
   ]);
+
+  const feedback: BetaFeedbackRow[] = feedbackRes.data ?? [];
 
   const profilesMap = new Map(
     (profilesRes.data ?? []).map((p) => [p.id, p])
@@ -108,10 +113,10 @@ WHERE id = '${user.id}';`}
 
       <div className="mb-6 flex items-center gap-2">
         <ShieldCheck className="h-5 w-5 text-emerald-400" />
-        <h1 className="font-serif text-3xl">Users · {rows.length}</h1>
+        <h1 className="font-serif text-3xl">Admin Control Panel</h1>
       </div>
 
-      <AdminUsersTable initialUsers={rows} />
+      <AdminDashboardTabs initialUsers={rows} feedback={feedback} />
     </div>
   );
 }
