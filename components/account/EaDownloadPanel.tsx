@@ -42,16 +42,16 @@ export default function EaDownloadPanel({
   }
 
   return (
-    <div className="rounded-2xl border border-blue-500/30 bg-gradient-to-br from-blue-500/[0.08] via-white/[0.02] to-transparent p-5 backdrop-blur lg:col-span-2">
+    <div className="rounded-2xl border p-5 backdrop-blur lg:col-span-2" style={{ borderColor: 'var(--border-panel)', background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(255, 255, 255, 0.02))' }}>
       <div className="mb-4 flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-blue-300" />
+        <Sparkles className="h-4 w-4" style={{ color: 'var(--accent-blue)' }} />
         <h3 className="font-serif text-lg">Connect MT5 — live sync</h3>
-        <span className="rounded-md bg-blue-500/15 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-blue-300">
+        <span className="rounded-md px-1.5 py-0.5 text-[9px] uppercase tracking-wider font-semibold" style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)', color: 'var(--accent-blue)' }}>
           New
         </span>
       </div>
 
-      <p className="mb-5 text-sm text-slate-300">
+      <p className="mb-5 text-sm" style={{ color: 'var(--text-secondary)' }}>
         Drop our expert advisor on any chart in MT5 → every closed trade and
         open position syncs to this dashboard automatically. No manual exports.
       </p>
@@ -68,14 +68,15 @@ export default function EaDownloadPanel({
         <button
           type="button"
           onClick={() => setShowInstructions((v) => !v)}
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-medium transition hover:opacity-85"
+          style={{ borderColor: 'var(--border-panel)', backgroundColor: 'var(--bg-subtle)', color: 'var(--text-primary)' }}
         >
           <ShieldCheck className="h-4 w-4" />
           {showInstructions ? "Hide" : "Show"} setup steps
         </button>
       </div>
 
-      <div className="mt-2 text-[11px] text-slate-500">
+      <div className="mt-2 text-[11px]" style={{ color: 'var(--text-muted)' }}>
         File:{" "}
         <span className="font-mono">
           TradeFull1_{accountName.replace(/[^a-zA-Z0-9-_]/g, "_")}.mq5
@@ -84,7 +85,7 @@ export default function EaDownloadPanel({
       </div>
 
       {showInstructions && (
-        <div className="mt-5 space-y-4 rounded-xl border border-white/10 bg-black/20 p-4">
+        <div className="mt-5 space-y-4 rounded-xl border p-4" style={{ borderColor: 'var(--border-panel)', backgroundColor: 'var(--bg-subtle)' }}>
           <Step
             n={1}
             title="Drop the .mq5 into your MT5 Experts folder"
@@ -108,14 +109,15 @@ export default function EaDownloadPanel({
                 <li>Click "Add new URL" and paste:</li>
               </ul>
             </div>
-            <div className="flex items-center gap-2 rounded-md border border-white/10 bg-black/40 px-3 py-2">
-              <code className="flex-1 font-mono text-xs text-blue-200 break-all">
+            <div className="flex items-center gap-2 rounded-md border px-3 py-2" style={{ borderColor: 'var(--border-panel)', backgroundColor: 'var(--input-bg)' }}>
+              <code className="flex-1 font-mono text-xs break-all font-semibold" style={{ color: 'var(--accent-blue)' }}>
                 {webhookUrl}
               </code>
               <button
                 type="button"
                 onClick={() => copy(webhookUrl, setUrlCopied)}
-                className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[10px] text-slate-300 hover:bg-white/10 hover:text-white"
+                className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[10px] hover:opacity-85"
+                style={{ borderColor: 'var(--border-panel)', color: 'var(--text-secondary)' }}
               >
                 {urlCopied ? (
                   <>
@@ -128,7 +130,7 @@ export default function EaDownloadPanel({
                 )}
               </button>
             </div>
-            <div className="mt-2 text-[11px] text-slate-500">
+            <div className="mt-2 text-[11px]" style={{ color: 'var(--text-muted)' }}>
               Then click <Code>OK</Code>. (You only do this once for the
               browser/MT5 combo.)
             </div>
@@ -150,18 +152,19 @@ export default function EaDownloadPanel({
           </Step>
 
           {/* Token display (for manual setup or troubleshooting) */}
-          <details className="rounded-lg border border-white/10 bg-white/[0.02] p-3 text-xs">
-            <summary className="cursor-pointer text-slate-400">
+          <details className="rounded-lg border p-3 text-xs" style={{ borderColor: 'var(--border-panel)', backgroundColor: 'var(--bg-app)' }}>
+            <summary className="cursor-pointer font-medium" style={{ color: 'var(--text-muted)' }}>
               Need your raw token? (For manual setup / troubleshooting)
             </summary>
-            <div className="mt-2 flex items-center gap-2 rounded-md border border-white/10 bg-black/40 px-3 py-2">
-              <code className="flex-1 break-all font-mono text-[11px] text-slate-300">
+            <div className="mt-2 flex items-center gap-2 rounded-md border px-3 py-2" style={{ borderColor: 'var(--border-panel)', backgroundColor: 'var(--input-bg)' }}>
+              <code className="flex-1 break-all font-mono text-[11px]" style={{ color: 'var(--text-secondary)' }}>
                 {eaToken}
               </code>
               <button
                 type="button"
                 onClick={() => copy(eaToken, setTokenCopied)}
-                className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[10px] text-slate-300 hover:bg-white/10 hover:text-white"
+                className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[10px] hover:opacity-85"
+                style={{ borderColor: 'var(--border-panel)', color: 'var(--text-secondary)' }}
               >
                 {tokenCopied ? (
                   <>
@@ -216,18 +219,18 @@ function Step({
 }) {
   return (
     <div className={cn("relative pl-8", !last && "pb-4")}>
-      <div className="absolute left-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500/20 text-[10px] font-semibold text-blue-300">
+      <div className="absolute left-0 top-0 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold border" style={{ backgroundColor: 'var(--bg-app)', color: 'var(--accent-blue)', borderColor: 'var(--border-panel)' }}>
         {n}
       </div>
-      <div className="mb-1 text-sm font-medium text-white">{title}</div>
-      <div className="text-xs leading-relaxed text-slate-300">{children}</div>
+      <div className="mb-1 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</div>
+      <div className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{children}</div>
     </div>
   );
 }
 
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <code className="rounded bg-white/10 px-1 py-0.5 font-mono text-[11px] text-blue-200">
+    <code className="rounded px-1.5 py-0.5 font-mono text-[11px] border" style={{ backgroundColor: 'var(--bg-app)', color: 'var(--accent-blue)', borderColor: 'var(--border-panel)' }}>
       {children}
     </code>
   );
