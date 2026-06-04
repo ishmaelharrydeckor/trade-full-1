@@ -75,19 +75,6 @@ export default async function AccountsPage() {
                   </div>
                 )}
               </div>
-              <div className="rounded-lg border border-white/5 bg-black/20 p-3">
-                <div className="mb-1 text-[10px] uppercase tracking-wider text-slate-500">
-                  EA Token (for MT5 webhook)
-                </div>
-                <code className="block break-all font-mono text-[11px] text-slate-300">
-                  {acc.ea_token}
-                </code>
-                <p className="mt-2 text-[10px] text-slate-500">
-                  The MetaTrader expert advisor will use this token to
-                  attribute trades to this account. (EA download coming in
-                  the next update.)
-                </p>
-              </div>
             </Link>
           ))}
         </div>
