@@ -4,13 +4,11 @@ import { useEffect, useState } from "react";
 import { Sun, Moon, Monitor, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Theme = "dark" | "light" | "black" | "white";
+type Theme = "dark" | "light";
 
 const THEMES: { id: Theme; label: string; icon: typeof Sun }[] = [
   { id: "dark", label: "Dark", icon: Moon },
   { id: "light", label: "Light", icon: Sun },
-  { id: "black", label: "Black", icon: Circle },
-  { id: "white", label: "White", icon: Monitor },
 ];
 
 export default function ThemeToggle({ className }: { className?: string }) {
@@ -21,7 +19,7 @@ export default function ThemeToggle({ className }: { className?: string }) {
   useEffect(() => {
     setMounted(true);
     const stored = localStorage.getItem("tj-theme") as Theme | null;
-    const initial = stored ?? "dark";
+    const initial = (stored === "dark" || stored === "light") ? stored : "dark";
     setTheme(initial);
     document.documentElement.setAttribute("data-theme", initial);
   }, []);

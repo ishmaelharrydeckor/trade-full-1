@@ -215,7 +215,7 @@ export default function SignupForm() {
             className="w-full appearance-none rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-8 text-sm outline-none transition focus:border-blue-500/50"
           >
             {COUNTRIES.map((c) => (
-              <option key={c} value={c} className="bg-slate-900">
+              <option key={c} value={c}>
                 {c}
               </option>
             ))}

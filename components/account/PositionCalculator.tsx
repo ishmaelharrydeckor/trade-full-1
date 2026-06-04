@@ -68,7 +68,7 @@ export default function PositionCalculator({
             className={inputClass}
           >
             {CONTRACT_PRESETS.map((p) => (
-              <option key={p.symbol} value={p.symbol} className="bg-slate-900">
+              <option key={p.symbol} value={p.symbol}>
                 {p.display}
               </option>
             ))}

@@ -487,8 +487,8 @@ function TransactionsPanel({
             onChange={(e) => setType(e.target.value as "deposit" | "withdrawal")}
             className="tj-input text-sm"
           >
-            <option value="deposit" className="bg-slate-900">Deposit</option>
-            <option value="withdrawal" className="bg-slate-900">Withdrawal</option>
+            <option value="deposit">Deposit</option>
+            <option value="withdrawal">Withdrawal</option>
           </select>
           <input
             type="number"

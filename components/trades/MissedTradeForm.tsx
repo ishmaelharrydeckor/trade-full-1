@@ -123,7 +123,7 @@ export default function MissedTradeForm({
             <div>
               <label className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">Asset class</label>
               <select value={assetClass} onChange={(e) => setAssetClass(e.target.value as AssetClass)} className={inputClass}>
-                {ASSET_CLASSES.map((a) => <option key={a.id} value={a.id} className="bg-slate-900">{a.label}</option>)}
+                {ASSET_CLASSES.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
               </select>
             </div>
           </div>
@@ -132,8 +132,8 @@ export default function MissedTradeForm({
             <div>
               <label className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">Direction</label>
               <select value={direction} onChange={(e) => setDirection(e.target.value as Direction)} className={inputClass}>
-                <option value="long" className="bg-slate-900">Long (Buy)</option>
-                <option value="short" className="bg-slate-900">Short (Sell)</option>
+                <option value="long">Long (Buy)</option>
+                <option value="short">Short (Sell)</option>
               </select>
             </div>
             <div>

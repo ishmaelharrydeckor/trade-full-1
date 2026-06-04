@@ -444,6 +444,10 @@ textarea,
 select {
   color: var(--text-primary);
 }
+select option {
+  background-color: var(--bg-panel);
+  color: var(--text-primary);
+}
 input::placeholder,
 textarea::placeholder {
   color: var(--text-muted);

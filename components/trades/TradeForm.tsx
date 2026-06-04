@@ -183,7 +183,7 @@ export default function TradeForm({
                 className={inputClass}
               >
                 {ASSET_CLASSES.map((a) => (
-                  <option key={a.id} value={a.id} className="bg-slate-900">
+                  <option key={a.id} value={a.id}>
                     {a.label}
                   </option>
                 ))}
@@ -198,8 +198,8 @@ export default function TradeForm({
                 onChange={(e) => setDirection(e.target.value as Direction)}
                 className={inputClass}
               >
-                <option value="long" className="bg-slate-900">Long (Buy)</option>
-                <option value="short" className="bg-slate-900">Short (Sell)</option>
+                <option value="long">Long (Buy)</option>
+                <option value="short">Short (Sell)</option>
               </select>
             </Field>
             <Field label="Volume / Lots *">
@@ -320,9 +320,9 @@ export default function TradeForm({
                   onChange={(e) => setMindset(e.target.value)}
                   className={inputClass}
                 >
-                  <option value="" className="bg-slate-900">— none —</option>
+                  <option value="">— none —</option>
                   {MINDSETS.map((m) => (
-                    <option key={m} value={m} className="bg-slate-900">
+                    <option key={m} value={m}>
                       {m}
                     </option>
                   ))}
@@ -372,9 +372,9 @@ export default function TradeForm({
                   onChange={(e) => setGrade(e.target.value)}
                   className={inputClass}
                 >
-                  <option value="" className="bg-slate-900">— none —</option>
+                  <option value="">— none —</option>
                   {(["A+", "A", "B", "C", "D", "F"] as const).map((g) => (
-                    <option key={g} value={g} className="bg-slate-900">
+                    <option key={g} value={g}>
                       {g}
                     </option>
                   ))}
