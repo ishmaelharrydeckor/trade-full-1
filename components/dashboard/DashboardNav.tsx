@@ -1,6 +1,6 @@
 // components/dashboard/DashboardNav.tsx
 import Link from "next/link";
-import { LogOut, LayoutGrid, Users } from "lucide-react";
+import { LogOut, LayoutGrid, Users, User } from "lucide-react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function DashboardNav({
@@ -63,6 +63,13 @@ export default function DashboardNav({
             <Users className="h-3.5 w-3.5 opacity-70" />
             Mentoring
           </Link>
+          <Link
+            href="/dashboard/profile"
+            className="nav-item inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm"
+          >
+            <User className="h-3.5 w-3.5 opacity-70" />
+            Profile
+          </Link>
 
           <div
             className="mx-2 hidden h-5 w-px md:block"
@@ -76,7 +83,11 @@ export default function DashboardNav({
             style={{ backgroundColor: "var(--app-border)" }}
           />
 
-          <div className="ml-1 hidden text-right md:block" title={email}>
+          <Link
+            href="/dashboard/profile"
+            className="ml-1 hidden text-right md:block hover:opacity-80 transition duration-150"
+            title="Edit Profile"
+          >
             <div
               className="text-xs font-semibold"
               style={{ color: "var(--text-primary)" }}
@@ -89,7 +100,7 @@ export default function DashboardNav({
             >
               {email}
             </div>
-          </div>
+          </Link>
           <form action="/auth/signout" method="post">
             <button
               type="submit"
