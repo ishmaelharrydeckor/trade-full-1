@@ -100,9 +100,7 @@ export default async function LandingPage() {
           </Link>
         </div>
 
-        <p className="mt-6 text-xs" style={{ color: 'var(--text-muted)' }}>
-          Free for the first 6 months. No credit card required.
-        </p>
+
 
         {/* Dashboard preview */}
         <div className="relative mx-auto mt-16 max-w-4xl">
@@ -172,9 +170,7 @@ export default async function LandingPage() {
           >
             Start free <ArrowRight className="h-4 w-4" />
           </Link>
-          <p className="mt-3 text-[10px]" style={{ color: 'var(--text-muted)' }}>
-            No credit card required. Free for the first 6 months.
-          </p>
+
         </div>
       </section>
 
