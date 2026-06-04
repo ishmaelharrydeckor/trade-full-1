@@ -80,7 +80,8 @@ export default function ForgotPasswordForm() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500/50"
+            className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pr-3 text-sm outline-none transition focus:border-blue-500/50"
+            style={{ paddingLeft: '2.5rem' }}
             placeholder="you@example.com"
           />
         </div>

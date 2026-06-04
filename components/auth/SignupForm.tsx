@@ -196,7 +196,8 @@ export default function SignupForm() {
             autoComplete="name"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500/50"
+            className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pr-3 text-sm outline-none transition focus:border-blue-500/50"
+            style={{ paddingLeft: '2.5rem' }}
             placeholder="What should we call you?"
           />
         </div>
@@ -212,7 +213,8 @@ export default function SignupForm() {
           <select
             value={country}
             onChange={(e) => setCountry(e.target.value)}
-            className="w-full appearance-none rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-8 text-sm outline-none transition focus:border-blue-500/50"
+            className="w-full appearance-none rounded-lg border border-white/10 bg-black/30 py-2.5 pr-8 text-sm outline-none transition focus:border-blue-500/50"
+            style={{ paddingLeft: '2.5rem' }}
           >
             {COUNTRIES.map((c) => (
               <option key={c} value={c}>
@@ -249,7 +251,8 @@ export default function SignupForm() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500/50"
+            className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pr-3 text-sm outline-none transition focus:border-blue-500/50"
+            style={{ paddingLeft: '2.5rem' }}
             placeholder="you@example.com"
           />
         </div>

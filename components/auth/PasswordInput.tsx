@@ -33,7 +33,8 @@ export default function PasswordInput({
         autoComplete={autoComplete}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="tj-input w-full rounded-lg py-2.5 pl-10 pr-10 text-sm"
+        className="tj-input w-full rounded-lg py-2.5 text-sm"
+        style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
         placeholder={placeholder}
       />
       <button

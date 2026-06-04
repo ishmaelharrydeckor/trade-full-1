@@ -68,7 +68,8 @@ export default function TradesTab({
             placeholder="Filter by symbol, tag, or note…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="tj-input w-full py-2 pl-9 pr-3 text-sm"
+            className="tj-input w-full py-2 pr-3 text-sm"
+            style={{ paddingLeft: '2.25rem' }}
           />
         </div>
         <div className="flex items-center gap-2">
