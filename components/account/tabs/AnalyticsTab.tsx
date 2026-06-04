@@ -11,6 +11,7 @@ import {
   aggregateByDirection,
   aggregateByMindset,
   aggregateByTags,
+  aggregateBySession,
 } from "@/lib/analytics";
 import AnalyticsBarChart from "@/components/analytics/AnalyticsBarChart";
 import RMultipleChart from "@/components/analytics/RMultipleChart";
@@ -30,6 +31,7 @@ export default function AnalyticsTab({
   const byDirection  = useMemo(() => aggregateByDirection(trades), [trades]);
   const byMindset    = useMemo(() => aggregateByMindset(trades), [trades]);
   const byTags       = useMemo(() => aggregateByTags(trades), [trades]);
+  const bySession    = useMemo(() => aggregateBySession(trades), [trades]);
 
   if (trades.length === 0) {
     return (
@@ -46,6 +48,11 @@ export default function AnalyticsTab({
 
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+      <AnalyticsBarChart
+        title="By Trading Session"
+        subtitle="NY, London, Asian, Sydney (UTC)"
+        data={bySession}
+      />
       <AnalyticsBarChart
         title="By Asset Class"
         subtitle="Forex, crypto, indices, etc."

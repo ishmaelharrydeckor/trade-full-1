@@ -220,3 +220,46 @@ export function aggregateByMissed(trades: Trade[]): DimensionAggregate[] {
     (a, b) => (a.label === "Executed" ? -1 : 1)
   );
 }
+
+// ===========================================================
+// Session aggregation
+// ===========================================================
+export function aggregateBySession(trades: Trade[]): DimensionAggregate[] {
+  const sessions = ["London", "New York", "Sydney", "Asian"];
+  const map = new Map<string, { trades: number; netPnl: number; winners: number }>();
+  
+  for (const s of sessions) {
+    map.set(s, { trades: 0, netPnl: 0, winners: 0 });
+  }
+
+  for (const t of trades) {
+    if (!t.open_time) continue;
+    const d = new Date(t.open_time);
+    const hour = d.getUTCHours();
+    if (isNaN(hour)) continue;
+
+    let session = "Asian";
+    if (hour >= 7 && hour < 12) session = "London";
+    else if (hour >= 12 && hour < 21) session = "New York";
+    else if (hour >= 21 && hour < 24) session = "Sydney";
+    
+    const b = map.get(session)!;
+    const net = tradeNetPnl(t);
+    b.trades++;
+    b.netPnl += net;
+    if (net > 0) b.winners++;
+  }
+
+  return sessions.map((label) => {
+    const b = map.get(label)!;
+    return {
+      label,
+      trades: b.trades,
+      netPnl: b.netPnl,
+      winners: b.winners,
+      winRate: b.trades > 0 ? (b.winners / b.trades) * 100 : 0,
+    };
+  });
+}
+
+
