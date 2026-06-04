@@ -38,7 +38,7 @@ export default async function DashboardPage() {
         <h1 className="text-3xl font-extrabold tracking-tighter md:text-4xl" style={{ color: 'var(--text-primary)' }}>
           Welcome,{" "}
           <span
-            className="font-serif italic"
+            className="font-serif italic pr-1.5"
             style={{
               background: 'linear-gradient(135deg, var(--accent-blue), var(--accent-indigo))',
               WebkitBackgroundClip: 'text',
