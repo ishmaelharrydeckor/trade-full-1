@@ -108,6 +108,24 @@ export default function BetaFeedbackForm() {
     setErrorMsg("");
     setSubmitting(true);
 
+    // Validate name (letters, spaces, hyphens, apostrophes only, min 2 chars)
+    const nameRegex = /^[A-Za-zÀ-ÿ\s'\-]{2,}$/;
+    if (!nameRegex.test(fullName.trim())) {
+      setErrorMsg("Please enter a valid name (letters and spaces only, minimum 2 characters).");
+      setSubmitting(false);
+      return;
+    }
+
+    // Validate WhatsApp (if provided, only digits and standard phone symbols, min 7 chars)
+    if (whatsapp.trim()) {
+      const phoneRegex = /^\+?[0-9\s\-()]{7,20}$/;
+      if (!phoneRegex.test(whatsapp.trim())) {
+        setErrorMsg("Please enter a valid WhatsApp phone number (numbers, spaces, and symbols like +, -, () only).");
+        setSubmitting(false);
+        return;
+      }
+    }
+
     const payload = {
       full_name: fullName,
       email,
@@ -227,6 +245,8 @@ export default function BetaFeedbackForm() {
           id="fullName"
           type="text"
           required
+          pattern="^[A-Za-zÀ-ÿ\s'\-]{2,}$"
+          title="Please enter a valid name (letters and spaces only, minimum 2 characters)"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           placeholder="e.g. Kwame Mensah"
@@ -252,6 +272,8 @@ export default function BetaFeedbackForm() {
         <input
           id="whatsapp"
           type="tel"
+          pattern="^\+?[0-9\s\-()]{7,20}$"
+          title="Please enter a valid WhatsApp phone number (numbers, spaces, and symbols like +, -, () only, 7-20 digits)"
           value={whatsapp}
           onChange={(e) => setWhatsapp(e.target.value)}
           placeholder="+233 24 000 0000"
