@@ -75,6 +75,12 @@ export default function CreateAccountForm() {
       return;
     }
 
+    if (startingBalance && Number(startingBalance) < 0) {
+      setError("Starting balance cannot be negative.");
+      setSubmitting(false);
+      return;
+    }
+
     const { data: newAccount, error: insertErr } = await supabase
       .from("accounts")
       .insert({
@@ -176,6 +182,7 @@ export default function CreateAccountForm() {
           <input
             type="number"
             step="any"
+            min="0"
             value={startingBalance}
             onChange={(e) => setStartingBalance(e.target.value)}
             placeholder="0.00"

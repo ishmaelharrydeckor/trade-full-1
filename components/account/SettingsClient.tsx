@@ -125,6 +125,13 @@ function AccountInfoSection({
     setSaving(true);
     setError(null);
     setSuccess(false);
+
+    if (parseFloat(startingBalance) < 0) {
+      setError("Starting balance cannot be negative.");
+      setSaving(false);
+      return;
+    }
+
     try {
       const res = await fetch(`/api/accounts/${account.id}`, {
         method: "PATCH",
@@ -205,6 +212,7 @@ function AccountInfoSection({
           <input
             type="number"
             step="any"
+            min="0"
             value={startingBalance}
             onChange={(e) => setStartingBalance(e.target.value)}
             className="tj-input"
