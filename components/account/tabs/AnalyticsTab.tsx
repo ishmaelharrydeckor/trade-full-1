@@ -13,6 +13,7 @@ import {
   aggregateByTags,
 } from "@/lib/analytics";
 import AnalyticsBarChart from "@/components/analytics/AnalyticsBarChart";
+import RMultipleChart from "@/components/analytics/RMultipleChart";
 import type { Account, Trade } from "@/types/database";
 
 export default function AnalyticsTab({
@@ -85,6 +86,7 @@ export default function AnalyticsTab({
         data={byTags}
         emptyMessage="Add tags to your trades (e.g. 'breakout', 'london', 'news') to see this breakdown."
       />
+      <RMultipleChart trades={trades} />
     </div>
   );
 }
