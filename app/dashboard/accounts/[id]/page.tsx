@@ -38,37 +38,65 @@ export default async function AccountPage({
     notFound();
   }
 
-  // Trades for this account, newest first — exclude backtest trades by default
-  // (per the user decision in M4 planning). Backtest trades are visible inside
-  // their own session page.
-  const { data: trades } = await supabase
-    .from("trades")
-    .select("*")
-    .eq("account_id", id)
-    .eq("is_backtest", false)
-    .order("close_time", { ascending: false, nullsFirst: false });
+  // Fetch independent datasets in parallel to eliminate sequential round-trip blocking
+  const [
+    tradesResult,
+    transactionsResult,
+    settingsResult,
+    playbooksResult,
+    journalEntriesResult,
+    habitsResult,
+    dailyLogsResult,
+  ] = await Promise.all([
+    supabase
+      .from("trades")
+      .select("*")
+      .eq("account_id", id)
+      .eq("is_backtest", false)
+      .order("close_time", { ascending: false, nullsFirst: false }),
+    supabase
+      .from("account_transactions")
+      .select("*")
+      .eq("account_id", id)
+      .order("occurred_at", { ascending: false }),
+    supabase
+      .from("account_settings")
+      .select("*")
+      .eq("account_id", id)
+      .maybeSingle<AccountSettings>(),
+    supabase
+      .from("playbooks")
+      .select("*")
+      .eq("account_id", id)
+      .eq("archived", false)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("journal_entries")
+      .select("*")
+      .eq("account_id", id)
+      .order("entry_date", { ascending: false })
+      .limit(90),
+    supabase
+      .from("daily_habits")
+      .select("*")
+      .eq("account_id", id)
+      .eq("archived", false)
+      .order("sort_order", { ascending: true }),
+    supabase
+      .from("daily_logs")
+      .select("*")
+      .eq("account_id", id)
+      .order("log_date", { ascending: false })
+      .limit(365),
+  ]);
 
-  // Transactions
-  const { data: transactions } = await supabase
-    .from("account_transactions")
-    .select("*")
-    .eq("account_id", id)
-    .order("occurred_at", { ascending: false });
-
-  // Settings — may not exist yet (we create on first use)
-  const { data: settings } = await supabase
-    .from("account_settings")
-    .select("*")
-    .eq("account_id", id)
-    .maybeSingle<AccountSettings>();
-
-  // Playbooks
-  const { data: playbooks } = await supabase
-    .from("playbooks")
-    .select("*")
-    .eq("account_id", id)
-    .eq("archived", false)
-    .order("created_at", { ascending: false });
+  const trades = tradesResult.data;
+  const transactions = transactionsResult.data;
+  const settings = settingsResult.data;
+  const playbooks = playbooksResult.data;
+  const journalEntries = journalEntriesResult.data;
+  const habits = habitsResult.data;
+  const dailyLogs = dailyLogsResult.data;
 
   // Playbook entries (all entries for trades in this account)
   const tradeIds = (trades ?? []).map((t: Trade) => t.id);
@@ -80,30 +108,6 @@ export default async function AccountPage({
       .in("trade_id", tradeIds.slice(0, 500));
     playbookEntries = (entries as TradePlaybookEntry[]) ?? [];
   }
-
-  // Journal entries
-  const { data: journalEntries } = await supabase
-    .from("journal_entries")
-    .select("*")
-    .eq("account_id", id)
-    .order("entry_date", { ascending: false })
-    .limit(90);
-
-  // Daily habits
-  const { data: habits } = await supabase
-    .from("daily_habits")
-    .select("*")
-    .eq("account_id", id)
-    .eq("archived", false)
-    .order("sort_order", { ascending: true });
-
-  // Daily logs
-  const { data: dailyLogs } = await supabase
-    .from("daily_logs")
-    .select("*")
-    .eq("account_id", id)
-    .order("log_date", { ascending: false })
-    .limit(365);
 
   return (
     <AccountDashboard
