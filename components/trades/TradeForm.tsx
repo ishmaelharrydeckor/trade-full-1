@@ -40,6 +40,17 @@ export default function TradeForm({
   const editing = !!initial;
 
   const [symbol, setSymbol] = useState(initial?.symbol ?? "");
+  const detectAssetClass = (sym: string): AssetClass | null => {
+    const s = sym.toUpperCase().trim();
+    if (!s) return null;
+    if (s.startsWith("V") || s.includes("INDEX") || s.includes("BOOM") || s.includes("CRASH") || s.includes("JUMP")) return "synthetics";
+    if (s.includes("BTC") || s.includes("ETH") || s.includes("SOL") || s.includes("USDT") || s.includes("XRP") || s.includes("DOGE") || s.includes("LTC")) return "crypto";
+    if (s.includes("XAU") || s.includes("GOLD") || s.includes("USO") || s.includes("OIL") || s.includes("SLVR") || s.includes("XAG")) return "commodities";
+    if (s.includes("US30") || s.includes("NAS") || s.includes("SPX") || s.includes("GER") || s.includes("DE30") || s.includes("UK100") || s.includes("HK50")) return "indices";
+    if (s.length === 6 || s.includes("/") || s.includes("EUR") || s.includes("GBP") || s.includes("USD") || s.includes("JPY") || s.includes("AUD") || s.includes("CAD") || s.includes("CHF") || s.includes("NZD")) return "forex";
+    return null;
+  };
+
   const [assetClass, setAssetClass] = useState<AssetClass>(
     initial?.asset_class ?? "forex"
   );
@@ -171,7 +182,12 @@ export default function TradeForm({
               <input
                 required
                 value={symbol}
-                onChange={(e) => setSymbol(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSymbol(val);
+                  const detected = detectAssetClass(val);
+                  if (detected) setAssetClass(detected);
+                }}
                 placeholder="XAUUSD, BTCUSDT, V75…"
                 className={inputClass}
               />
@@ -206,7 +222,8 @@ export default function TradeForm({
               <input
                 required
                 type="number"
-                step="0.01"
+                step="0.00001"
+                min="0.00001"
                 value={volume}
                 onChange={(e) => setVolume(e.target.value)}
                 placeholder="0.10"
@@ -231,6 +248,7 @@ export default function TradeForm({
                 required
                 type="number"
                 step="any"
+                min="0.000001"
                 value={entryPrice}
                 onChange={(e) => setEntryPrice(e.target.value)}
                 className={inputClass}
@@ -241,6 +259,7 @@ export default function TradeForm({
                 required
                 type="number"
                 step="any"
+                min="0.000001"
                 value={exitPrice}
                 onChange={(e) => setExitPrice(e.target.value)}
                 className={inputClass}
@@ -279,6 +298,7 @@ export default function TradeForm({
                   <input
                     type="number"
                     step="any"
+                    min="0.000001"
                     value={stopLoss}
                     onChange={(e) => setStopLoss(e.target.value)}
                     className={inputClass}
@@ -288,6 +308,7 @@ export default function TradeForm({
                   <input
                     type="number"
                     step="any"
+                    min="0.000001"
                     value={takeProfit}
                     onChange={(e) => setTakeProfit(e.target.value)}
                     className={inputClass}
@@ -299,6 +320,7 @@ export default function TradeForm({
                   <input
                     type="number"
                     step="0.01"
+                    min="0"
                     value={commission}
                     onChange={(e) => setCommission(e.target.value)}
                     className={inputClass}

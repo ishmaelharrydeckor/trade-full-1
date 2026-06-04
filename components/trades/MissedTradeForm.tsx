@@ -27,6 +27,17 @@ export default function MissedTradeForm({
   const router = useRouter();
 
   const [symbol, setSymbol] = useState("");
+  const detectAssetClass = (sym: string): AssetClass | null => {
+    const s = sym.toUpperCase().trim();
+    if (!s) return null;
+    if (s.startsWith("V") || s.includes("INDEX") || s.includes("BOOM") || s.includes("CRASH") || s.includes("JUMP")) return "synthetics";
+    if (s.includes("BTC") || s.includes("ETH") || s.includes("SOL") || s.includes("USDT") || s.includes("XRP") || s.includes("DOGE") || s.includes("LTC")) return "crypto";
+    if (s.includes("XAU") || s.includes("GOLD") || s.includes("USO") || s.includes("OIL") || s.includes("SLVR") || s.includes("XAG")) return "commodities";
+    if (s.includes("US30") || s.includes("NAS") || s.includes("SPX") || s.includes("GER") || s.includes("DE30") || s.includes("UK100") || s.includes("HK50")) return "indices";
+    if (s.length === 6 || s.includes("/") || s.includes("EUR") || s.includes("GBP") || s.includes("USD") || s.includes("JPY") || s.includes("AUD") || s.includes("CAD") || s.includes("CHF") || s.includes("NZD")) return "forex";
+    return null;
+  };
+
   const [assetClass, setAssetClass] = useState<AssetClass>("forex");
   const [direction, setDirection] = useState<Direction>("long");
   const [entryPrice, setEntryPrice] = useState("");
@@ -118,7 +129,18 @@ export default function MissedTradeForm({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">Symbol *</label>
-              <input required value={symbol} onChange={(e) => setSymbol(e.target.value)} placeholder="XAUUSD" className={inputClass} />
+              <input
+                required
+                value={symbol}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSymbol(val);
+                  const detected = detectAssetClass(val);
+                  if (detected) setAssetClass(detected);
+                }}
+                placeholder="XAUUSD"
+                className={inputClass}
+              />
             </div>
             <div>
               <label className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">Asset class</label>
@@ -138,18 +160,18 @@ export default function MissedTradeForm({
             </div>
             <div>
               <label className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">Entry price *</label>
-              <input required type="number" step="any" value={entryPrice} onChange={(e) => setEntryPrice(e.target.value)} className={inputClass} />
+              <input required type="number" step="any" min="0.000001" value={entryPrice} onChange={(e) => setEntryPrice(e.target.value)} className={inputClass} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">Stop loss</label>
-              <input type="number" step="any" value={stopLoss} onChange={(e) => setStopLoss(e.target.value)} className={inputClass} />
+              <input type="number" step="any" min="0.000001" value={stopLoss} onChange={(e) => setStopLoss(e.target.value)} className={inputClass} />
             </div>
             <div>
               <label className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">Take profit</label>
-              <input type="number" step="any" value={takeProfit} onChange={(e) => setTakeProfit(e.target.value)} className={inputClass} />
+              <input type="number" step="any" min="0.000001" value={takeProfit} onChange={(e) => setTakeProfit(e.target.value)} className={inputClass} />
             </div>
           </div>
 
