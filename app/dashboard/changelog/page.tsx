@@ -49,19 +49,23 @@ export default function ChangelogPage() {
           <RoadmapColumn
             label="Coming next"
             items={[
-              "Broker API sync (direct)",
+              "Broker API sync (direct cTrader/Oanda)",
+              "Interactive charts with trade execution plots",
+              "Risk & position sizing calculator",
+              "Custom mistakes & emotional triggers report",
               "Mobile PWA app",
-              "Trade replay",
+              "Trade replay / bar-by-bar simulator",
               "Dashboard customizer",
             ]}
           />
           <RoadmapColumn
             label="After that"
             items={[
-              "Community features",
+              "Auto account locking (Shield) on drawdown",
+              "Prop firm challenge rules tracking",
+              "Community features & leaderboards",
               "Shareable trade cards",
-              "Prop firm integrations",
-              "White-label / teams",
+              "White-label / team & school portals",
             ]}
           />
         </div>
