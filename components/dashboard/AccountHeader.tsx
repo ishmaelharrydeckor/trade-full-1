@@ -33,7 +33,7 @@ export default function AccountHeader({
               <>
                 {" · "}
                 Starting:{" "}
-                <span className="tabular-nums" style={{ color: 'var(--text-primary)' }}>
+                <span className="financial-num" style={{ color: 'var(--text-primary)' }}>
                   {account.currency}{" "}
                   {Number(account.starting_balance).toFixed(2)}
                 </span>

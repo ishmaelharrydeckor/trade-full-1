@@ -116,7 +116,7 @@ export default function CalendarTab({
 
           <div className="flex-1 text-center">
             <h3 className="text-2xl font-bold tracking-tight">{monthLabel}</h3>
-            <div className="mt-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs tabular-nums font-medium" style={{ color: 'var(--text-secondary)' }}>
+            <div className="mt-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs financial-num font-medium" style={{ color: 'var(--text-secondary)' }}>
               <span>
                 Net:{" "}
                 <span
@@ -294,11 +294,11 @@ export default function CalendarTab({
                             {t.direction}
                           </span>
                         </td>
-                        <td className="px-3 py-2 text-right font-medium tabular-nums" style={{ color: 'var(--text-secondary)' }}>
+                        <td className="px-3 py-2 text-right font-medium financial-num" style={{ color: 'var(--text-secondary)' }}>
                           {Number(t.volume).toFixed(2)}
                         </td>
                         <td
-                          className="px-3 py-2 text-right font-bold tabular-nums"
+                          className="px-3 py-2 text-right font-bold financial-num"
                           style={{
                             color: net > 0
                               ? 'var(--positive)'
@@ -409,7 +409,7 @@ function DayCell({
     >
       <div className="text-[10px] font-medium">{date.getDate()}</div>
       {day ? (
-        <div className="font-mono text-[9px] font-medium tabular-nums opacity-80">
+        <div className="font-mono text-[9px] font-medium financial-num opacity-80">
           {fmtCompactNumber(day.netPnl)}
         </div>
       ) : !isFuture ? (

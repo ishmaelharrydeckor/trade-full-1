@@ -315,7 +315,8 @@ h3 {
 }
 
 /* Tabular numbers for financial data */
-.tnum {
+.tnum,
+.financial-num {
   font-variant-numeric: tabular-nums;
 }
 
