@@ -20,6 +20,7 @@ export interface Account {
   currency: string;
   starting_balance: number | null;
   ea_token: string;
+  archived: boolean;
   created_at: string;
   updated_at: string;
 }
