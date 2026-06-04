@@ -103,7 +103,7 @@ export default function AnalyticsBarChart({
                     "Net P&L",
                   ]}
                 />
-                <Bar dataKey="netPnl" radius={[4, 4, 0, 0]}>
+                <Bar dataKey="netPnl" radius={[4, 4, 0, 0]} maxBarSize={32}>
                   {displayData.map((d, idx) => (
                     <Cell
                       key={idx}
