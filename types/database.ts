@@ -98,8 +98,10 @@ export interface AiInsight {
   id: string;
   user_id: string;
   account_id: string;
-  content: unknown; // JSONB — shape depends on the Gemini schema
-  trade_count_at_generation: number;
+  observations: string[];
+  blindspots: string[];
+  discipline_notes: string | null;
+  trades_count: number;
   generated_at: string;
 }
 
