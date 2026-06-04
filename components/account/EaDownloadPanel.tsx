@@ -23,7 +23,7 @@ export default function EaDownloadPanel({
 }) {
   const [tokenCopied, setTokenCopied] = useState(false);
   const [urlCopied, setUrlCopied] = useState(false);
-  const [showInstructions, setShowInstructions] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(true);
 
   // The webhook URL the user needs to whitelist in MT5
   const webhookUrl =
