@@ -8,6 +8,7 @@ import { fmtSignedUsd, fmtCompactNumber, fmtDateTime } from "@/lib/format";
 import { tradeNetPnl } from "@/lib/stats";
 import { cn } from "@/lib/utils";
 import type { Account, Trade } from "@/types/database";
+import TradeForm from "@/components/trades/TradeForm";
 
 export default function CalendarTab({
   account,
@@ -19,6 +20,16 @@ export default function CalendarTab({
   const [viewYear, setViewYear] = useState(() => new Date().getFullYear());
   const [viewMonth, setViewMonth] = useState(() => new Date().getMonth());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [initialTrade, setInitialTrade] = useState<any>(null);
+
+  const handleAddTrade = (dateStr: string) => {
+    setInitialTrade({
+      open_time: `${dateStr}T12:00`,
+      close_time: `${dateStr}T12:05`,
+    });
+    setFormOpen(true);
+  };
 
   const dayMap = useMemo(() => aggregateByDay(trades), [trades]);
 
@@ -187,9 +198,7 @@ export default function CalendarTab({
                   const dayData = cell.dateStr ? dayMap.get(cell.dateStr) : undefined;
                   if (!dayData) {
                     // No trades — go straight to trade form
-                    window.dispatchEvent(
-                      new CustomEvent("tradefull:addtrade", { detail: cell.dateStr })
-                    );
+                    handleAddTrade(cell.dateStr);
                   } else {
                     // Has trades — toggle selection to see them
                     setSelectedDate(
@@ -248,9 +257,7 @@ export default function CalendarTab({
                 <button
                   type="button"
                   onClick={() => {
-                    window.dispatchEvent(
-                      new CustomEvent("tradefull:addtrade", { detail: selectedDate })
-                    );
+                    if (selectedDate) handleAddTrade(selectedDate);
                   }}
                   className="tj-btn-primary inline-flex items-center gap-1.5 px-3 py-2 text-xs"
                 >
@@ -332,6 +339,16 @@ export default function CalendarTab({
           </p>
         </div>
       )}
+      {formOpen && (
+        <TradeForm
+          accountId={account.id}
+          initial={initialTrade}
+          onClose={() => {
+            setFormOpen(false);
+            setInitialTrade(null);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -379,16 +396,7 @@ function DayCell({
       }
       className={cn(
         "group flex aspect-square flex-col items-center justify-center gap-0.5 rounded-lg p-1.5 text-xs transition duration-150",
-        // Base coloring
-        day
-          ? isWin
-            ? "text-emerald-100"
-            : isLoss
-              ? "text-red-100"
-              : ""
-          : isFuture
-            ? "cursor-not-allowed"
-            : "cursor-pointer",
+        isFuture ? "cursor-not-allowed" : "cursor-pointer",
         // Interaction states
         !isFuture && "cursor-pointer hover:scale-105",
         day && isWin && "hover:bg-emerald-500/25",
@@ -403,7 +411,15 @@ function DayCell({
         background: day
           ? isWin ? 'rgba(16,185,129,0.15)' : isLoss ? 'rgba(239,68,68,0.15)' : 'var(--app-surface)'
           : isFuture ? 'transparent' : 'var(--app-surface)',
-        color: !day && !isFuture ? 'var(--text-muted)' : undefined,
+        color: day
+          ? isWin
+            ? "var(--positive)"
+            : isLoss
+              ? "var(--negative)"
+              : "var(--text-primary)"
+          : !isFuture
+            ? "var(--text-muted)"
+            : undefined,
         ...(isSelected ? { boxShadow: '0 0 0 2px var(--accent)', borderColor: 'var(--accent)' } : {}),
       }}
     >
