@@ -117,7 +117,7 @@ export default function TradesTab({
       ) : (
         <div className="relative">
           <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--app-border)' }}>
-            <table className="tj-table w-full min-w-[900px] text-sm">
+            <table className="tj-table w-full min-w-[950px] text-sm">
               <thead>
                 <tr>
                   <th className="px-3 py-2 text-left">Symbol</th>
@@ -125,6 +125,7 @@ export default function TradesTab({
                   <th className="px-3 py-2 text-right">Vol</th>
                   <th className="px-3 py-2 text-right">Entry</th>
                   <th className="px-3 py-2 text-right">Exit</th>
+                  <th className="px-3 py-2 text-right">R:R</th>
                   <th className="px-3 py-2 text-right">Net P&L</th>
                   <th className="px-3 py-2 text-left">Mindset</th>
                   <th className="px-3 py-2 text-left">Closed</th>
@@ -135,6 +136,20 @@ export default function TradesTab({
                 {filtered.map((t) => {
                   const net = tradeNetPnl(t);
                   const isWin = net > 0;
+                  
+                  // Helper to calculate risk to reward ratio
+                  const entry = t.entry_price ? Number(t.entry_price) : 0;
+                  const sl = t.stop_loss ? Number(t.stop_loss) : 0;
+                  const tp = t.take_profit ? Number(t.take_profit) : 0;
+                  let rrStr = "—";
+                  if (entry && sl && tp) {
+                    const risk = Math.abs(entry - sl);
+                    const reward = Math.abs(tp - entry);
+                    if (risk > 0) {
+                      rrStr = `1:${(reward / risk).toFixed(1)}`;
+                    }
+                  }
+
                   return (
                     <tr key={t.id} style={{ color: 'var(--text-primary)' }}>
                       <td className="px-3 py-2">
@@ -172,6 +187,9 @@ export default function TradesTab({
                       </td>
                       <td className="px-3 py-2 text-right font-medium tabular-nums" style={{ color: 'var(--text-secondary)' }}>
                         {fmtNumber(t.exit_price, 4)}
+                      </td>
+                      <td className="px-3 py-2 text-right font-medium tabular-nums" style={{ color: 'var(--text-secondary)' }}>
+                        {rrStr}
                       </td>
                       <td
                         className="px-3 py-2 text-right font-bold tabular-nums"
