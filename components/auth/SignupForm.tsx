@@ -44,11 +44,13 @@ export default function SignupForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
+  const [existingAccount, setExistingAccount] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+    setExistingAccount(false);
 
     const trimmedName = displayName.trim();
     if (trimmedName.length < 2) {
@@ -78,7 +80,33 @@ export default function SignupForm() {
     });
 
     if (error) {
+      // Supabase returns "user_already_exists" when email confirmation is off
+      // and the email is already registered.
+      const msg = error.message?.toLowerCase() ?? "";
+      if (
+        msg.includes("already registered") ||
+        msg.includes("already exists") ||
+        msg.includes("user already") ||
+        (error as { code?: string }).code === "user_already_exists"
+      ) {
+        setExistingAccount(true);
+        setSubmitting(false);
+        return;
+      }
       setError(error.message);
+      setSubmitting(false);
+      return;
+    }
+
+    // When email confirmation IS enabled, Supabase obscures whether the email
+    // was already registered for security. The signal: data.user exists but
+    // data.user.identities is an empty array (meaning no new identity was created).
+    if (
+      data.user &&
+      Array.isArray(data.user.identities) &&
+      data.user.identities.length === 0
+    ) {
+      setExistingAccount(true);
       setSubmitting(false);
       return;
     }
@@ -90,6 +118,48 @@ export default function SignupForm() {
       setNeedsConfirmation(true);
       setSubmitting(false);
     }
+  }
+
+  if (existingAccount) {
+    return (
+      <div className="flex flex-col items-center text-center">
+        <Mail className="mb-3 h-10 w-10 text-amber-400" />
+        <h3 className="font-serif text-2xl">You already have an account</h3>
+        <p className="mt-2 text-sm text-slate-400">
+          The email <span className="text-white">{email}</span> is already
+          registered. Sign in instead, or reset your password if you&apos;ve
+          forgotten it.
+        </p>
+        <div className="mt-5 flex w-full flex-col gap-2 sm:flex-row sm:justify-center">
+          <a
+            href="/login"
+            className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+          >
+            Sign in →
+          </a>
+          <button
+            type="button"
+            onClick={() => {
+              setExistingAccount(false);
+              setEmail("");
+              setPassword("");
+            }}
+            className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/10"
+          >
+            Use a different email
+          </button>
+        </div>
+        <p className="mt-4 text-[11px] text-slate-500">
+          Forgot your password?{" "}
+          <a
+            href="/forgot-password"
+            className="text-blue-400 hover:underline"
+          >
+            Reset it here
+          </a>
+        </p>
+      </div>
+    );
   }
 
   if (needsConfirmation) {
@@ -113,11 +183,11 @@ export default function SignupForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Name */}
       <div>
-        <label className="mb-1.5 block text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+        <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
           Your name
         </label>
         <div className="relative">
-          <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
+          <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
             required
@@ -126,7 +196,7 @@ export default function SignupForm() {
             autoComplete="name"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            className="tj-input w-full rounded-lg py-2.5 pl-10 pr-3 text-sm"
+            className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500/50"
             placeholder="What should we call you?"
           />
         </div>
@@ -134,15 +204,15 @@ export default function SignupForm() {
 
       {/* Country */}
       <div>
-        <label className="mb-1.5 block text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+        <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
           Country
         </label>
         <div className="relative">
-          <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
+          <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
           <select
             value={country}
             onChange={(e) => setCountry(e.target.value)}
-            className="tj-input w-full appearance-none rounded-lg py-2.5 pl-10 pr-8 text-sm"
+            className="w-full appearance-none rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-8 text-sm outline-none transition focus:border-blue-500/50"
           >
             {COUNTRIES.map((c) => (
               <option key={c} value={c} className="bg-slate-900">
@@ -151,8 +221,7 @@ export default function SignupForm() {
             ))}
           </select>
           <svg
-            className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2"
-            style={{ color: 'var(--text-muted)' }}
+            className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -169,18 +238,18 @@ export default function SignupForm() {
 
       {/* Email */}
       <div>
-        <label className="mb-1.5 block text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+        <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
           Email
         </label>
         <div className="relative">
-          <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
+          <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
           <input
             type="email"
             required
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="tj-input w-full rounded-lg py-2.5 pl-10 pr-3 text-sm"
+            className="w-full rounded-lg border border-white/10 bg-black/30 py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500/50"
             placeholder="you@example.com"
           />
         </div>
@@ -188,7 +257,7 @@ export default function SignupForm() {
 
       {/* Password */}
       <div>
-        <label className="mb-1.5 block text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+        <label className="mb-1.5 block text-xs uppercase tracking-wider text-slate-400">
           Password
         </label>
         <PasswordInput
@@ -210,13 +279,13 @@ export default function SignupForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:shadow-blue-500/40 disabled:cursor-wait disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-white py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 disabled:cursor-wait disabled:opacity-60"
       >
         {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
         {submitting ? "Creating account…" : "Create account"}
       </button>
 
-      <p className="text-center text-[11px]" style={{ color: 'var(--text-muted)' }}>
+      <p className="text-center text-[11px] text-slate-500">
         By signing up, you accept that this is an early-stage product and
         things may break.
       </p>
