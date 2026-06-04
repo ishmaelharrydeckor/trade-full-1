@@ -291,7 +291,7 @@
 html, body {
   background: var(--app-bg);
   color: var(--text-primary);
-  font-family: "Inter", "IBM Plex Sans", system-ui, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
   font-feature-settings: "cv11", "ss01";
   font-weight: 500;
   line-height: 1.6;

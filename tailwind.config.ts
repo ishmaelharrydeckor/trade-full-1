@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Inter"', '"IBM Plex Sans"', "system-ui", "sans-serif"],
+        sans: ['"Inter"', "system-ui", "sans-serif"],
         serif: ['"Instrument Serif"', '"Cormorant Garamond"', "Georgia", "serif"],
         mono: ['"IBM Plex Mono"', '"JetBrains Mono"', "monospace"],
       },
