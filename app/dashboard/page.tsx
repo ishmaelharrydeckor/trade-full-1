@@ -2,20 +2,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import {
-  Plus,
-  TrendingUp,
-  Sparkles,
-  Check,
-  Clock,
-  ArrowRight,
-  BookOpen,
-  Target,
-  Brain,
-  Shield,
-  Users,
-  BarChart3,
-} from "lucide-react";
+import { Plus, Sparkles, ArrowRight } from "lucide-react";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -140,95 +127,16 @@ export default async function DashboardPage() {
         </section>
       )}
 
-      {/* Build roadmap */}
-      <section
-        className="rounded-2xl p-6"
-        style={{
-          backgroundColor: 'var(--app-elevated)',
-          border: '1px solid var(--app-border)',
-        }}
-      >
-        <div className="mb-5 flex items-center gap-2">
-          <Sparkles className="h-4 w-4" style={{ color: 'var(--accent-blue)' }} />
-          <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Build status</h3>
-        </div>
-        <div className="grid grid-cols-1 gap-6 text-sm md:grid-cols-3">
-          <RoadmapItem
-            done
-            label="Live now"
-            items={[
-              "Multi-tenant auth",
-              "Per-account dashboard",
-              "Manual trade entry + CSV import",
-              "KPIs + equity curve + drawdown",
-              "Analytics (12 charts)",
-              "Calendar heatmap",
-              "Playbook system",
-              "Notebook / session planner",
-              "Progress tracker",
-              "AI insights (Gemini)",
-              "Mentor mode",
-              "MT5 EA auto-sync",
-            ]}
-          />
-          <RoadmapItem
-            label="Coming next"
-            items={[
-              "Broker API sync (direct)",
-              "Mobile PWA app",
-              "Trade replay",
-              "Dashboard customizer",
-            ]}
-          />
-          <RoadmapItem
-            label="After that"
-            items={[
-              "Community features",
-              "Shareable trade cards",
-              "Prop firm integrations",
-              "White-label / teams",
-            ]}
-          />
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function RoadmapItem({
-  done,
-  label,
-  items,
-}: {
-  done?: boolean;
-  label: string;
-  items: string[];
-}) {
-  return (
-    <div>
-      <div className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider">
-        {done ? (
-          <>
-            <Check className="h-3 w-3" style={{ color: 'var(--accent-profit)' }} />
-            <span style={{ color: 'var(--accent-profit)' }}>{label}</span>
-          </>
-        ) : (
-          <>
-            <Clock className="h-3 w-3" style={{ color: 'var(--text-muted)' }} />
-            <span style={{ color: 'var(--text-muted)' }}>{label}</span>
-          </>
-        )}
+      {/* Roadmap link */}
+      <div className="text-center">
+        <Link
+          href="/dashboard/changelog"
+          className="inline-flex items-center gap-1.5 text-xs font-medium transition hover:opacity-100"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          <Sparkles className="h-3 w-3" /> View build roadmap
+        </Link>
       </div>
-      <ul className="space-y-1">
-        {items.map((it) => (
-          <li
-            key={it}
-            style={{ color: done ? 'var(--text-secondary)' : 'var(--text-muted)' }}
-          >
-            · {it}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

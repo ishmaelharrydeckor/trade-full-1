@@ -103,6 +103,21 @@ export default async function LandingPage() {
         <p className="mt-6 text-xs" style={{ color: 'var(--text-muted)' }}>
           Free for the first 6 months. No credit card required.
         </p>
+
+        {/* Dashboard preview */}
+        <div className="relative mx-auto mt-16 max-w-4xl">
+          <div className="absolute -inset-4 rounded-3xl bg-gradient-to-b from-blue-500/20 via-transparent to-transparent blur-xl" />
+          <div
+            className="relative overflow-hidden rounded-2xl shadow-2xl"
+            style={{ border: '1px solid var(--card-border)' }}
+          >
+            <img
+              src="/images/dashboard-preview.png"
+              alt="Trade·Journal dashboard showing KPIs, equity curve, and AI insights"
+              className="w-full"
+            />
+          </div>
+        </div>
       </section>
 
       {/* Feature row */}
@@ -126,12 +141,46 @@ export default async function LandingPage() {
         </div>
       </section>
 
+      {/* Pricing */}
+      <section className="mx-auto max-w-5xl px-6 pb-20">
+        <div className="text-center">
+          <h2 className="font-serif text-3xl tracking-tight md:text-4xl" style={{ color: 'var(--text-primary)' }}>
+            Simple pricing
+          </h2>
+          <p className="mx-auto mt-3 max-w-lg text-sm" style={{ color: 'var(--text-secondary)' }}>
+            Free while we build. Paid plans with advanced features coming later.
+          </p>
+        </div>
+        <div className="mx-auto mt-8 max-w-sm rounded-2xl p-6 text-center" style={{ border: '1px solid var(--card-border)', backgroundColor: 'var(--card-bg)' }}>
+          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--accent-blue)' }}>
+            Early access
+          </div>
+          <div className="text-5xl font-extrabold tracking-tighter" style={{ color: 'var(--text-primary)' }}>
+            $0
+          </div>
+          <p className="mt-1 text-sm" style={{ color: 'var(--text-muted)' }}>per month</p>
+          <ul className="mt-6 space-y-2 text-left text-sm" style={{ color: 'var(--text-secondary)' }}>
+            <li className="flex items-center gap-2"><span style={{ color: 'var(--accent-profit)' }}>✓</span> Unlimited accounts</li>
+            <li className="flex items-center gap-2"><span style={{ color: 'var(--accent-profit)' }}>✓</span> MT5 auto-sync</li>
+            <li className="flex items-center gap-2"><span style={{ color: 'var(--accent-profit)' }}>✓</span> AI insights (Gemini)</li>
+            <li className="flex items-center gap-2"><span style={{ color: 'var(--accent-profit)' }}>✓</span> Analytics + backtester</li>
+            <li className="flex items-center gap-2"><span style={{ color: 'var(--accent-profit)' }}>✓</span> Playbook + notebook + progress</li>
+          </ul>
+          <Link
+            href="/signup"
+            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-3 font-medium text-white shadow-lg shadow-blue-500/20 transition hover:shadow-blue-500/40"
+          >
+            Start free <ArrowRight className="h-4 w-4" />
+          </Link>
+          <p className="mt-3 text-[10px]" style={{ color: 'var(--text-muted)' }}>
+            No credit card required. Free for the first 6 months.
+          </p>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="px-6 py-8 text-center text-xs" style={{ borderTop: '1px solid var(--card-border)', color: 'var(--text-muted)' }}>
-        <p>
-          Built in Ghana ·{" "}
-          <span className="font-mono">v0.1 · trade-full-1</span>
-        </p>
+        <p>Built in Ghana 🇬🇭</p>
       </footer>
     </main>
   );
