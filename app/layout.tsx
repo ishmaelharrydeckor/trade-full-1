@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "Trade·Journal — AI-Powered Trading Journal",
   description:
     "Trade with discipline. Review with honesty. AI-powered trading journal for serious forex and MT5 traders.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
