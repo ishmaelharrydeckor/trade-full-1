@@ -178,10 +178,22 @@ export default function EaDownloadPanel({
         </div>
       )}
 
-      <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-500/20 bg-amber-500/[0.05] p-3 text-xs text-amber-100/80">
-        <AlertCircle className="mt-0.5 h-3 w-3 shrink-0 text-amber-400" />
+      <div
+        className="mt-4 flex items-start gap-2 rounded-lg border p-3 text-xs"
+        style={{
+          borderColor: "rgba(217, 119, 6, 0.25)",
+          backgroundColor: "rgba(217, 119, 6, 0.04)",
+          color: "var(--text-secondary)",
+        }}
+      >
+        <AlertCircle
+          className="mt-0.5 h-3 w-3 shrink-0"
+          style={{ color: "var(--accent-warm)" }}
+        />
         <span>
-          <strong className="text-amber-200">Keep your account token private.</strong>{" "}
+          <strong style={{ color: "var(--accent-warm)" }}>
+            Keep your account token private.
+          </strong>{" "}
           Anyone with the token can push trades into this account. If it leaks,
           delete this account and create a new one — that invalidates the old
           token.
