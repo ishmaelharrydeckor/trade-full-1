@@ -6,17 +6,58 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
+const POPULAR_BROKERS = {
+  brokers: [
+    { value: "Exness", label: "Exness" },
+    { value: "IC Markets", label: "IC Markets" },
+    { value: "Pepperstone", label: "Pepperstone" },
+    { value: "XM", label: "XM" },
+    { value: "OctaFX", label: "OctaFX" },
+    { value: "Deriv", label: "Deriv" },
+    { value: "Vantage Markets", label: "Vantage Markets" },
+    { value: "Interactive Brokers", label: "Interactive Brokers" },
+    { value: "AvaTrade", label: "AvaTrade" },
+    { value: "RoboForex", label: "RoboForex" },
+    { value: "Hantec Markets", label: "Hantec Markets" },
+  ],
+  props: [
+    { value: "FTMO", label: "FTMO" },
+    { value: "FundedNext", label: "FundedNext" },
+    { value: "Apex Trader Funding", label: "Apex Trader Funding" },
+    { value: "Funding Pips", label: "Funding Pips" },
+    { value: "E8 Funding", label: "E8 Funding" },
+    { value: "Topstep", label: "Topstep" },
+    { value: "Bespoke Funding", label: "Bespoke Funding" },
+  ]
+};
+
 const CURRENCIES = ["USD", "EUR", "GBP", "GHS", "NGN", "ZAR", "JPY"];
 
 export default function CreateAccountForm() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [broker, setBroker] = useState("");
+  const [selectedBroker, setSelectedBroker] = useState("Exness");
+  const [customBroker, setCustomBroker] = useState("");
+  const [broker, setBroker] = useState("Exness");
   const [accountNumber, setAccountNumber] = useState("");
   const [currency, setCurrency] = useState("USD");
   const [startingBalance, setStartingBalance] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleBrokerDropdownChange = (val: string) => {
+    setSelectedBroker(val);
+    if (val !== "CUSTOM") {
+      setBroker(val);
+    } else {
+      setBroker(customBroker);
+    }
+  };
+
+  const handleCustomBrokerChange = (val: string) => {
+    setCustomBroker(val);
+    setBroker(val);
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -72,13 +113,39 @@ export default function CreateAccountForm() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Field label="Broker">
-          <input
-            type="text"
-            value={broker}
-            onChange={(e) => setBroker(e.target.value)}
-            placeholder="e.g. Exness, IC Markets, Deriv"
-            className={inputClass}
-          />
+          <div className="flex flex-col gap-2">
+            <select
+              value={selectedBroker}
+              onChange={(e) => handleBrokerDropdownChange(e.target.value)}
+              className={inputClass}
+            >
+              <optgroup label="Popular Brokers">
+                {POPULAR_BROKERS.brokers.map((b) => (
+                  <option key={b.value} value={b.value}>
+                    {b.label}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Prop Firms">
+                {POPULAR_BROKERS.props.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
+                  </option>
+                ))}
+              </optgroup>
+              <option value="CUSTOM">Custom / Other...</option>
+            </select>
+            {selectedBroker === "CUSTOM" && (
+              <input
+                required
+                type="text"
+                value={customBroker}
+                onChange={(e) => handleCustomBrokerChange(e.target.value)}
+                placeholder="Enter custom broker or prop firm"
+                className={inputClass}
+              />
+            )}
+          </div>
         </Field>
         <Field label="Account number">
           <input

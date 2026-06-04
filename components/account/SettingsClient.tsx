@@ -45,6 +45,31 @@ export default function SettingsClient({ account }: { account: Account }) {
   );
 }
 
+const POPULAR_BROKERS = {
+  brokers: [
+    { value: "Exness", label: "Exness" },
+    { value: "IC Markets", label: "IC Markets" },
+    { value: "Pepperstone", label: "Pepperstone" },
+    { value: "XM", label: "XM" },
+    { value: "OctaFX", label: "OctaFX" },
+    { value: "Deriv", label: "Deriv" },
+    { value: "Vantage Markets", label: "Vantage Markets" },
+    { value: "Interactive Brokers", label: "Interactive Brokers" },
+    { value: "AvaTrade", label: "AvaTrade" },
+    { value: "RoboForex", label: "RoboForex" },
+    { value: "Hantec Markets", label: "Hantec Markets" },
+  ],
+  props: [
+    { value: "FTMO", label: "FTMO" },
+    { value: "FundedNext", label: "FundedNext" },
+    { value: "Apex Trader Funding", label: "Apex Trader Funding" },
+    { value: "Funding Pips", label: "Funding Pips" },
+    { value: "E8 Funding", label: "E8 Funding" },
+    { value: "Topstep", label: "Topstep" },
+    { value: "Bespoke Funding", label: "Bespoke Funding" },
+  ]
+};
+
 // ============================================================
 // Account info
 // ============================================================
@@ -55,8 +80,23 @@ function AccountInfoSection({
   account: Account;
   onSaved: () => void;
 }) {
+  const popularBrokerValues = [
+    "Exness", "IC Markets", "Pepperstone", "XM", "OctaFX", "Deriv", "Vantage Markets",
+    "Interactive Brokers", "AvaTrade", "RoboForex", "Hantec Markets",
+    "FTMO", "FundedNext", "Apex Trader Funding", "Funding Pips", "E8 Funding", "Topstep", "Bespoke Funding"
+  ];
+
+  const isInitialCustom = account.broker ? !popularBrokerValues.includes(account.broker) : false;
+
   const [name, setName] = useState(account.name);
-  const [broker, setBroker] = useState(account.broker ?? "");
+  const [selectedBroker, setSelectedBroker] = useState(
+    account.broker ? (isInitialCustom ? "CUSTOM" : account.broker) : "Exness"
+  );
+  const [customBroker, setCustomBroker] = useState(
+    account.broker && isInitialCustom ? account.broker : ""
+  );
+  const [broker, setBroker] = useState(account.broker ?? "Exness");
+
   const [accountNumber, setAccountNumber] = useState(
     account.account_number ?? ""
   );
@@ -66,6 +106,20 @@ function AccountInfoSection({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const handleBrokerDropdownChange = (val: string) => {
+    setSelectedBroker(val);
+    if (val !== "CUSTOM") {
+      setBroker(val);
+    } else {
+      setBroker(customBroker);
+    }
+  };
+
+  const handleCustomBrokerChange = (val: string) => {
+    setCustomBroker(val);
+    setBroker(val);
+  };
 
   async function save() {
     setSaving(true);
@@ -105,12 +159,39 @@ function AccountInfoSection({
           />
         </Field>
         <Field label="Broker">
-          <input
-            value={broker}
-            onChange={(e) => setBroker(e.target.value)}
-            placeholder="e.g. FBS, Exness, Pepperstone"
-            className="tj-input"
-          />
+          <div className="flex flex-col gap-2">
+            <select
+              value={selectedBroker}
+              onChange={(e) => handleBrokerDropdownChange(e.target.value)}
+              className="tj-input"
+            >
+              <optgroup label="Popular Brokers">
+                {POPULAR_BROKERS.brokers.map((b) => (
+                  <option key={b.value} value={b.value}>
+                    {b.label}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Prop Firms">
+                {POPULAR_BROKERS.props.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
+                  </option>
+                ))}
+              </optgroup>
+              <option value="CUSTOM">Custom / Other...</option>
+            </select>
+            {selectedBroker === "CUSTOM" && (
+              <input
+                required
+                type="text"
+                value={customBroker}
+                onChange={(e) => handleCustomBrokerChange(e.target.value)}
+                placeholder="Enter custom broker or prop firm"
+                className="tj-input"
+              />
+            )}
+          </div>
         </Field>
         <Field label="Account number">
           <input

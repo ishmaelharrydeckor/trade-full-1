@@ -7,6 +7,112 @@ import { createClient } from "@/lib/supabase/client";
 import type { Trade, AssetClass, Direction, TradeGrade } from "@/types/database";
 import { useRouter } from "next/navigation";
 
+const SYMBOLS_BY_CLASS: Record<AssetClass, { value: string; label: string }[]> = {
+  forex: [
+    { value: "EURUSD", label: "EURUSD (Euro / US Dollar)" },
+    { value: "GBPUSD", label: "GBPUSD (Pound / US Dollar)" },
+    { value: "USDJPY", label: "USDJPY (US Dollar / Yen)" },
+    { value: "GBPJPY", label: "GBPJPY (Pound / Yen)" },
+    { value: "AUDUSD", label: "AUDUSD (Aussie / US Dollar)" },
+    { value: "USDCAD", label: "USDCAD (US Dollar / Loonie)" },
+    { value: "USDCHF", label: "USDCHF (US Dollar / Swiss Franc)" },
+    { value: "NZDUSD", label: "NZDUSD (Kiwi / US Dollar)" },
+    { value: "EURGBP", label: "EURGBP (Euro / Pound)" },
+    { value: "EURJPY", label: "EURJPY (Euro / Yen)" },
+    { value: "EURCHF", label: "EURCHF (Euro / Swiss Franc)" },
+    { value: "EURAUD", label: "EURAUD (Euro / Aussie)" },
+    { value: "EURCAD", label: "EURCAD (Euro / Loonie)" },
+    { value: "EURNZD", label: "EURNZD (Euro / Kiwi)" },
+    { value: "GBPCHF", label: "GBPCHF (Pound / Swiss Franc)" },
+    { value: "GBPAUD", label: "GBPAUD (Pound / Aussie)" },
+    { value: "GBPCAD", label: "GBPCAD (Pound / Loonie)" },
+    { value: "GBPNZD", label: "GBPNZD (Pound / Kiwi)" },
+    { value: "AUDJPY", label: "AUDJPY (Aussie / Yen)" },
+    { value: "AUDCAD", label: "AUDCAD (Aussie / Loonie)" },
+    { value: "AUDCHF", label: "AUDCHF (Aussie / Swiss Franc)" },
+    { value: "AUDNZD", label: "AUDNZD (Aussie / Kiwi)" },
+    { value: "CADJPY", label: "CADJPY (Loonie / Yen)" },
+    { value: "CADCHF", label: "CADCHF (Loonie / Swiss Franc)" },
+    { value: "CHFJPY", label: "CHFJPY (Swiss Franc / Yen)" },
+    { value: "NZDJPY", label: "NZDJPY (Kiwi / Yen)" },
+    { value: "NZDCAD", label: "NZDCAD (Kiwi / Loonie)" },
+    { value: "NZDCHF", label: "NZDCHF (Kiwi / Swiss Franc)" },
+    { value: "CUSTOM", label: "Custom / Other..." },
+  ],
+  crypto: [
+    { value: "BTCUSD", label: "BTCUSD (Bitcoin)" },
+    { value: "ETHUSD", label: "ETHUSD (Ethereum)" },
+    { value: "SOLUSD", label: "SOLUSD (Solana)" },
+    { value: "XRPUSD", label: "XRPUSD (Ripple)" },
+    { value: "ADAUSD", label: "ADAUSD (Cardano)" },
+    { value: "DOTUSD", label: "DOTUSD (Polkadot)" },
+    { value: "DOGEUSD", label: "DOGEUSD (Dogecoin)" },
+    { value: "LTCUSD", label: "LTCUSD (Litecoin)" },
+    { value: "LINKUSD", label: "LINKUSD (Chainlink)" },
+    { value: "BNBUSD", label: "BNBUSD (Binance Coin)" },
+    { value: "MATICUSD", label: "MATICUSD (Polygon)" },
+    { value: "AVAXUSD", label: "AVAXUSD (Avalanche)" },
+    { value: "CUSTOM", label: "Custom / Other..." },
+  ],
+  commodities: [
+    { value: "XAUUSD", label: "XAUUSD (Gold)" },
+    { value: "XAGUSD", label: "XAGUSD (Silver)" },
+    { value: "USOUSD", label: "USOUSD (Crude Oil)" },
+    { value: "UKOIL", label: "UKOIL (Brent Crude)" },
+    { value: "NGAS", label: "NGAS (Natural Gas)" },
+    { value: "COPPER", label: "COPPER (Copper)" },
+    { value: "CUSTOM", label: "Custom / Other..." },
+  ],
+  indices: [
+    { value: "US30", label: "US30 (Dow Jones)" },
+    { value: "NAS100", label: "NAS100 (Nasdaq)" },
+    { value: "SPX500", label: "SPX500 (S&P 500)" },
+    { value: "GER40", label: "GER40 (DAX 40)" },
+    { value: "UK100", label: "UK100 (FTSE 100)" },
+    { value: "JPN225", label: "JPN225 (Nikkei 225)" },
+    { value: "HK50", label: "HK50 (Hang Seng)" },
+    { value: "EU50", label: "EU50 (Euro Stoxx 50)" },
+    { value: "CUSTOM", label: "Custom / Other..." },
+  ],
+  synthetics: [
+    { value: "V10", label: "Volatility 10 Index" },
+    { value: "V25", label: "Volatility 25 Index" },
+    { value: "V50", label: "Volatility 50 Index" },
+    { value: "V75", label: "Volatility 75 Index" },
+    { value: "V100", label: "Volatility 100 Index" },
+    { value: "V101S", label: "Volatility 10 (1s) Index" },
+    { value: "V251S", label: "Volatility 25 (1s) Index" },
+    { value: "V501S", label: "Volatility 50 (1s) Index" },
+    { value: "V751S", label: "Volatility 75 (1s) Index" },
+    { value: "V1001S", label: "Volatility 100 (1s) Index" },
+    { value: "BOOM300", label: "Boom 300 Index" },
+    { value: "BOOM500", label: "Boom 500 Index" },
+    { value: "BOOM1000", label: "Boom 1000 Index" },
+    { value: "CRASH300", label: "Crash 300 Index" },
+    { value: "CRASH500", label: "Crash 500 Index" },
+    { value: "CRASH1000", label: "Crash 1000 Index" },
+    { value: "JUMP10", label: "Jump 10 Index" },
+    { value: "JUMP25", label: "Jump 25 Index" },
+    { value: "JUMP50", label: "Jump 50 Index" },
+    { value: "JUMP75", label: "Jump 75 Index" },
+    { value: "JUMP100", label: "Jump 100 Index" },
+    { value: "STEP", label: "Step Index" },
+    { value: "CUSTOM", label: "Custom / Other..." },
+  ],
+  stocks: [
+    { value: "AAPL", label: "AAPL (Apple)" },
+    { value: "MSFT", label: "MSFT (Microsoft)" },
+    { value: "GOOGL", label: "GOOGL (Alphabet)" },
+    { value: "AMZN", label: "AMZN (Amazon)" },
+    { value: "TSLA", label: "TSLA (Tesla)" },
+    { value: "NVDA", label: "NVDA (NVIDIA)" },
+    { value: "META", label: "META (Meta Platforms)" },
+    { value: "NFLX", label: "NFLX (Netflix)" },
+    { value: "AMD", label: "AMD (Advanced Micro Devices)" },
+    { value: "CUSTOM", label: "Custom / Other..." },
+  ]
+};
+
 const ASSET_CLASSES: { id: AssetClass; label: string }[] = [
   { id: "forex",       label: "Forex" },
   { id: "crypto",      label: "Crypto" },
@@ -39,7 +145,30 @@ export default function TradeForm({
   const router = useRouter();
   const editing = !!initial;
 
-  const [symbol, setSymbol] = useState(initial?.symbol ?? "");
+  const [assetClass, setAssetClass] = useState<AssetClass>(
+    initial?.asset_class ?? "forex"
+  );
+
+  const getPopularValuesForClass = (ac: AssetClass) => {
+    return (SYMBOLS_BY_CLASS[ac] || []).map(s => s.value).filter(v => v !== "CUSTOM");
+  };
+
+  const isInitialCustom = initial?.symbol
+    ? !getPopularValuesForClass(initial.asset_class ?? "forex").includes(initial.symbol.toUpperCase().trim())
+    : false;
+
+  const [selectedSymbol, setSelectedSymbol] = useState<string>(
+    initial?.symbol
+      ? (isInitialCustom ? "CUSTOM" : initial.symbol.toUpperCase().trim())
+      : (SYMBOLS_BY_CLASS[initial?.asset_class ?? "forex"]?.[0]?.value ?? "CUSTOM")
+  );
+  const [customSymbol, setCustomSymbol] = useState<string>(
+    initial?.symbol && isInitialCustom ? initial.symbol : ""
+  );
+  const [symbol, setSymbol] = useState(
+    initial?.symbol ?? (SYMBOLS_BY_CLASS[initial?.asset_class ?? "forex"]?.[0]?.value ?? "")
+  );
+
   const detectAssetClass = (sym: string): AssetClass | null => {
     const s = sym.toUpperCase().trim();
     if (!s) return null;
@@ -51,9 +180,36 @@ export default function TradeForm({
     return null;
   };
 
-  const [assetClass, setAssetClass] = useState<AssetClass>(
-    initial?.asset_class ?? "forex"
-  );
+  const handleAssetClassChange = (newClass: AssetClass) => {
+    setAssetClass(newClass);
+    // Find the first option for this asset class
+    const defaultSym = SYMBOLS_BY_CLASS[newClass]?.[0]?.value ?? "CUSTOM";
+    setSelectedSymbol(defaultSym);
+    if (defaultSym !== "CUSTOM") {
+      setSymbol(defaultSym);
+    } else {
+      setSymbol(customSymbol);
+    }
+  };
+
+  const handleDropdownChange = (val: string) => {
+    setSelectedSymbol(val);
+    if (val !== "CUSTOM") {
+      setSymbol(val);
+    } else {
+      setSymbol(customSymbol);
+    }
+  };
+
+  const handleCustomSymbolChange = (val: string) => {
+    setCustomSymbol(val);
+    setSymbol(val);
+    const detected = detectAssetClass(val);
+    if (detected && detected !== assetClass) {
+      setAssetClass(detected);
+    }
+  };
+
   const [direction, setDirection] = useState<Direction>(initial?.direction ?? "long");
   const [volume, setVolume] = useState<string>(
     initial?.volume?.toString() ?? ""
@@ -178,24 +334,10 @@ export default function TradeForm({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <Field label="Symbol *">
-              <input
-                required
-                value={symbol}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setSymbol(val);
-                  const detected = detectAssetClass(val);
-                  if (detected) setAssetClass(detected);
-                }}
-                placeholder="XAUUSD, BTCUSDT, V75…"
-                className={inputClass}
-              />
-            </Field>
             <Field label="Asset class">
               <select
                 value={assetClass}
-                onChange={(e) => setAssetClass(e.target.value as AssetClass)}
+                onChange={(e) => handleAssetClassChange(e.target.value as AssetClass)}
                 className={inputClass}
               >
                 {ASSET_CLASSES.map((a) => (
@@ -204,6 +346,31 @@ export default function TradeForm({
                   </option>
                 ))}
               </select>
+            </Field>
+            <Field label="Symbol *">
+              <div className="flex flex-col gap-2">
+                <select
+                  value={selectedSymbol}
+                  onChange={(e) => handleDropdownChange(e.target.value)}
+                  className={inputClass}
+                >
+                  {(SYMBOLS_BY_CLASS[assetClass] || []).map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+                {selectedSymbol === "CUSTOM" && (
+                  <input
+                    required
+                    type="text"
+                    value={customSymbol}
+                    onChange={(e) => handleCustomSymbolChange(e.target.value)}
+                    placeholder="Enter custom symbol (e.g. GBPCHF, SOLUSD)"
+                    className={inputClass}
+                  />
+                )}
+              </div>
             </Field>
           </div>
 
