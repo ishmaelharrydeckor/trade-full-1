@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Eye, RefreshCw, Calendar, Target, PlusCircle, BookOpen, BookText } from "lucide-react";
+import { ChevronLeft, ChevronRight, RefreshCw, Calendar, Target, BookOpen, BookText, Calculator } from "lucide-react";
 
 interface Slide {
   id: string;
@@ -15,58 +15,50 @@ interface Slide {
 
 const SLIDES: Slide[] = [
   {
-    id: "overview",
-    title: "Command Center",
-    subtitle: "Dashboard Overview",
-    description: "Track your active positions, key behavioral scores, and equity trends on a unified, scientific trading interface.",
-    image: "/images/dashboard-overview.png",
-    icon: Eye,
-  },
-  {
     id: "sync",
     title: "Live MT5 Sync",
-    subtitle: "Auto-sync & Sizing",
-    description: "Run our MetaTrader 5 Expert Advisor for hands-off transaction logging. Manage risk parameters and calculate sizes dynamically.",
+    subtitle: "Auto-sync Trades",
+    description: "Run our MetaTrader 5 Expert Advisor for hands-off transaction logging. Sync entry, exit, swaps, and execution parameters automatically.",
     image: "/images/dashboard-sync.png",
     icon: RefreshCw,
   },
   {
+    id: "calculator",
+    title: "Calculator",
+    subtitle: "Risk Strategy & Sizing",
+    description: "Define your risk strategy parameters and calculate exact lot sizing dynamically based on your current account equity.",
+    image: "/images/dashboard-habits.png",
+    icon: Calculator,
+  },
+  {
     id: "calendar",
-    title: "Trading Calendar",
-    subtitle: "Daily Performance",
-    description: "Visualize patterns, streaks, and monthly profit/loss distribution. Locate your best and worst trading days at a glance.",
+    title: "Calendar",
+    subtitle: "Trading Calendar",
+    description: "Visualize performance patterns, daily outcomes, and win-loss distribution on a clean calendar interface.",
     image: "/images/dashboard-calendar.png",
     icon: Calendar,
   },
   {
     id: "discipline",
-    title: "Discipline Tracker",
-    subtitle: "Score & Heatmaps",
-    description: "Keep score of your rule execution, build habit streaks, and review your multi-month discipline heatmaps.",
+    title: "Discipline",
+    subtitle: "Discipline Scoreboard",
+    description: "Enforce consistency rules, build habit check-in streaks, and grow your behavior heatmap.",
     image: "/images/dashboard-progress.png",
     icon: Target,
   },
   {
-    id: "habits",
-    title: "Habit Builder",
-    subtitle: "Routine Customization",
-    description: "Manage checklists, trigger auto-checks, and refine custom setups to develop a bulletproof trading routine.",
-    image: "/images/dashboard-habits.png",
-    icon: PlusCircle,
-  },
-  {
     id: "playbook",
-    title: "Strategy Playbook",
-    subtitle: "Rules & Checklists",
+    title: "Playbook",
+    subtitle: "Strategy Rules",
     description: "Define strategies, checklist items, and entry conditions. See trade performance analytics broken down by strategy.",
     image: "/images/dashboard-playbook.png",
     icon: BookOpen,
   },
   {
     id: "journal",
-    title: "Trading Journal",
-    subtitle: "Pre & Post Session Plans",
-    description: "Log daily pre-session bias, track market conditions and mental states, and record post-session reviews to build complete trade documentation.",
+    title: "Journal",
+    subtitle: "Psychology Notebook",
+    description: "Document daily pre-session plans, directional bias, market conditions, and mental states alongside post-session reviews.",
     image: "/images/dashboard-journal.png",
     icon: BookText,
   },
