@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Eye, RefreshCw, Calendar, Target, PlusCircle, BookOpen } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, RefreshCw, Calendar, Target, PlusCircle, BookOpen, BookText } from "lucide-react";
 
 interface Slide {
   id: string;
@@ -55,12 +55,20 @@ const SLIDES: Slide[] = [
     icon: PlusCircle,
   },
   {
+    id: "playbook",
+    title: "Strategy Playbook",
+    subtitle: "Rules & Checklists",
+    description: "Define strategies, checklist items, and entry conditions. See trade performance analytics broken down by strategy.",
+    image: "/images/dashboard-playbook.png",
+    icon: BookOpen,
+  },
+  {
     id: "journal",
     title: "Trading Journal",
     subtitle: "Pre & Post Session Plans",
     description: "Log daily pre-session bias, track market conditions and mental states, and record post-session reviews to build complete trade documentation.",
     image: "/images/dashboard-journal.png",
-    icon: BookOpen,
+    icon: BookText,
   },
 ];
 
