@@ -71,7 +71,7 @@ export default function EquityCurve({
                   <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" vertical={false} />
+              <CartesianGrid stroke="var(--app-border)" strokeDasharray="3 3" vertical={false} />
               <XAxis
                 dataKey="time"
                 tickFormatter={(iso) => {
