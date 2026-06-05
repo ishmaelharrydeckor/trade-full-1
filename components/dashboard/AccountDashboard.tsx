@@ -107,6 +107,8 @@ export default function AccountDashboard({
           account={account}
           trades={tradesForTab}
           transactions={txForTab}
+          playbooks={playbooks}
+          playbookEntries={playbookEntries}
         />
       )}
 

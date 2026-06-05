@@ -2,7 +2,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Account, Trade, AccountTransaction } from "@/types/database";
+import type { Account, Trade, AccountTransaction, Playbook, TradePlaybookEntry } from "@/types/database";
 import { computeKpis, buildEquityCurve, computeCurrentEquity } from "@/lib/stats";
 import KpiCards from "@/components/overview/KpiCards";
 import EquityCurve from "@/components/overview/EquityCurve";
@@ -10,15 +10,20 @@ import DrawdownChart from "@/components/overview/DrawdownChart";
 import RecentTradesPreview from "@/components/overview/RecentTradesPreview";
 import OpenPositionsPanel from "@/components/overview/OpenPositionsPanel";
 import AiInsightsPanel from "@/components/insights/AiInsightsPanel";
+import ScientificOverviewHeader from "@/components/overview/ScientificOverviewHeader";
 
 export default function OverviewTab({
   account,
   trades,
   transactions,
+  playbooks,
+  playbookEntries,
 }: {
   account: Account;
   trades: Trade[];
   transactions: AccountTransaction[];
+  playbooks: Playbook[];
+  playbookEntries: TradePlaybookEntry[];
 }) {
   const startingBalance = account.starting_balance ?? 0;
 
@@ -35,6 +40,13 @@ export default function OverviewTab({
   return (
     <div className="flex flex-col gap-6">
       <OpenPositionsPanel accountId={account.id} />
+
+      <ScientificOverviewHeader
+        account={account}
+        trades={trades}
+        playbooks={playbooks}
+        entries={playbookEntries}
+      />
 
       <KpiCards
         kpis={kpis}
@@ -64,3 +76,4 @@ export default function OverviewTab({
     </div>
   );
 }
+
