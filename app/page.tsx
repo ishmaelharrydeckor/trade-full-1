@@ -1,6 +1,8 @@
 // app/page.tsx
 // Landing page. Editorial, restrained, signals "for serious traders."
 
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
@@ -9,10 +11,16 @@ import ThemeToggle from "@/components/ui/ThemeToggle";
 import FeatureAnimation from "@/components/ui/FeatureAnimation";
 
 export default async function LandingPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user: fetchedUser },
+    } = await supabase.auth.getUser();
+    user = fetchedUser;
+  } catch (err) {
+    console.error("Supabase auth check failed on landing page:", err);
+  }
 
   // If logged in, skip the landing page
   if (user) redirect("/dashboard");
@@ -110,10 +118,6 @@ export default async function LandingPage() {
               src="/images/dashboard-preview.png"
               alt="Trade·Jernal dashboard showing KPIs, equity curve, and AI insights"
               className="w-full"
-              onError={(e) => {
-                // Prevent broken image icon if preview not built yet
-                e.currentTarget.style.display = "none";
-              }}
             />
           </div>
         </div>
