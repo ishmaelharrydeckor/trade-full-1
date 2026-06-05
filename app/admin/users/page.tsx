@@ -62,7 +62,7 @@ WHERE id = '${user.id}';`}
     admin.from("profiles").select("id, display_name, country, is_admin"),
     admin.from("accounts").select("user_id"),
     admin.from("trades").select("user_id"),
-    admin.from("beta_feedback").select("*").order("submitted_at", { ascending: false }),
+    admin.from("beta_feedback").select("*").order("created_at", { ascending: false }),
   ]);
 
   const feedback: BetaFeedbackRow[] = feedbackRes.data ?? [];

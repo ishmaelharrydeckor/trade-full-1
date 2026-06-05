@@ -41,9 +41,9 @@ export default function BetaFeedbackPage() {
           className="mx-auto mt-4 max-w-lg text-base leading-relaxed"
           style={{ color: "var(--text-secondary)" }}
         >
-          Your honest feedback shapes the future of this tool.
+          Your honest feedback shapes what gets built next.
           <br />
-          Takes about 3 minutes.
+          Takes about 4 minutes. Only email is required — everything else is optional.
         </p>
       </section>
 
