@@ -4,11 +4,13 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { ArrowRight, Sparkles, Check, X, ShieldAlert, Award, Globe } from "lucide-react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import FeatureAnimation from "@/components/ui/FeatureAnimation";
+import ProductGallery from "@/components/ui/ProductGallery";
 
 export default async function LandingPage() {
   let user = null;
@@ -116,24 +118,188 @@ export default async function LandingPage() {
 
       </section>
 
-      {/* Feature cards */}
-      <section id="features" className="scroll-mt-16 mx-auto max-w-5xl px-6 pb-20">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <FeatureCard
-            icon="sync"
-            title="Auto-sync from MT5"
-            body="Drop our lightweight EA on your chart. Every closed trade lands here in seconds — with stop loss, entry details, and execution parameters."
-          />
-          <FeatureCard
-            icon="ai"
-            title="AI insights, free"
-            body="Powered by Gemini. Weekly summaries highlighting your core setup expectancy, drawdown risk factors, and behavioral patterns."
-          />
-          <FeatureCard
-            icon="calc"
-            title="Position sizing built in"
-            body="Configure your risk parameters once. Our calculator tells you exactly how many lots to take on every trade setup."
-          />
+      {/* Product Gallery Section */}
+      <section className="mx-auto max-w-5xl px-6 pb-20">
+        <div className="mb-10 text-center">
+          <h2 className="font-serif text-3xl md:text-4xl tracking-tight text-[color:var(--text-primary)]">
+            Explore the Scientific Workbench
+          </h2>
+          <p className="mt-2 text-sm max-w-lg mx-auto text-[color:var(--text-secondary)]">
+            A visual overview of the systems designed to monitor performance, manage rules, and enforce trading guidelines.
+          </p>
+        </div>
+        <ProductGallery />
+      </section>
+
+      {/* Alternating Feature Showcase Section */}
+      <section id="features" className="scroll-mt-16 mx-auto max-w-5xl px-6 pb-24 space-y-24">
+        <div className="text-center mb-16">
+          <h2 className="font-serif text-3xl md:text-5xl tracking-tight text-[color:var(--text-primary)]">
+            Professional Systems Built to Scale
+          </h2>
+          <p className="mt-4 text-base max-w-xl mx-auto text-[color:var(--text-secondary)]">
+            Trade Jernal provides the analytical tooling and behavioral controls of institutional trading desks.
+          </p>
+        </div>
+
+        {/* Feature 1: MT5 Sync */}
+        <div className="flex flex-col gap-12 md:flex-row md:items-center">
+          <div className="flex-1 space-y-5">
+            <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider text-blue-400 bg-blue-500/5 border border-blue-500/10">
+              Auto-Sync
+            </span>
+            <h3 className="font-serif text-3xl font-bold text-[color:var(--text-primary)]">
+              Hands-Off MetaTrader 5 Synchronization
+            </h3>
+            <p className="text-sm leading-relaxed text-[color:var(--text-secondary)]">
+              Stop manually logging stats. Drag our customized Expert Advisor onto any MT5 chart window. The second you close a position, the entry, exit, commissions, swaps, volume, and tick history sync straight to your web dashboard.
+            </p>
+            <ul className="space-y-2.5 text-xs text-[color:var(--text-secondary)]">
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-emerald-500" />
+                <span>Zero CSV files or manual typing required</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-emerald-500" />
+                <span>Synchronizes stops, limits, swaps, and execution speeds</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-emerald-500" />
+                <span>Automatic lot sizing based on defined risk percentage parameters</span>
+              </li>
+            </ul>
+          </div>
+          <div className="flex-1">
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border p-1 backdrop-blur bg-white/5" style={{ borderColor: 'var(--card-border)' }}>
+              <Image
+                src="/images/dashboard-sync.png"
+                alt="MT5 Live Sync Instructions & Risk Strategy"
+                fill
+                sizes="(max-width: 768px) 100vw, 500px"
+                className="object-cover object-top rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Feature 2: Calendar */}
+        <div className="flex flex-col gap-12 md:flex-row-reverse md:items-center">
+          <div className="flex-1 space-y-5">
+            <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-400 bg-emerald-500/5 border border-emerald-500/10">
+              Interactive Indexing
+            </span>
+            <h3 className="font-serif text-3xl font-bold text-[color:var(--text-primary)]">
+              Visual Trading Calendar & Command Center
+            </h3>
+            <p className="text-sm leading-relaxed text-[color:var(--text-secondary)]">
+              Locate high-performance cycles instantly. Our interactive calendar charts net outcomes day-by-day, color-coding win/loss distributions, active win streaks, and net profit margins. It provides a visual timeline of your progress.
+            </p>
+            <ul className="space-y-2.5 text-xs text-[color:var(--text-secondary)]">
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-emerald-500" />
+                <span>High-contrast color representation of winning and losing days</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-emerald-500" />
+                <span>Track active streaks and weekly average performance values</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-emerald-500" />
+                <span>Instant click-to-view daily journal details directly from calendar boxes</span>
+              </li>
+            </ul>
+          </div>
+          <div className="flex-1">
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border p-1 backdrop-blur bg-white/5" style={{ borderColor: 'var(--card-border)' }}>
+              <Image
+                src="/images/dashboard-calendar.png"
+                alt="Performance Trading Calendar"
+                fill
+                sizes="(max-width: 768px) 100vw, 500px"
+                className="object-cover object-top rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Feature 3: Discipline */}
+        <div className="flex flex-col gap-12 md:flex-row md:items-center">
+          <div className="flex-1 space-y-5">
+            <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-400 bg-amber-500/5 border border-amber-500/10">
+              Behavioral Control
+            </span>
+            <h3 className="font-serif text-3xl font-bold text-[color:var(--text-primary)]">
+              Daily Rule Enforcement & Heatmaps
+            </h3>
+            <p className="text-sm leading-relaxed text-[color:var(--text-secondary)]">
+              Profitable trading is an exercise in restraint. Define custom checklists, monitor daily execution streaks, and record your rule-compliance score. Watch your discipline heatmap grow greener over time as you train yourself to avoid FOMO and follow your rules.
+            </p>
+            <ul className="space-y-2.5 text-xs text-[color:var(--text-secondary)]">
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-emerald-500" />
+                <span>Add custom trading habits (e.g., "Wait for 15M candle close")</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-emerald-500" />
+                <span>Visual multiday streaks and habit scoring analytics</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-emerald-500" />
+                <span>Long-term discipline heatmaps tracking consistent check-ins</span>
+              </li>
+            </ul>
+          </div>
+          <div className="flex-1">
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border p-1 backdrop-blur bg-white/5" style={{ borderColor: 'var(--card-border)' }}>
+              <Image
+                src="/images/dashboard-progress.png"
+                alt="Today's Discipline and Habit Heatmap"
+                fill
+                sizes="(max-width: 768px) 100vw, 500px"
+                className="object-cover object-top rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Feature 4: Notebook */}
+        <div className="flex flex-col gap-12 md:flex-row-reverse md:items-center">
+          <div className="flex-1 space-y-5">
+            <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-400 bg-indigo-500/5 border border-indigo-500/10">
+              Psychology Notebook
+            </span>
+            <h3 className="font-serif text-3xl font-bold text-[color:var(--text-primary)]">
+              Structured Pre-Session & Post-Session Journaling
+            </h3>
+            <p className="text-sm leading-relaxed text-[color:var(--text-secondary)]">
+              Trade with a structured mindset. Document your directional bias before logging a single setup. Log current market conditions and select your mental states (e.g. calm, anxious, excited). Conclude your trading days with reviews and key takeaways.
+            </p>
+            <ul className="space-y-2.5 text-xs text-[color:var(--text-secondary)]">
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-emerald-500" />
+                <span>Write detailed pre-session game plans before markets open</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-emerald-500" />
+                <span>Isolate trades taken under stress or during ranging conditions</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-emerald-500" />
+                <span>Build a historical archive of lessons learned to review weekly</span>
+              </li>
+            </ul>
+          </div>
+          <div className="flex-1">
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border p-1 backdrop-blur bg-white/5" style={{ borderColor: 'var(--card-border)' }}>
+              <Image
+                src="/images/dashboard-journal.png"
+                alt="Today's Journal Entry details"
+                fill
+                sizes="(max-width: 768px) 100vw, 500px"
+                className="object-cover object-top rounded-lg"
+              />
+            </div>
+          </div>
         </div>
       </section>
 

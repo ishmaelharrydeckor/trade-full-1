@@ -234,8 +234,8 @@ function PlaybookForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }} onClick={onClose}>
-      <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl p-6" style={{ borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--app-border)', backgroundColor: 'var(--app-bg)' }} onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 overflow-y-auto p-4 flex justify-center items-start md:items-center backdrop-blur-sm" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }} onClick={onClose}>
+      <div className="w-full max-w-xl my-8 rounded-2xl p-6" style={{ borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--app-border)', backgroundColor: 'var(--app-bg)' }} onClick={(e) => e.stopPropagation()}>
         <div className="mb-5 flex items-center justify-between">
           <h2 className="font-serif text-2xl" style={{ color: 'var(--text-primary)' }}>{initial ? "Edit playbook" : "New playbook"}</h2>
           <button type="button" onClick={onClose} className="rounded-lg p-1.5 transition" style={{ color: 'var(--text-secondary)' }}>
