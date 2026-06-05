@@ -38,6 +38,13 @@ export default async function LandingPage() {
           </span>
         </div>
         <nav className="flex items-center gap-2 text-sm">
+          <a
+            href="#features"
+            className="px-3 py-1.5 transition hover:opacity-80 font-medium"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Features
+          </a>
           <ThemeToggle />
           <Link
             href="/login"
@@ -110,7 +117,7 @@ export default async function LandingPage() {
       </section>
 
       {/* Feature cards */}
-      <section className="mx-auto max-w-5xl px-6 pb-20">
+      <section id="features" className="scroll-mt-16 mx-auto max-w-5xl px-6 pb-20">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <FeatureCard
             icon="sync"
