@@ -175,8 +175,8 @@ export default async function LandingPage() {
                 src="/images/dashboard-sync.png"
                 alt="MT5 Live Sync Instructions & Risk Strategy"
                 fill
-                sizes="(max-width: 768px) 100vw, 500px"
-                className="object-cover object-top rounded-lg"
+                unoptimized
+                className="object-contain object-top rounded-lg"
               />
             </div>
           </div>
@@ -215,8 +215,8 @@ export default async function LandingPage() {
                 src="/images/dashboard-calendar.png"
                 alt="Performance Trading Calendar"
                 fill
-                sizes="(max-width: 768px) 100vw, 500px"
-                className="object-cover object-top rounded-lg"
+                unoptimized
+                className="object-contain object-top rounded-lg"
               />
             </div>
           </div>
@@ -255,8 +255,8 @@ export default async function LandingPage() {
                 src="/images/dashboard-progress.png"
                 alt="Today's Discipline and Habit Heatmap"
                 fill
-                sizes="(max-width: 768px) 100vw, 500px"
-                className="object-cover object-top rounded-lg"
+                unoptimized
+                className="object-contain object-top rounded-lg"
               />
             </div>
           </div>
@@ -295,8 +295,8 @@ export default async function LandingPage() {
                 src="/images/dashboard-journal.png"
                 alt="Today's Journal Entry details"
                 fill
-                sizes="(max-width: 768px) 100vw, 500px"
-                className="object-cover object-top rounded-lg"
+                unoptimized
+                className="object-contain object-top rounded-lg"
               />
             </div>
           </div>

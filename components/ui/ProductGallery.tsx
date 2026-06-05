@@ -133,8 +133,8 @@ export default function ProductGallery() {
             alt={activeSlide.title}
             fill
             priority
-            sizes="(max-width: 1024px) 100vw, 1024px"
-            className="object-cover object-top transition-all duration-500 ease-in-out"
+            unoptimized
+            className="object-contain object-top transition-all duration-300 ease-in-out"
           />
 
           {/* Navigation Controls Overlay */}
