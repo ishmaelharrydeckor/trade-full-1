@@ -4,6 +4,7 @@
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
+  Sparkles,
   ListChecks,
   LineChart,
   Calendar,
@@ -21,6 +22,12 @@ const TABS = [
     label: "Overview",
     icon: LayoutDashboard,
     tooltip: "Your trading dashboard at a glance — KPIs, equity curve, drawdown chart, and AI-powered insights.",
+  },
+  {
+    id: "insights",
+    label: "AI Insights",
+    icon: Sparkles,
+    tooltip: "AI-powered analysis of your recent trading patterns, strengths, and blindspots.",
   },
   {
     id: "trades",

@@ -18,6 +18,7 @@ import CalendarTab from "@/components/account/tabs/CalendarTab";
 import PlaybookTab from "@/components/account/tabs/PlaybookTab";
 import NotebookTab from "@/components/notebook/NotebookTab";
 import ProgressTab from "@/components/progress/ProgressTab";
+import AiInsightsPanel from "@/components/insights/AiInsightsPanel";
 import type {
   Account,
   Trade,
@@ -140,6 +141,13 @@ export default function AccountDashboard({
             transactions={txForTab}
             playbooks={playbooks}
             playbookEntries={playbookEntries}
+          />
+        )}
+
+        {tab === "insights" && (
+          <AiInsightsPanel
+            accountId={account.id}
+            hasTrades={trades.length > 0}
           />
         )}
 
