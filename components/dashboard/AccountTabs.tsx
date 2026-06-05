@@ -101,6 +101,25 @@ export default function AccountTabs({
       )}
       style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-surface)" }}
     >
+      {/* Collapse Toggle Button (Desktop Only) */}
+      <div className="hidden lg:block border-b mb-2 pb-2" style={{ borderColor: "var(--app-border)" }}>
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          className="flex items-center justify-center w-full rounded-lg py-2 text-[color:var(--text-secondary)] hover:bg-white/5 transition-colors duration-150"
+          title={isCollapsed ? "Expand Sidebar" : "Minimize Sidebar"}
+        >
+          {isCollapsed ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <ChevronLeft className="h-4 w-4" />
+              <span>Minimize</span>
+            </div>
+          )}
+        </button>
+      </div>
+
       <div className="flex flex-row lg:flex-col gap-1 w-full">
         {TABS.map((t) => {
           const isActive = t.id === active;
@@ -125,25 +144,6 @@ export default function AccountTabs({
             </button>
           );
         })}
-      </div>
-
-      {/* Collapse Toggle Button (Desktop Only) */}
-      <div className="hidden lg:block border-t mt-2 pt-2" style={{ borderColor: "var(--app-border)" }}>
-        <button
-          type="button"
-          onClick={onToggleCollapse}
-          className="flex items-center justify-center w-full rounded-lg py-2 text-[color:var(--text-secondary)] hover:bg-white/5 transition-colors duration-150"
-          title={isCollapsed ? "Expand Sidebar" : "Minimize Sidebar"}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <div className="flex items-center gap-2 text-xs font-semibold">
-              <ChevronLeft className="h-4 w-4" />
-              <span>Minimize</span>
-            </div>
-          )}
-        </button>
       </div>
     </nav>
   );
