@@ -107,20 +107,6 @@ export default async function LandingPage() {
           </Link>
         </div>
 
-        {/* Dashboard preview */}
-        <div className="relative mx-auto mt-16 max-w-4xl">
-          <div className="absolute -inset-4 rounded-3xl bg-gradient-to-b from-blue-500/20 via-transparent to-transparent blur-xl" />
-          <div
-            className="relative overflow-hidden rounded-2xl shadow-2xl"
-            style={{ border: '1px solid var(--card-border)' }}
-          >
-            <img
-              src="/images/dashboard-preview.png"
-              alt="Trade·Jernal dashboard showing KPIs, equity curve, and AI insights"
-              className="w-full"
-            />
-          </div>
-        </div>
       </section>
 
       {/* Feature cards */}
