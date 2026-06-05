@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { cn } from "@/lib/utils";
 import AccountTabs, { type TabId } from "./AccountTabs";
 import DateRangeFilter, {
   ALL_TIME,
@@ -56,6 +57,23 @@ export default function AccountDashboard({
 }) {
   const [tab, setTab] = useState<TabId>("overview");
   const [dateRange, setDateRange] = useState<DateRange>(ALL_TIME);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Initialize collapse state from localStorage safely on mount to prevent SSR hydration mismatch
+  useEffect(() => {
+    const saved = localStorage.getItem("tj-sidebar-collapsed");
+    if (saved === "true") {
+      setIsCollapsed(true);
+    }
+    setMounted(true);
+  }, []);
+
+  const toggleCollapse = () => {
+    const next = !isCollapsed;
+    setIsCollapsed(next);
+    localStorage.setItem("tj-sidebar-collapsed", String(next));
+  };
 
   const filteredTrades = useMemo(
     () => filterTradesByDateRange(trades, dateRange),
@@ -93,8 +111,16 @@ export default function AccountDashboard({
   return (
     <div className="flex flex-col lg:flex-row gap-8 items-start">
       {/* Sidebar navigation */}
-      <aside className="w-full lg:w-60 shrink-0 lg:sticky lg:top-20">
-        <AccountTabs active={tab} onSelect={setTab} />
+      <aside className={cn(
+        "w-full shrink-0 lg:sticky lg:top-20 transition-all duration-300",
+        mounted && isCollapsed ? "lg:w-16" : "lg:w-60"
+      )}>
+        <AccountTabs
+          active={tab}
+          onSelect={setTab}
+          isCollapsed={mounted ? isCollapsed : false}
+          onToggleCollapse={toggleCollapse}
+        />
       </aside>
 
       {/* Main tab content */}

@@ -11,6 +11,8 @@ import {
   BookOpen,
   BookText,
   Target,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 const TABS = [
@@ -69,38 +71,66 @@ export type TabId = (typeof TABS)[number]["id"];
 export default function AccountTabs({
   active,
   onSelect,
+  isCollapsed,
+  onToggleCollapse,
 }: {
   active: TabId;
   onSelect: (id: TabId) => void;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
 }) {
   return (
-    <nav className="flex flex-row lg:flex-col gap-1 w-full overflow-x-auto lg:overflow-x-visible p-1.5 rounded-xl border backdrop-blur shrink-0"
-         style={{ borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
-      {TABS.map((t) => {
-        const isActive = t.id === active;
-        const Icon = t.icon;
-        return (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => onSelect(t.id)}
-            title={t.tooltip}
-            className={cn(
-              "inline-flex items-center gap-2.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition duration-150 w-auto lg:w-full text-left justify-start hover:bg-white/5",
-              isActive
-                ? "font-bold text-white"
-                : "text-[color:var(--text-secondary)]"
-            )}
-            style={isActive
-              ? { backgroundColor: 'var(--accent)' }
-              : undefined
-            }
-          >
-            <Icon className="h-4 w-4 shrink-0" />
-            <span>{t.label}</span>
-          </button>
-        );
-      })}
+    <nav
+      className={cn(
+        "flex flex-row lg:flex-col gap-1 w-full overflow-x-auto lg:overflow-x-visible p-1.5 rounded-xl border backdrop-blur shrink-0 transition-all duration-300",
+        isCollapsed ? "lg:w-16" : "lg:w-60"
+      )}
+      style={{ borderColor: "var(--app-border)", backgroundColor: "var(--app-surface)" }}
+    >
+      <div className="flex flex-row lg:flex-col gap-1 w-full">
+        {TABS.map((t) => {
+          const isActive = t.id === active;
+          const Icon = t.icon;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => onSelect(t.id)}
+              title={isCollapsed ? t.label : t.tooltip}
+              className={cn(
+                "inline-flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 text-sm font-semibold transition-all duration-150 w-auto lg:w-full text-left justify-start hover:bg-white/5",
+                isActive ? "font-bold text-white" : "text-[color:var(--text-secondary)]",
+                isCollapsed && "lg:justify-center lg:px-0 lg:py-3"
+              )}
+              style={isActive ? { backgroundColor: "var(--accent)" } : undefined}
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              <span className={cn("transition-opacity duration-200", isCollapsed && "lg:hidden")}>
+                {t.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Collapse Toggle Button (Desktop Only) */}
+      <div className="hidden lg:block border-t mt-2 pt-2" style={{ borderColor: "var(--app-border)" }}>
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          className="flex items-center justify-center w-full rounded-lg py-2 text-[color:var(--text-secondary)] hover:bg-white/5 transition-colors duration-150"
+          title={isCollapsed ? "Expand Sidebar" : "Minimize Sidebar"}
+        >
+          {isCollapsed ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <ChevronLeft className="h-4 w-4" />
+              <span>Minimize</span>
+            </div>
+          )}
+        </button>
+      </div>
     </nav>
   );
 }
