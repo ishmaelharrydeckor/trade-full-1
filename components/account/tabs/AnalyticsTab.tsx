@@ -51,23 +51,28 @@ export default function AnalyticsTab({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-      <AnalyticsDonutChart
-        title="By Trading Session"
-        subtitle="NY, London, Asian, Sydney (UTC) trade distribution"
-        data={bySession}
-      />
-      <AnalyticsDonutChart
-        title="By Asset Class"
-        subtitle="Forex, crypto, indices, etc. distribution"
-        data={byAssetClass}
-      />
-      <AnalyticsDonutChart
-        title="By Direction"
-        subtitle="Long vs short distribution"
-        data={byDirection}
-      />
-      <div className="lg:col-span-2">
+    <div className="space-y-6">
+      {/* Ratio Metrics: Donuts */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <AnalyticsDonutChart
+          title="By Trading Session"
+          subtitle="NY, London, Asian, Sydney (UTC) trade distribution"
+          data={bySession}
+        />
+        <AnalyticsDonutChart
+          title="By Asset Class"
+          subtitle="Forex, crypto, indices, etc. distribution"
+          data={byAssetClass}
+        />
+        <AnalyticsDonutChart
+          title="By Direction"
+          subtitle="Long vs short distribution"
+          data={byDirection}
+        />
+      </div>
+
+      {/* High-density Symbol Performance */}
+      <div className="w-full">
         <AnalyticsHorizontalBarChart
           title="By Symbol"
           subtitle="Your top 12 instruments by absolute P&L"
@@ -75,29 +80,41 @@ export default function AnalyticsTab({
           maxItems={12}
         />
       </div>
-      <AnalyticsRadarChart
-        title="By Day of Week"
-        subtitle="Weekly performance curve"
-        data={byWeekday}
-      />
-      <AnalyticsAreaChart
-        title="By Hour of Day"
-        subtitle="Session timing trends (local time)"
-        data={byHour}
-      />
-      <AnalyticsBarChart
-        title="By Mindset"
-        subtitle="Emotional state during entry"
-        data={byMindset}
-        emptyMessage="Tag your trades with a mindset (focused / rushed / fomo / etc.) to see this breakdown."
-      />
-      <AnalyticsBarChart
-        title="By Tag"
-        subtitle="Your custom tags ranked by P&L"
-        data={byTags}
-        emptyMessage="Add tags to your trades (e.g. 'breakout', 'london', 'news') to see this breakdown."
-      />
-      <RMultipleChart trades={trades} />
+
+      {/* Cyclical Performance: Day & Hour */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <AnalyticsRadarChart
+          title="By Day of Week"
+          subtitle="Weekly performance curve"
+          data={byWeekday}
+        />
+        <AnalyticsAreaChart
+          title="By Hour of Day"
+          subtitle="Session timing trends (local time)"
+          data={byHour}
+        />
+      </div>
+
+      {/* User-defined Metadata: Mindset & Tags */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <AnalyticsBarChart
+          title="By Mindset"
+          subtitle="Emotional state during entry"
+          data={byMindset}
+          emptyMessage="Tag your trades with a mindset (focused / rushed / fomo / etc.) to see this breakdown."
+        />
+        <AnalyticsBarChart
+          title="By Tag"
+          subtitle="Your custom tags ranked by P&L"
+          data={byTags}
+          emptyMessage="Add tags to your trades (e.g. 'breakout', 'london', 'news') to see this breakdown."
+        />
+      </div>
+
+      {/* Risk Distribution */}
+      <div className="w-full">
+        <RMultipleChart trades={trades} />
+      </div>
     </div>
   );
 }
