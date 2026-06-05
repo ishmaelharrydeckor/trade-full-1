@@ -143,7 +143,7 @@ export default function TradeForm({
   initial?: Trade | null;
 }) {
   const router = useRouter();
-  const editing = !!initial;
+  const editing = !!(initial && initial.id);
 
   const [assetClass, setAssetClass] = useState<AssetClass>(
     initial?.asset_class ?? "forex"
