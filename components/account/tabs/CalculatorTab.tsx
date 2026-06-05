@@ -28,7 +28,7 @@ export default function CalculatorTab({
   );
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div className="flex flex-col gap-6 w-full">
       <RiskSettingsPanel
         accountId={account.id}
         initialParts={riskParts}

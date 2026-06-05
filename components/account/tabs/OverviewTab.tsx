@@ -9,7 +9,6 @@ import EquityCurve from "@/components/overview/EquityCurve";
 import DrawdownChart from "@/components/overview/DrawdownChart";
 import RecentTradesPreview from "@/components/overview/RecentTradesPreview";
 import OpenPositionsPanel from "@/components/overview/OpenPositionsPanel";
-import AiInsightsPanel from "@/components/insights/AiInsightsPanel";
 import ScientificOverviewHeader from "@/components/overview/ScientificOverviewHeader";
 
 export default function OverviewTab({
@@ -62,8 +61,6 @@ export default function OverviewTab({
       />
 
       <DrawdownChart equityCurve={equityCurve} />
-
-      <AiInsightsPanel accountId={account.id} hasTrades={trades.length > 0} />
 
       <RecentTradesPreview
         trades={trades}
