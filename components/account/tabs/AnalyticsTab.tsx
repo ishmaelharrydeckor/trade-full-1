@@ -14,6 +14,10 @@ import {
   aggregateBySession,
 } from "@/lib/analytics";
 import AnalyticsBarChart from "@/components/analytics/AnalyticsBarChart";
+import AnalyticsDonutChart from "@/components/analytics/AnalyticsDonutChart";
+import AnalyticsHorizontalBarChart from "@/components/analytics/AnalyticsHorizontalBarChart";
+import AnalyticsAreaChart from "@/components/analytics/AnalyticsAreaChart";
+import AnalyticsRadarChart from "@/components/analytics/AnalyticsRadarChart";
 import RMultipleChart from "@/components/analytics/RMultipleChart";
 import type { Account, Trade } from "@/types/database";
 
@@ -48,37 +52,37 @@ export default function AnalyticsTab({
 
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-      <AnalyticsBarChart
+      <AnalyticsDonutChart
         title="By Trading Session"
-        subtitle="NY, London, Asian, Sydney (UTC)"
+        subtitle="NY, London, Asian, Sydney (UTC) trade distribution"
         data={bySession}
       />
-      <AnalyticsBarChart
+      <AnalyticsDonutChart
         title="By Asset Class"
-        subtitle="Forex, crypto, indices, etc."
+        subtitle="Forex, crypto, indices, etc. distribution"
         data={byAssetClass}
       />
-      <AnalyticsBarChart
+      <AnalyticsDonutChart
         title="By Direction"
-        subtitle="Long vs short performance"
+        subtitle="Long vs short distribution"
         data={byDirection}
       />
       <div className="lg:col-span-2">
-        <AnalyticsBarChart
+        <AnalyticsHorizontalBarChart
           title="By Symbol"
           subtitle="Your top 12 instruments by absolute P&L"
           data={bySymbol}
           maxItems={12}
         />
       </div>
-      <AnalyticsBarChart
+      <AnalyticsRadarChart
         title="By Day of Week"
-        subtitle="When you make money (or lose it)"
+        subtitle="Weekly performance curve"
         data={byWeekday}
       />
-      <AnalyticsBarChart
+      <AnalyticsAreaChart
         title="By Hour of Day"
-        subtitle="Session timing in your local time"
+        subtitle="Session timing trends (local time)"
         data={byHour}
       />
       <AnalyticsBarChart
@@ -97,3 +101,4 @@ export default function AnalyticsTab({
     </div>
   );
 }
+

@@ -74,37 +74,33 @@ export default function AccountTabs({
   onSelect: (id: TabId) => void;
 }) {
   return (
-    <div className="relative -mx-4 md:mx-0">
-      <div className="overflow-x-auto px-4 md:px-0">
-        <nav className="inline-flex shrink-0 gap-1 rounded-xl border p-1 backdrop-blur" style={{ borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
-          {TABS.map((t) => {
-            const isActive = t.id === active;
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => onSelect(t.id)}
-                title={t.tooltip}
-                className={cn(
-                  "inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm transition duration-150",
-                  isActive
-                    ? "font-bold text-white"
-                    : "font-semibold"
-                )}
-                style={isActive
-                  ? { backgroundColor: 'var(--accent)' }
-                  : { color: 'var(--text-secondary)' }
-                }
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {t.label}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-      <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-[color:var(--app-bg)] to-transparent md:hidden" />
-    </div>
+    <nav className="flex flex-row lg:flex-col gap-1 w-full overflow-x-auto lg:overflow-x-visible p-1.5 rounded-xl border backdrop-blur shrink-0"
+         style={{ borderColor: 'var(--app-border)', backgroundColor: 'var(--app-surface)' }}>
+      {TABS.map((t) => {
+        const isActive = t.id === active;
+        const Icon = t.icon;
+        return (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => onSelect(t.id)}
+            title={t.tooltip}
+            className={cn(
+              "inline-flex items-center gap-2.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition duration-150 w-auto lg:w-full text-left justify-start hover:bg-white/5",
+              isActive
+                ? "font-bold text-white"
+                : "text-[color:var(--text-secondary)]"
+            )}
+            style={isActive
+              ? { backgroundColor: 'var(--accent)' }
+              : undefined
+            }
+          >
+            <Icon className="h-4 w-4 shrink-0" />
+            <span>{t.label}</span>
+          </button>
+        );
+      })}
+    </nav>
   );
 }

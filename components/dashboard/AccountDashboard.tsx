@@ -91,73 +91,79 @@ export default function AccountDashboard({
   const txForTab = showFilter ? filteredTransactions : transactions;
 
   return (
-    <div className="flex flex-col gap-6">
-      <AccountTabs active={tab} onSelect={setTab} />
+    <div className="flex flex-col lg:flex-row gap-8 items-start">
+      {/* Sidebar navigation */}
+      <aside className="w-full lg:w-60 shrink-0 lg:sticky lg:top-20">
+        <AccountTabs active={tab} onSelect={setTab} />
+      </aside>
 
-      {showFilter && (
-        <DateRangeFilter
-          value={dateRange}
-          onChange={setDateRange}
-          tradeCount={filteredTrades.length}
-        />
-      )}
+      {/* Main tab content */}
+      <div className="flex-1 w-full flex flex-col gap-6">
+        {showFilter && (
+          <DateRangeFilter
+            value={dateRange}
+            onChange={setDateRange}
+            tradeCount={filteredTrades.length}
+          />
+        )}
 
-      {tab === "overview" && (
-        <OverviewTab
-          account={account}
-          trades={tradesForTab}
-          transactions={txForTab}
-          playbooks={playbooks}
-          playbookEntries={playbookEntries}
-        />
-      )}
+        {tab === "overview" && (
+          <OverviewTab
+            account={account}
+            trades={tradesForTab}
+            transactions={txForTab}
+            playbooks={playbooks}
+            playbookEntries={playbookEntries}
+          />
+        )}
 
-      {tab === "trades" && (
-        <TradesTab account={account} trades={tradesForTab} />
-      )}
+        {tab === "trades" && (
+          <TradesTab account={account} trades={tradesForTab} />
+        )}
 
-      {tab === "analytics" && (
-        <AnalyticsTab account={account} trades={tradesForTab} />
-      )}
+        {tab === "analytics" && (
+          <AnalyticsTab account={account} trades={tradesForTab} />
+        )}
 
-      {tab === "playbook" && (
-        <PlaybookTab
-          account={account}
-          trades={tradesForTab}
-          playbooks={playbooks}
-          entries={playbookEntries}
-        />
-      )}
+        {tab === "playbook" && (
+          <PlaybookTab
+            account={account}
+            trades={tradesForTab}
+            playbooks={playbooks}
+            entries={playbookEntries}
+          />
+        )}
 
-      {tab === "notebook" && (
-        <NotebookTab
-          accountId={account.id}
-          entries={journalEntries}
-          trades={trades}
-        />
-      )}
+        {tab === "notebook" && (
+          <NotebookTab
+            accountId={account.id}
+            entries={journalEntries}
+            trades={trades}
+          />
+        )}
 
-      {tab === "progress" && (
-        <ProgressTab
-          accountId={account.id}
-          habits={habits}
-          logs={dailyLogs}
-          trades={trades}
-        />
-      )}
+        {tab === "progress" && (
+          <ProgressTab
+            accountId={account.id}
+            habits={habits}
+            logs={dailyLogs}
+            trades={trades}
+          />
+        )}
 
-      {tab === "calendar" && (
-        <CalendarTab account={account} trades={trades} />
-      )}
+        {tab === "calendar" && (
+          <CalendarTab account={account} trades={trades} />
+        )}
 
-      {tab === "account" && (
-        <AccountTab
-          account={account}
-          trades={trades}
-          transactions={transactions}
-          settings={settings}
-        />
-      )}
+        {tab === "account" && (
+          <AccountTab
+            account={account}
+            trades={trades}
+            transactions={transactions}
+            settings={settings}
+          />
+        )}
+      </div>
     </div>
   );
 }
