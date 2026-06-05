@@ -36,7 +36,7 @@ export default async function LandingPage() {
             T
           </div>
           <span className="text-xl font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-            Trade<span style={{ color: 'var(--accent)' }}>·</span>Jernal
+            Trade<span style={{ color: 'var(--accent)' }}>·</span>Journal
           </span>
         </div>
         <nav className="flex items-center gap-2 text-sm">
@@ -138,7 +138,7 @@ export default async function LandingPage() {
             Professional Systems Built to Scale
           </h2>
           <p className="mt-4 text-base max-w-xl mx-auto text-[color:var(--text-secondary)]">
-            Trade Jernal provides the analytical tooling and behavioral controls of institutional trading desks.
+            Trade Journal provides the analytical tooling and behavioral controls of institutional trading desks.
           </p>
         </div>
 
@@ -312,7 +312,7 @@ export default async function LandingPage() {
             Open Beta Access is Active
           </h2>
           <p className="mt-4 text-sm leading-relaxed max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
-            Trade·Jernal is currently in active development. During the open beta, all capabilities—including MT5 EA sync, AI-powered insights, backtesting, and journaling—are <strong>100% free with no limits</strong>.
+            Trade·Journal is currently in active development. During the open beta, all capabilities—including MT5 EA sync, AI-powered insights, backtesting, and journaling—are <strong>100% free with no limits</strong>.
           </p>
           <div className="mt-8">
             <Link

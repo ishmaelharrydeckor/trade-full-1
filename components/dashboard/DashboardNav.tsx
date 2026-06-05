@@ -37,7 +37,7 @@ export default function DashboardNav({
           >
             Trade
             <span style={{ color: "var(--accent)" }}>·</span>
-            Jernal
+            Journal
           </span>
         </Link>
 

@@ -25,7 +25,7 @@ export default function AuthShell({
             T
           </div>
           <span className="text-xl font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-            Trade<span style={{ color: 'var(--accent-blue)' }}>·</span>Jernal
+            Trade<span style={{ color: 'var(--accent-blue)' }}>·</span>Journal
           </span>
         </Link>
         <ThemeToggle />

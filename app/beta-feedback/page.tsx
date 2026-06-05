@@ -5,9 +5,9 @@ import type { Metadata } from "next";
 import BetaFeedbackForm from "@/components/beta/BetaFeedbackForm";
 
 export const metadata: Metadata = {
-  title: "Beta Feedback — Trade·Jernal",
+  title: "Beta Feedback — Trade·Journal",
   description:
-    "Help us build the best trading jernal in Africa. Share your feedback as a Trade·Jernal beta tester.",
+    "Help us build the best trading journal in Africa. Share your feedback as a Trade·Journal beta tester.",
 };
 
 export default function BetaFeedbackPage() {
@@ -24,7 +24,7 @@ export default function BetaFeedbackPage() {
             style={{ color: "var(--text-primary)" }}
           >
             Trade
-            <span style={{ color: "var(--accent)" }}>·</span>Jernal
+            <span style={{ color: "var(--accent)" }}>·</span>Journal
           </span>
         </div>
       </header>
