@@ -19,6 +19,7 @@ import PlaybookTab from "@/components/account/tabs/PlaybookTab";
 import NotebookTab from "@/components/notebook/NotebookTab";
 import ProgressTab from "@/components/progress/ProgressTab";
 import AiInsightsPanel from "@/components/insights/AiInsightsPanel";
+import CalculatorTab from "@/components/account/tabs/CalculatorTab";
 import type {
   Account,
   Trade,
@@ -187,6 +188,15 @@ export default function AccountDashboard({
 
         {tab === "calendar" && (
           <CalendarTab account={account} trades={trades} />
+        )}
+
+        {tab === "calculator" && (
+          <CalculatorTab
+            account={account}
+            trades={trades}
+            transactions={transactions}
+            settings={settings}
+          />
         )}
 
         {tab === "account" && (

@@ -14,6 +14,7 @@ import {
   Target,
   ChevronLeft,
   ChevronRight,
+  Calculator,
 } from "lucide-react";
 
 const TABS = [
@@ -64,6 +65,12 @@ const TABS = [
     label: "Calendar",
     icon: Calendar,
     tooltip: "See your trading P&L on a calendar. Click any day to log trades or write journal entries.",
+  },
+  {
+    id: "calculator",
+    label: "Calculator",
+    icon: Calculator,
+    tooltip: "Manage risk strategy and calculate exact position sizing for setups.",
   },
   {
     id: "account",
