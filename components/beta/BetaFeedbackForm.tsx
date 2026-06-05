@@ -165,13 +165,13 @@ export default function BetaFeedbackForm() {
     }
 
     if (!seanEllisScore) {
-      setErrorMsg("Please answer how you would feel if Trade·Journal stopped working tomorrow.");
+      setErrorMsg("Please answer how you would feel if Trade·Jernal stopped working tomorrow.");
       setSubmitting(false);
       return;
     }
 
     if (!wouldRecommend) {
-      setErrorMsg("Please answer if you would recommend Trade·Journal.");
+      setErrorMsg("Please answer if you would recommend Trade·Jernal.");
       setSubmitting(false);
       return;
     }
@@ -450,7 +450,7 @@ export default function BetaFeedbackForm() {
         {/* Q8: Sean Ellis PMF Question */}
         <div>
           <Label>
-            How would you feel if Trade·Journal stopped working tomorrow? <Req />
+            How would you feel if Trade·Jernal stopped working tomorrow? <Req />
           </Label>
           <RadioGroup
             name="seanEllis"
@@ -463,7 +463,7 @@ export default function BetaFeedbackForm() {
         {/* Q9: Would recommend */}
         <div>
           <Label>
-            Would you recommend Trade·Journal to a trader friend? <Req />
+            Would you recommend Trade·Jernal to a trader friend? <Req />
           </Label>
           <RadioGroup
             name="wouldRecommend"
@@ -591,7 +591,7 @@ export default function BetaFeedbackForm() {
 
           {/* Q16: How did you hear about us */}
           <div>
-            <Label htmlFor="heardFrom">How did you hear about Trade·Journal?</Label>
+            <Label htmlFor="heardFrom">How did you hear about Trade·Jernal?</Label>
             <select
               id="heardFrom"
               value={heardFrom}

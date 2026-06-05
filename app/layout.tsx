@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Trade·Journal — AI-Powered Trading Journal",
+  title: "Trade·Jernal — AI-Powered Trading Jernal",
   description:
-    "Trade with discipline. Review with honesty. AI-powered trading journal for serious forex and MT5 traders.",
+    "Trade with discipline. Review with honesty. AI-powered trading jernal for serious forex and MT5 traders.",
   icons: {
     icon: "/favicon.ico",
   },

@@ -26,7 +26,7 @@ export default async function LandingPage() {
             T
           </div>
           <span className="text-xl font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-            Trade<span style={{ color: 'var(--accent)' }}>·</span>Journal
+            Trade<span style={{ color: 'var(--accent)' }}>·</span>Jernal
           </span>
         </div>
         <nav className="flex items-center gap-2 text-sm">
@@ -111,7 +111,7 @@ export default async function LandingPage() {
           >
             <img
               src="/images/dashboard-preview.png"
-              alt="Trade·Journal dashboard showing KPIs, equity curve, and AI insights"
+              alt="Trade·Jernal dashboard showing KPIs, equity curve, and AI insights"
               className="w-full"
             />
           </div>
