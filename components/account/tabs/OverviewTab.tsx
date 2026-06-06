@@ -282,7 +282,7 @@ export default function OverviewTab({
       </div>
 
       {/* SECTION 1: KEY PERFORMANCE STRIP */}
-      <section className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         {/* Net P&L Card */}
         <div className="group rounded-2xl border p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
           style={{ backgroundColor: "var(--bg-panel)", borderColor: "var(--border-panel)" }}>
