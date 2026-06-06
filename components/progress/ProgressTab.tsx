@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Target, CheckCircle, XCircle, Plus, Calendar } from "lucide-react";
+import { Target, CheckCircle, XCircle, Plus, Calendar, Flame, Trophy, Award, TrendingUp, TrendingDown, HelpCircle, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { DailyHabit, DailyLog, Trade } from "@/types/database";
 import { tradeNetPnl } from "@/lib/stats";
@@ -63,10 +63,8 @@ export default function ProgressTab({
 
   const totalHabits = habits.length;
   const completedCount = todayCompleted.size;
-  const violatedCount = autoViolations.size;
-  const manualHabits = habits.filter((h) => !h.is_automated);
   const score = totalHabits > 0
-    ? Math.round(((completedCount) / totalHabits) * 100)
+    ? Math.round((completedCount / totalHabits) * 100)
     : 0;
 
   async function toggleHabit(habitId: string) {
@@ -101,7 +99,7 @@ export default function ProgressTab({
     router.refresh();
   }
 
-  // Compute streaks
+  // Compute overall streaks
   const streak = useMemo(() => {
     const sortedLogs = [...logs].sort((a, b) => new Date(b.log_date).getTime() - new Date(a.log_date).getTime());
     let current = 0;
@@ -133,56 +131,220 @@ export default function ProgressTab({
     return { current, best };
   }, [logs, today]);
 
+  // Compute habit streaks dynamically from logs
+  const habitStreaks = useMemo(() => {
+    const sortedLogs = [...logs].sort((a, b) => new Date(a.log_date).getTime() - new Date(b.log_date).getTime());
+    const streaks: Record<string, number> = {};
+
+    for (const habit of habits) {
+      let currentStreak = 0;
+      for (const log of sortedLogs) {
+        const completed = log.habits_completed?.includes(habit.id);
+        if (completed) {
+          currentStreak++;
+        } else {
+          currentStreak = 0;
+        }
+      }
+      streaks[habit.id] = currentStreak;
+    }
+    return streaks;
+  }, [logs, habits]);
+
+  // Weekly Trend calculation
+  const weeklyTrend = useMemo(() => {
+    const now = new Date();
+    const oneDay = 24 * 60 * 60 * 1000;
+    
+    const currentWeekStart = new Date(now.getTime() - 7 * oneDay).getTime();
+    const priorWeekStart = new Date(now.getTime() - 14 * oneDay).getTime();
+
+    const currentWeekScores = logs
+      .filter((l) => new Date(l.log_date).getTime() >= currentWeekStart)
+      .map((l) => l.score ?? 0);
+
+    const priorWeekScores = logs
+      .filter((l) => {
+        const t = new Date(l.log_date).getTime();
+        return t >= priorWeekStart && t < currentWeekStart;
+      })
+      .map((l) => l.score ?? 0);
+
+    const currentAvg = currentWeekScores.length > 0
+      ? currentWeekScores.reduce((a, b) => a + b, 0) / currentWeekScores.length
+      : 0;
+
+    const priorAvg = priorWeekScores.length > 0
+      ? priorWeekScores.reduce((a, b) => a + b, 0) / priorWeekScores.length
+      : 0;
+
+    const diff = Math.round(currentAvg - priorAvg);
+    return {
+      currentAvg,
+      priorAvg,
+      diff,
+    };
+  }, [logs]);
+
+  // Subtle Encouragement Message
+  const encouragement = useMemo(() => {
+    if (score >= 80) {
+      return {
+        text: "Flawless execution! Compounding discipline drives long-term capital growth.",
+        color: "text-emerald-400 bg-emerald-500/5 border-emerald-500/10",
+      };
+    }
+    if (score >= 50) {
+      return {
+        text: "Solid focus. Stick closely to your rules; execution is more important than outcome.",
+        color: "text-amber-400 bg-amber-500/5 border-amber-500/10",
+      };
+    }
+    return {
+      text: "Every trade is a statistical sample. Scale back sizes, control risk, and stick to playbook parameters.",
+      color: "text-red-400 bg-red-500/5 border-red-500/10",
+    };
+  }, [score]);
+
+  // SVG Gauge calculations
+  const gaugeSize = 150;
+  const strokeWidth = 10;
+  const radius = (gaugeSize - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const strokeOffset = circumference - (score / 100) * circumference;
+
   return (
     <div className="space-y-6">
-      {/* Today's checklist */}
-      <div
-        className="rounded-xl p-5 backdrop-blur"
-        style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}
-      >
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Target className="h-4 w-4" style={{ color: 'var(--positive)' }} />
-            <h3 className="text-lg font-bold">Today&apos;s Discipline</h3>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Score</div>
-              <div
-                className="text-xl font-bold tabular-nums"
-                style={{
-                  color: score >= 80 ? 'var(--positive)' : score >= 50 ? 'var(--warning)' : 'var(--negative)'
-                }}
-              >
-                {score}%
-              </div>
+      
+      {/* SECTION 1: DISCIPLINE SCORE (CIRCULAR GAUGE & TREND) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* Large Circular Gauge */}
+        <div 
+          className="md:col-span-2 rounded-2xl border bg-[#0f1318]/60 backdrop-blur-md p-6 flex flex-col sm:flex-row items-center justify-between gap-6"
+          style={{ borderColor: "var(--border-panel)" }}
+        >
+          <div className="space-y-3 flex-1">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+              <Award className="h-4 w-4 text-indigo-400" />
+              Consistency metrics
+            </span>
+            <h3 className="text-xl font-extrabold text-white tracking-tight">Today&apos;s Execution Quality</h3>
+            <p className="text-xs text-slate-400 max-w-sm">
+              Your score is based on automated rule tracking and manually toggled checklist parameters. Focus on flawless adherence.
+            </p>
+            
+            {/* Encouragement message banner */}
+            <div className={cn("mt-4 p-3 rounded-xl border text-xs font-semibold leading-relaxed transition-all duration-300", encouragement.color)}>
+              {encouragement.text}
             </div>
-            <button
-              type="button"
-              onClick={() => setShowManager(true)}
-              className="tj-btn-secondary px-3 py-1.5 text-xs"
-            >
-              Manage habits
-            </button>
+          </div>
+
+          <div className="relative flex items-center justify-center shrink-0">
+            <svg width={gaugeSize} height={gaugeSize} className="-rotate-90">
+              <circle
+                cx={gaugeSize / 2}
+                cy={gaugeSize / 2}
+                r={radius}
+                fill="transparent"
+                stroke="rgba(255,255,255,0.02)"
+                strokeWidth={strokeWidth}
+              />
+              <circle
+                cx={gaugeSize / 2}
+                cy={gaugeSize / 2}
+                r={radius}
+                fill="transparent"
+                stroke="url(#progressDonutGrad)"
+                strokeWidth={strokeWidth}
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeOffset}
+                strokeLinecap="round"
+                className="transition-all duration-500 ease-out"
+              />
+              <defs>
+                <linearGradient id="progressDonutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#4f46e5" />
+                  <stop offset="100%" stopColor="#10b981" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div className="absolute flex flex-col items-center justify-center">
+              <span className="text-3xl font-black text-white font-mono">{score}%</span>
+              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">DISCIPLINE</span>
+            </div>
           </div>
         </div>
 
-        {habits.length === 0 ? (
-          <div
-            className="rounded-xl border-dashed p-8 text-center"
-            style={{ border: '1px dashed var(--app-muted)', backgroundColor: 'var(--app-elevated)' }}
+        {/* Weekly Trend Indicator Card */}
+        <div 
+          className="rounded-2xl border bg-[#0f1318]/60 backdrop-blur-md p-6 flex flex-col justify-between"
+          style={{ borderColor: "var(--border-panel)" }}
+        >
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+              <Calendar className="h-4 w-4 text-indigo-400" />
+              Weekly performance
+            </span>
+            <h4 className="text-sm font-bold text-slate-300 mt-3">Trend vs Last Week</h4>
+          </div>
+
+          <div className="my-4 flex items-baseline gap-2">
+            <span className="text-4xl font-mono font-black text-white">
+              {weeklyTrend.diff >= 0 ? "+" : ""}{weeklyTrend.diff}%
+            </span>
+            {weeklyTrend.diff >= 0 ? (
+              <TrendingUp className="h-5 w-5 text-emerald-400 shrink-0" />
+            ) : (
+              <TrendingDown className="h-5 w-5 text-red-400 shrink-0" />
+            )}
+          </div>
+
+          <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide leading-normal">
+            Weekly Avg: {Math.round(weeklyTrend.currentAvg)}% vs prior period {Math.round(weeklyTrend.priorAvg)}%. 
+            {weeklyTrend.diff >= 0 ? " You are building momentum!" : " Stay committed to your checklist."}
+          </p>
+        </div>
+      </div>
+
+      {/* SECTION 2: HABIT TRACKER (ACCORDION & INDIVIDUAL STREAKS) */}
+      <div 
+        className="rounded-2xl border bg-[#0f1318]/60 backdrop-blur-md p-6"
+        style={{ borderColor: "var(--border-panel)" }}
+      >
+        <div className="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-bold text-white tracking-tight">Daily Speculative Checklist</h3>
+            <p className="text-xs text-slate-400 mt-1">Consistency creates habits. Toggles register your discipline score for today.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowManager(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-800 bg-black/20 px-3.5 py-1.5 text-xs font-bold text-slate-300 hover:text-white hover:border-slate-700 transition-colors self-start sm:self-center"
           >
-            <Target className="mx-auto mb-2 h-8 w-8" style={{ color: 'var(--text-muted)' }} />
-            <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>No habits defined yet.</p>
-            <button type="button" onClick={() => setShowManager(true)} className="mt-3 text-sm font-medium hover:underline" style={{ color: 'var(--accent)' }}>
-              Set up your daily checklist
+            <Plus className="h-3.5 w-3.5" /> Manage Habits
+          </button>
+        </div>
+
+        {habits.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-slate-800 bg-slate-900/[0.04] p-10 text-center">
+            <Target className="mx-auto mb-3 h-8 w-8 text-slate-500" />
+            <p className="text-sm font-medium text-slate-400">No trading habits set up yet.</p>
+            <button 
+              type="button" 
+              onClick={() => setShowManager(true)} 
+              className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-indigo-400 hover:underline"
+            >
+              Configure standard checklist items <ChevronRight className="h-3.5 w-3.5" />
             </button>
           </div>
         ) : (
-          <div className="space-y-1.5">
+          <div className="space-y-2.5">
             {habits.map((habit) => {
               const isCompleted = todayCompleted.has(habit.id);
               const isViolated = autoViolations.has(habit.id);
+              const habitStreak = habitStreaks[habit.id] ?? 0;
+
               return (
                 <button
                   key={habit.id}
@@ -190,40 +352,39 @@ export default function ProgressTab({
                   onClick={() => !habit.is_automated && toggleHabit(habit.id)}
                   disabled={habit.is_automated || saving}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition",
-                    habit.is_automated && "cursor-default"
+                    "w-full flex items-center justify-between rounded-xl border p-4 text-left transition-all duration-300",
+                    isCompleted && !isViolated
+                      ? "bg-emerald-500/[0.02] border-emerald-500/20 text-emerald-400"
+                      : isViolated
+                        ? "bg-red-500/[0.02] border-red-500/20 text-red-400"
+                        : "border-slate-800/80 bg-black/10 text-slate-300 hover:border-slate-700 hover:bg-[#141a22]/10"
                   )}
-                  style={{
-                    backgroundColor: isCompleted && !isViolated
-                      ? 'color-mix(in srgb, var(--positive) 10%, transparent)'
-                      : isViolated
-                        ? 'color-mix(in srgb, var(--negative) 10%, transparent)'
-                        : 'transparent',
-                    color: isCompleted && !isViolated
-                      ? 'var(--positive)'
-                      : isViolated
-                        ? 'var(--negative)'
-                        : 'var(--text-secondary)',
-                  }}
                 >
-                  {isViolated ? (
-                    <XCircle className="h-4 w-4 shrink-0" style={{ color: 'var(--negative)' }} />
-                  ) : isCompleted ? (
-                    <CheckCircle className="h-4 w-4 shrink-0" style={{ color: 'var(--positive)' }} />
-                  ) : (
-                    <div className="h-4 w-4 shrink-0 rounded-full" style={{ border: '1px solid var(--app-muted)' }} />
-                  )}
-                  <span>{habit.name}</span>
-                  {habit.is_automated && (
-                    <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>auto</span>
-                  )}
-                  {habit.category !== "trading" && (
-                    <span
-                      className="rounded px-1.5 py-0.5 text-[10px] font-medium"
-                      style={{ backgroundColor: 'var(--badge-bg)', color: 'var(--text-muted)' }}
-                    >
-                      {habit.category}
-                    </span>
+                  {/* Left checklist label */}
+                  <div className="flex items-center gap-3">
+                    {isViolated ? (
+                      <XCircle className="h-5 w-5 shrink-0 text-red-500 animate-pulse" />
+                    ) : isCompleted ? (
+                      <CheckCircle className="h-5 w-5 shrink-0 text-emerald-400" />
+                    ) : (
+                      <div className="h-5 w-5 shrink-0 rounded-full border border-slate-700 bg-black/40 group-hover:border-slate-500" />
+                    )}
+                    <div>
+                      <span className="font-semibold text-xs text-white">{habit.name}</span>
+                      {habit.is_automated && (
+                        <span className="ml-2 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest bg-slate-900 border border-slate-800 text-slate-500">
+                          Automated
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right gamified Streak counter */}
+                  {habitStreak > 0 && (
+                    <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-orange-400/90 font-mono">
+                      <Flame className="h-3.5 w-3.5 fill-orange-500/20 animate-pulse text-orange-500" />
+                      <span>{habitStreak} Session Streak</span>
+                    </div>
                   )}
                 </button>
               );
@@ -232,36 +393,66 @@ export default function ProgressTab({
         )}
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-3 gap-3">
-        <div
-          className="rounded-xl p-4 text-center backdrop-blur"
-          style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}
+      {/* SECTION 3: STREAK METRICS MATRIX */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        
+        {/* Current Streak */}
+        <div 
+          className="rounded-2xl border bg-[#0f1318]/60 backdrop-blur-md p-5 text-center flex flex-col justify-between min-h-[120px]"
+          style={{ borderColor: "var(--border-panel)" }}
         >
-          <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Current streak</div>
-          <div className="mt-1 text-2xl font-bold tabular-nums" style={{ color: 'var(--positive)' }}>{streak.current}d</div>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500 flex items-center justify-center gap-1.5">
+            <Flame className="h-4 w-4 text-orange-500 animate-pulse" />
+            Current consistency streak
+          </span>
+          <div className="text-3xl font-black font-mono text-orange-400 mt-2">
+            {streak.current} Days
+          </div>
+          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">
+            Required score &ge; 60% daily
+          </span>
         </div>
-        <div
-          className="rounded-xl p-4 text-center backdrop-blur"
-          style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}
+
+        {/* Best Streak */}
+        <div 
+          className="rounded-2xl border bg-[#0f1318]/60 backdrop-blur-md p-5 text-center flex flex-col justify-between min-h-[120px]"
+          style={{ borderColor: "var(--border-panel)" }}
         >
-          <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Best streak</div>
-          <div className="mt-1 text-2xl font-bold tabular-nums" style={{ color: 'var(--text-primary)' }}>{streak.best}d</div>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500 flex items-center justify-center gap-1.5">
+            <Trophy className="h-4 w-4 text-amber-500" />
+            Personal high record
+          </span>
+          <div className="text-3xl font-black font-mono text-white mt-2">
+            {streak.best} Days
+          </div>
+          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">
+            All-time consistency peak
+          </span>
         </div>
-        <div
-          className="rounded-xl p-4 text-center backdrop-blur"
-          style={{ backgroundColor: 'var(--app-surface)', border: '1px solid var(--app-border)' }}
+
+        {/* Avg Discipline Score */}
+        <div 
+          className="rounded-2xl border bg-[#0f1318]/60 backdrop-blur-md p-5 text-center flex flex-col justify-between min-h-[120px]"
+          style={{ borderColor: "var(--border-panel)" }}
         >
-          <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Avg score</div>
-          <div className="mt-1 text-2xl font-bold tabular-nums" style={{ color: 'var(--text-primary)' }}>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500 flex items-center justify-center gap-1.5">
+            <Award className="h-4 w-4 text-indigo-400" />
+            Average execution score
+          </span>
+          <div className="text-3xl font-black font-mono text-white mt-2">
             {logs.length > 0 ? Math.round(logs.reduce((s, l) => s + (l.score ?? 0), 0) / logs.length) : 0}%
           </div>
+          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">
+            Calculated across {logs.length} logs
+          </span>
         </div>
+
       </div>
 
-      {/* Heatmap */}
+      {/* SECTION 4: HEATMAP VISUALIZATION */}
       <DisciplineHeatmap logs={logs} />
 
+      {/* Habit Manager Modal overlay */}
       {showManager && (
         <HabitManager
           accountId={accountId}
