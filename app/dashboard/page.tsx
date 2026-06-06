@@ -2,7 +2,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { Plus, Sparkles, ArrowRight } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import OnboardingHub, { AccountData } from "@/components/dashboard/OnboardingHub";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -25,110 +26,77 @@ export default async function DashboardPage() {
 
   const { data: accounts } = await supabase
     .from("accounts")
-    .select("id, name, broker, currency, starting_balance, created_at")
+    .select("*")
     .eq("archived", false)
     .order("created_at", { ascending: false });
 
-  const hasAccounts = (accounts?.length ?? 0) > 0;
+  // Query trades to calculate win rates & relative P&L snapshots
+  const { data: trades } = await supabase
+    .from("trades")
+    .select("account_id, pnl, close_time, open_time")
+    .eq("is_backtest", false);
+
+  // Query transactions to compute current exact balance
+  const { data: transactions } = await supabase
+    .from("account_transactions")
+    .select("account_id, type, amount");
+
+  // Compute stats for each account
+  const computedAccounts: AccountData[] = (accounts ?? []).map((acc) => {
+    const accTrades = (trades ?? []).filter((t) => t.account_id === acc.id);
+    const accTransactions = (transactions ?? []).filter((t) => t.account_id === acc.id);
+
+    // Calculate P&L sum
+    const netPnL = accTrades.reduce((sum, t) => sum + (t.pnl ?? 0), 0);
+
+    // Calculate Deposits and Withdrawals sum
+    const depositSum = accTransactions
+      .filter((t) => t.type === "deposit")
+      .reduce((sum, t) => sum + t.amount, 0);
+    const withdrawalSum = accTransactions
+      .filter((t) => t.type === "withdrawal")
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const currentBalance = (acc.starting_balance ?? 0) + netPnL + depositSum - withdrawalSum;
+
+    // Win rate percentage
+    const closedTrades = accTrades.filter((t) => t.close_time !== null);
+    const winningTrades = closedTrades.filter((t) => (t.pnl ?? 0) > 0);
+    const winRate = closedTrades.length > 0 
+      ? Math.round((winningTrades.length / closedTrades.length) * 100)
+      : 0;
+
+    // Last activity detection
+    let lastActivity: string | null = null;
+    const timestamps = accTrades
+      .map((t) => t.close_time || t.open_time)
+      .filter(Boolean) as string[];
+    if (timestamps.length > 0) {
+      const latestTime = Math.max(...timestamps.map((t) => new Date(t).getTime()));
+      lastActivity = new Date(latestTime).toISOString();
+    }
+
+    return {
+      id: acc.id,
+      name: acc.name,
+      broker: acc.broker,
+      currency: acc.currency,
+      starting_balance: acc.starting_balance,
+      created_at: acc.created_at,
+      current_balance: currentBalance,
+      total_trades: closedTrades.length,
+      win_rate: winRate,
+      net_pnl: netPnL,
+      last_activity: lastActivity,
+    };
+  });
 
   return (
     <div className="flex flex-col gap-10">
-      {/* Welcome hero */}
-      <section className="pt-2">
-        <h1 className="text-3xl font-extrabold tracking-tighter md:text-4xl" style={{ color: 'var(--text-primary)' }}>
-          Welcome,{" "}
-          <span
-            className="font-serif italic pr-1.5"
-            style={{
-              background: 'linear-gradient(135deg, var(--accent-blue), var(--accent-indigo))',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            {displayName}
-          </span>
-        </h1>
-        <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-          {hasAccounts
-            ? "Pick an account to view its journal, or add another."
-            : "You don't have any trading accounts yet. Let's fix that."}
-        </p>
-      </section>
-
-      {/* Accounts grid */}
-      {!hasAccounts ? (
-        <Link
-          href="/dashboard/accounts/new"
-          className="group relative block overflow-hidden rounded-2xl p-10 text-center transition"
-          style={{
-            border: '1px solid rgba(59, 130, 246, 0.3)',
-            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(99, 102, 241, 0.05))',
-          }}
-        >
-          <div className="pointer-events-none absolute inset-x-0 -top-24 mx-auto h-48 w-48 rounded-full bg-blue-500/25 blur-3xl" />
-          <div className="relative">
-            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
-              <Plus className="h-7 w-7 text-white" />
-            </div>
-            <h2 className="text-3xl font-extrabold tracking-tighter" style={{ color: 'var(--text-primary)' }}>
-              Create your first account
-            </h2>
-            <p className="mx-auto mt-3 max-w-md text-sm" style={{ color: 'var(--text-secondary)' }}>
-              You can have multiple trading accounts — one per broker, demo,
-              prop firm challenge, or strategy.
-            </p>
-            <span className="mt-7 inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/25 transition group-hover:shadow-blue-500/40">
-              Get started
-              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-            </span>
-          </div>
-        </Link>
-      ) : (
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {accounts!.map((acc) => (
-            <Link
-              key={acc.id}
-              href={`/dashboard/accounts/${acc.id}`}
-              className="account-card group rounded-2xl p-5 transition"
-            >
-              <div className="mb-2 flex items-center justify-between">
-                <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{acc.name}</h3>
-                <span
-                  className="rounded-md px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider"
-                  style={{ backgroundColor: 'var(--badge-bg)', color: 'var(--text-secondary)' }}
-                >
-                  {acc.currency}
-                </span>
-              </div>
-              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                {acc.broker ?? "No broker set"}
-              </p>
-              {acc.starting_balance != null && (
-                <p className="mt-3 text-sm tabular-nums" style={{ color: 'var(--text-secondary)' }}>
-                  Starting:{" "}
-                  <span className="font-bold tabular-nums" style={{ color: 'var(--text-primary)' }}>
-                    {acc.currency} {Number(acc.starting_balance).toFixed(2)}
-                  </span>
-                </p>
-              )}
-            </Link>
-          ))}
-          <Link
-            href="/dashboard/accounts/new"
-            className="flex flex-col items-center justify-center rounded-2xl border border-dashed p-5 transition"
-            style={{
-              borderColor: 'var(--card-border)',
-              color: 'var(--text-muted)',
-            }}
-          >
-            <Plus className="mb-2 h-5 w-5" />
-            <span className="text-sm">Add another account</span>
-          </Link>
-        </section>
-      )}
+      <OnboardingHub displayName={displayName} accounts={computedAccounts} />
 
       {/* Roadmap link */}
-      <div className="text-center">
+      <div className="text-center pt-4">
         <Link
           href="/dashboard/changelog"
           className="inline-flex items-center gap-1.5 text-xs font-medium transition hover:opacity-100"
