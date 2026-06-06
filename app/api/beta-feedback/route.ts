@@ -6,7 +6,15 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     
     // Basic validation
-    if (!body.email || !body.logged_trades || !body.features_used || !body.sean_ellis_score || !body.would_recommend) {
+    if (
+      !body.email ||
+      !body.logged_trades ||
+      !body.features_used ||
+      !body.sean_ellis_score ||
+      !body.would_recommend ||
+      !body.why_try_tj ||
+      !body.biggest_challenge
+    ) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -36,6 +44,19 @@ export async function POST(req: NextRequest) {
         platform: body.platform || null,
         heard_from: body.heard_from || null,
         user_agent: req.headers.get("user-agent") || null,
+        why_try_tj: body.why_try_tj,
+        biggest_challenge: body.biggest_challenge,
+        pre_belief: body.pre_belief || null,
+        belief_changed: body.belief_changed || null,
+        most_valuable: body.most_valuable || null,
+        did_surprise: body.did_surprise || null,
+        why_sean_ellis: body.why_sean_ellis || null,
+        willing_recommend: body.willing_recommend || null,
+        testimonial_helps: body.testimonial_helps || null,
+        explain_to_trader: body.explain_to_trader || null,
+        open_interview: body.open_interview || null,
+        contact_method: body.contact_method || null,
+        contact_details: body.contact_details || null,
       });
     
     if (error) {

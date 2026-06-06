@@ -83,6 +83,38 @@ const HEARD_FROM_OPTIONS = [
   "Other",
 ];
 
+const BIGGEST_CHALLENGE_OPTIONS = [
+  "Following my trading rules consistently",
+  "Emotional trading",
+  "Risk management",
+  "Overtrading",
+  "Maintaining discipline",
+  "Reviewing my trades",
+  "Finding quality setups",
+  "Building confidence",
+  "Other",
+];
+
+const WILLING_RECOMMEND_OPTIONS = [
+  "Absolutely",
+  "Probably",
+  "Not yet",
+  "No",
+];
+
+const OPEN_INTERVIEW_OPTIONS = [
+  "Yes",
+  "Maybe",
+  "Not right now",
+];
+
+const CONTACT_METHOD_OPTIONS = [
+  "WhatsApp",
+  "Telegram",
+  "Discord",
+  "Email",
+];
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -113,6 +145,21 @@ export default function BetaFeedbackForm() {
   const [platform, setPlatform] = useState("");
   const [heardFrom, setHeardFrom] = useState("");
 
+  // New research and positioning fields
+  const [whyTryTj, setWhyTryTj] = useState("");
+  const [biggestChallenge, setBiggestChallenge] = useState("");
+  const [preBelief, setPreBelief] = useState("");
+  const [beliefChanged, setBeliefChanged] = useState("");
+  const [mostValuable, setMostValuable] = useState("");
+  const [didSurprise, setDidSurprise] = useState("");
+  const [whySeanEllis, setWhySeanEllis] = useState("");
+  const [willingRecommend, setWillingRecommend] = useState("");
+  const [testimonialHelps, setTestimonialHelps] = useState("");
+  const [explainToTrader, setExplainToTrader] = useState("");
+  const [openInterview, setOpenInterview] = useState("");
+  const [contactMethod, setContactMethod] = useState("");
+  const [contactDetails, setContactDetails] = useState("");
+
   // UI state
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -133,6 +180,18 @@ export default function BetaFeedbackForm() {
     // Client-side validations
     if (!email.trim() || !email.includes("@")) {
       setErrorMsg("Please provide a valid email address.");
+      setSubmitting(false);
+      return;
+    }
+
+    if (!whyTryTj.trim()) {
+      setErrorMsg("Please answer what made you try Trade·Journal.");
+      setSubmitting(false);
+      return;
+    }
+
+    if (!biggestChallenge) {
+      setErrorMsg("Please select your biggest challenge as a trader today.");
       setSubmitting(false);
       return;
     }
@@ -176,6 +235,18 @@ export default function BetaFeedbackForm() {
       return;
     }
 
+    if ((openInterview === "Yes" || openInterview === "Maybe") && !contactMethod) {
+      setErrorMsg("Please select your preferred contact method for the feedback call.");
+      setSubmitting(false);
+      return;
+    }
+
+    if ((openInterview === "Yes" || openInterview === "Maybe") && !contactDetails.trim()) {
+      setErrorMsg("Please provide your contact details for the feedback call.");
+      setSubmitting(false);
+      return;
+    }
+
     // Length limit checks
     if (whatFrustrated.length > 1000) {
       setErrorMsg("Confused/frustrated answer exceeds 1000 characters limit.");
@@ -211,6 +282,19 @@ export default function BetaFeedbackForm() {
       broker: broker.trim() || null,
       platform: platform || null,
       heard_from: heardFrom || null,
+      why_try_tj: whyTryTj.trim(),
+      biggest_challenge: biggestChallenge,
+      pre_belief: preBelief.trim() || null,
+      belief_changed: beliefChanged.trim() || null,
+      most_valuable: mostValuable.trim() || null,
+      did_surprise: didSurprise.trim() || null,
+      why_sean_ellis: whySeanEllis.trim() || null,
+      willing_recommend: willingRecommend || null,
+      testimonial_helps: testimonialHelps.trim() || null,
+      explain_to_trader: explainToTrader.trim() || null,
+      open_interview: openInterview || null,
+      contact_method: contactMethod || null,
+      contact_details: contactDetails.trim() || null,
     };
 
     try {
@@ -306,6 +390,37 @@ export default function BetaFeedbackForm() {
           />
         </div>
 
+        {/* Section 1: Positioning Discovery Questions */}
+        <div>
+          <Label htmlFor="whyTryTj">
+            What made you try Trade·Journal? <Req />
+          </Label>
+          <p className="mb-2 text-xs text-[color:var(--text-muted)]">
+            What problem were you hoping it would help solve?
+          </p>
+          <textarea
+            id="whyTryTj"
+            required
+            rows={3}
+            value={whyTryTj}
+            onChange={(e) => setWhyTryTj(e.target.value)}
+            placeholder="Tell us honestly what motivated you to sign up..."
+            className="tj-input w-full resize-none"
+          />
+        </div>
+
+        <div>
+          <Label>
+            What&apos;s your biggest challenge as a trader today? <Req />
+          </Label>
+          <RadioGroup
+            name="biggestChallenge"
+            options={BIGGEST_CHALLENGE_OPTIONS.map((opt) => ({ value: opt, label: opt }))}
+            selected={biggestChallenge}
+            onChange={setBiggestChallenge}
+          />
+        </div>
+
         {/* Q2: WhatsApp */}
         <div>
           <Label htmlFor="whatsapp">WhatsApp number</Label>
@@ -396,6 +511,35 @@ export default function BetaFeedbackForm() {
           />
         </div>
 
+        {/* Section 3: Improve Product Insight Questions */}
+        <div>
+          <Label htmlFor="mostValuable">
+            What was the most valuable thing you discovered while using Trade·Journal?
+          </Label>
+          <textarea
+            id="mostValuable"
+            rows={3}
+            value={mostValuable}
+            onChange={(e) => setMostValuable(e.target.value)}
+            placeholder="e.g. I trade much worse on Fridays / I break my risk rules 50% of the time..."
+            className="tj-input w-full resize-none"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="didSurprise">
+            Did anything surprise you?
+          </Label>
+          <textarea
+            id="didSurprise"
+            rows={3}
+            value={didSurprise}
+            onChange={(e) => setDidSurprise(e.target.value)}
+            placeholder="Any unexpected realizations or user experience details..."
+            className="tj-input w-full resize-none"
+          />
+        </div>
+
         {/* Q6: One thing that confused/frustrated */}
         <div>
           <Label htmlFor="whatFrustrated">What&apos;s the ONE thing that confused or frustrated you?</Label>
@@ -414,9 +558,11 @@ export default function BetaFeedbackForm() {
           </div>
         </div>
 
-        {/* Q7: What did they think it would do that it doesn't */}
+        {/* Q7: Replaced question - ONE thing to make it more valuable */}
         <div>
-          <Label htmlFor="whatWasMissing">What did you think it would do that it doesn&apos;t?</Label>
+          <Label htmlFor="whatWasMissing">
+            What is the ONE thing Trade·Journal could do that would make it significantly more valuable for you?
+          </Label>
           <p className="mb-2 text-xs text-[color:var(--text-muted)]">Skip if nothing comes to mind.</p>
           <textarea
             id="whatWasMissing"
@@ -424,7 +570,7 @@ export default function BetaFeedbackForm() {
             maxLength={1000}
             value={whatWasMissing}
             onChange={(e) => setWhatWasMissing(e.target.value)}
-            placeholder="Features you expected to see…"
+            placeholder="Force prioritization. What is your single biggest feature request..."
             className="tj-input w-full resize-none"
           />
           <div className="text-right text-[10px] text-[color:var(--text-muted)] mt-1">
@@ -460,6 +606,21 @@ export default function BetaFeedbackForm() {
           />
         </div>
 
+        {/* Section 4: PMF Followup questions */}
+        <div>
+          <Label htmlFor="whySeanEllis">
+            Why? What would you miss most?
+          </Label>
+          <textarea
+            id="whySeanEllis"
+            rows={3}
+            value={whySeanEllis}
+            onChange={(e) => setWhySeanEllis(e.target.value)}
+            placeholder="Explain what value it provides to you..."
+            className="tj-input w-full resize-none"
+          />
+        </div>
+
         {/* Q9: Would recommend */}
         <div>
           <Label>
@@ -470,6 +631,18 @@ export default function BetaFeedbackForm() {
             options={RECOMMEND_OPTIONS}
             selected={wouldRecommend}
             onChange={setWouldRecommend}
+          />
+        </div>
+
+        <div>
+          <Label>
+            Would you be willing to recommend Trade·Journal to another trader because it solves a real problem for you?
+          </Label>
+          <RadioGroup
+            name="willingRecommend"
+            options={WILLING_RECOMMEND_OPTIONS.map((opt) => ({ value: opt, label: opt }))}
+            selected={willingRecommend}
+            onChange={setWillingRecommend}
           />
         </div>
 
@@ -558,6 +731,35 @@ export default function BetaFeedbackForm() {
             </div>
           </div>
 
+          {/* Section 2: Positioning Validation Questions */}
+          <div>
+            <Label htmlFor="preBelief">
+              Before using Trade·Journal, what did you believe was holding back your trading performance?
+            </Label>
+            <textarea
+              id="preBelief"
+              rows={3}
+              value={preBelief}
+              onChange={(e) => setPreBelief(e.target.value)}
+              placeholder="e.g. My strategy, my indicators, my broker..."
+              className="tj-input w-full resize-none"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="beliefChanged">
+              Has that belief changed since using Trade·Journal?
+            </Label>
+            <textarea
+              id="beliefChanged"
+              rows={3}
+              value={beliefChanged}
+              onChange={(e) => setBeliefChanged(e.target.value)}
+              placeholder="Explain how your perspective has shifted..."
+              className="tj-input w-full resize-none"
+            />
+          </div>
+
           {/* Q14: Broker */}
           <div>
             <Label htmlFor="broker">What broker do you use?</Label>
@@ -608,6 +810,106 @@ export default function BetaFeedbackForm() {
           </div>
         </div>
       </details>
+
+      {/* ============================================================
+          BLOCK 5 — Testimonial Generation
+          ============================================================ */}
+      <fieldset
+        className="rounded-2xl p-6 md:p-8 space-y-5"
+        style={{
+          backgroundColor: "var(--bg-panel)",
+          border: "1px solid var(--border-panel)",
+        }}
+      >
+        <legend className="px-2 text-xs font-semibold uppercase tracking-wider text-[color:var(--accent-blue)]">
+          Block 5: Share your experience
+        </legend>
+
+        <div>
+          <Label htmlFor="testimonialHelps">
+            Complete this sentence: &quot;Trade·Journal helps me __________.&quot;
+          </Label>
+          <input
+            id="testimonialHelps"
+            type="text"
+            value={testimonialHelps}
+            onChange={(e) => setTestimonialHelps(e.target.value)}
+            placeholder="e.g. identify my emotional trading mistakes / stay disciplined"
+            className="tj-input w-full"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="explainToTrader">
+            If another trader asked what Trade·Journal does, how would you explain it?
+          </Label>
+          <textarea
+            id="explainToTrader"
+            rows={3}
+            value={explainToTrader}
+            onChange={(e) => setExplainToTrader(e.target.value)}
+            placeholder="Use your own words..."
+            className="tj-input w-full resize-none"
+          />
+        </div>
+      </fieldset>
+
+      {/* ============================================================
+          BLOCK 6 — User Interview Recruitment
+          ============================================================ */}
+      <fieldset
+        className="rounded-2xl p-6 md:p-8 space-y-5"
+        style={{
+          backgroundColor: "var(--bg-panel)",
+          border: "1px solid var(--border-panel)",
+        }}
+      >
+        <legend className="px-2 text-xs font-semibold uppercase tracking-wider text-[color:var(--accent-blue)]">
+          Block 6: Help Shape Trade·Journal
+        </legend>
+
+        <p className="text-xs text-[color:var(--text-secondary)] leading-relaxed">
+          We&apos;re speaking with a small number of traders to better understand their workflow, challenges, and experience using Trade·Journal.
+        </p>
+
+        <div>
+          <Label>
+            Would you be open to a quick 15-minute feedback call?
+          </Label>
+          <RadioGroup
+            name="openInterview"
+            options={OPEN_INTERVIEW_OPTIONS.map((opt) => ({ value: opt, label: opt }))}
+            selected={openInterview}
+            onChange={setOpenInterview}
+          />
+        </div>
+
+        {(openInterview === "Yes" || openInterview === "Maybe") && (
+          <div className="space-y-4 pt-2">
+            <div>
+              <Label>Preferred contact method <Req /></Label>
+              <RadioGroup
+                name="contactMethod"
+                options={CONTACT_METHOD_OPTIONS.map((opt) => ({ value: opt, label: opt }))}
+                selected={contactMethod}
+                onChange={setContactMethod}
+              />
+            </div>
+            <div>
+              <Label htmlFor="contactDetails">Contact details <Req /></Label>
+              <input
+                id="contactDetails"
+                type="text"
+                required
+                value={contactDetails}
+                onChange={(e) => setContactDetails(e.target.value)}
+                placeholder="WhatsApp number, Telegram handle, or email..."
+                className="tj-input w-full"
+              />
+            </div>
+          </div>
+        )}
+      </fieldset>
 
       {/* Submit, Error, Privacy */}
       <div className="space-y-4">
