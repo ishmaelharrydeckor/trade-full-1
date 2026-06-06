@@ -1,6 +1,6 @@
 // components/dashboard/DashboardNav.tsx
 import Link from "next/link";
-import { LogOut, LayoutGrid, Users, User } from "lucide-react";
+import { LogOut, LayoutGrid, Award, User } from "lucide-react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function DashboardNav({
@@ -16,9 +16,10 @@ export default function DashboardNav({
       style={{
         borderBottom: "1px solid var(--app-border)",
         backgroundColor: "var(--nav-bg)",
+        height: "72px",
       }}
     >
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 md:px-8">
+      <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-4 md:px-8">
         {/* Logo */}
         <Link href="/dashboard" className="flex items-center gap-2.5">
           <div
@@ -60,8 +61,8 @@ export default function DashboardNav({
             href="/dashboard/mentoring"
             className="nav-item hidden items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm sm:inline-flex"
           >
-            <Users className="h-3.5 w-3.5 opacity-70" />
-            Mentoring
+            <Award className="h-3.5 w-3.5 opacity-70" />
+            Coach
           </Link>
           <Link
             href="/dashboard/profile"
