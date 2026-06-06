@@ -5,11 +5,11 @@ import SignupForm from "@/components/auth/SignupForm";
 export default function SignupPage() {
   return (
     <AuthShell
-      title="Start your journal"
-      subtitle="Free for the first 6 months"
-      altText="Already have an account?"
+      title="Initialize your Execution System"
+      subtitle="Track your trades. Understand your behavior. Improve execution consistency."
+      altText="Already have access?"
       altHref="/login"
-      altLabel="Sign in"
+      altLabel="Access Execution System"
     >
       <SignupForm />
     </AuthShell>

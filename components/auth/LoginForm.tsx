@@ -87,11 +87,23 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-white py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 disabled:cursor-wait disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-bold text-white transition disabled:cursor-wait disabled:opacity-60 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40"
+        style={{
+          background: 'linear-gradient(135deg, #4F46E5, #10B981)',
+        }}
       >
         {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-        {submitting ? "Signing in…" : "Sign in"}
+        {submitting ? "Accessing..." : "Access Execution System"}
       </button>
+
+      <div className="mt-6 border-t border-white/5 pt-4 text-center space-y-2.5">
+        <p className="text-[11px] font-medium tracking-wide text-emerald-400">
+          Used by traders focused on execution discipline, not just trade tracking.
+        </p>
+        <p className="text-[10px] text-slate-400 italic leading-relaxed">
+          &ldquo;Early beta users are discovering behavioral patterns they never tracked before.&rdquo;
+        </p>
+      </div>
     </form>
   );
 }

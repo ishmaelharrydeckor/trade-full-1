@@ -6,11 +6,11 @@ import LoginForm from "@/components/auth/LoginForm";
 export default function LoginPage() {
   return (
     <AuthShell
-      title="Welcome back"
-      subtitle="Sign in to your trading journal"
-      altText="Don't have an account yet?"
+      title="Enter your Execution System"
+      subtitle="Track your trades. Understand your behavior. Improve execution consistency."
+      altText="Don't have access yet?"
       altHref="/signup"
-      altLabel="Create one"
+      altLabel="Request Beta Access"
     >
       <Suspense fallback={null}>
         <LoginForm />
