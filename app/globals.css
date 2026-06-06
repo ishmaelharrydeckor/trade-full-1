@@ -9,48 +9,49 @@
    ============================================================ */
 :root {
   /* Surfaces */
-  --app-bg: #080b11;
-  --app-surface: #0f1318;
-  --app-elevated: #161c24;
-  --app-border: #1f2937;
+  --app-bg: #050816;
+  --app-surface: #0B1220;
+  --app-elevated: #111827;
+  --app-border: rgba(255, 255, 255, 0.06);
   --app-muted: #374151;
 
   /* Text */
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #4b5563;
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
 
   /* Accent */
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --accent-glow: rgba(59, 130, 246, 0.15);
+  --accent: #4F8CFF;
+  --accent-hover: #6CA0FF;
+  --accent-glow: rgba(79, 140, 255, 0.15);
 
   /* Semantic */
-  --positive: #10b981;
-  --negative: #ef4444;
-  --warning: #f59e0b;
+  --positive: #22C55E;
+  --negative: #EF4444;
+  --warning: #F59E0B;
 
   /* Legacy compat (used by existing inline styles) */
-  --bg-app: #080b11;
-  --bg-panel: #0f1318;
-  --bg-subtle: #161c24;
-  --bg-hover: #161c24;
-  --border-panel: #1f2937;
-  --accent-blue: #3b82f6;
-  --accent-indigo: #6366f1;
-  --accent-profit: #10b981;
-  --accent-loss: #ef4444;
-  --accent-equity: #3b82f6;
-  --accent-warm: #f59e0b;
-  --nav-bg: rgba(8, 11, 17, 0.88);
-  --card-bg: #0f1318;
-  --card-border: #1f2937;
-  --card-hover-border: rgba(59, 130, 246, 0.35);
-  --card-hover-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3);
-  --input-bg: #161c24;
+  --bg-app: #050816;
+  --bg-panel: #0B1220;
+  --bg-subtle: #111827;
+  --bg-hover: #111827;
+  --border-panel: rgba(255, 255, 255, 0.06);
+  --accent-blue: #4F8CFF;
+  --accent-indigo: #4F8CFF;
+  --accent-profit: #22C55E;
+  --accent-loss: #EF4444;
+  --accent-equity: #4F8CFF;
+  --accent-warm: #F59E0B;
+  --nav-bg: rgba(5, 8, 22, 0.88);
+  --card-bg: #0B1220;
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-hover-border: rgba(79, 140, 255, 0.35);
+  --card-hover-shadow: 0 0 0 1px rgba(79, 140, 255, 0.2), 0 8px 30px rgba(0, 0, 0, 0.25);
+  --input-bg: #111827;
   --badge-bg: rgba(255, 255, 255, 0.06);
-  --scrollbar-thumb: #1f2937;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.06);
 }
+
 
 /* ============================================================
    DESIGN TOKENS — LIGHT
