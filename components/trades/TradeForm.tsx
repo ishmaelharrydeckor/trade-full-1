@@ -1,11 +1,12 @@
 // components/trades/TradeForm.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, X, Image, Award } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import type { Trade, AssetClass, Direction, TradeGrade } from "@/types/database";
+import type { Trade, AssetClass, Direction, TradeGrade, Playbook } from "@/types/database";
 import { useRouter } from "next/navigation";
+import PlaybookSelector, { type PlaybookSelection } from "@/components/playbook/PlaybookSelector";
 
 const SYMBOLS_BY_CLASS: Record<AssetClass, { value: string; label: string }[]> = {
   forex: [
@@ -250,6 +251,39 @@ export default function TradeForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [playbooks, setPlaybooks] = useState<Playbook[]>([]);
+  const [playbookSelection, setPlaybookSelection] = useState<PlaybookSelection | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("playbooks")
+      .select("*")
+      .eq("account_id", accountId)
+      .eq("archived", false)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (data) setPlaybooks(data);
+      });
+
+    if (editing && initial?.id) {
+      supabase
+        .from("trade_playbook_entries")
+        .select("*")
+        .eq("trade_id", initial.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) {
+            setPlaybookSelection({
+              playbookId: data.playbook_id,
+              rulesFollowed: data.rules_followed ?? [],
+              rulesBroken: data.rules_broken ?? [],
+            });
+          }
+        });
+    }
+  }, [accountId, editing, initial]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -299,14 +333,49 @@ export default function TradeForm({
       grade: grade || null,
     };
 
-    const { error: writeErr } = editing
-      ? await supabase.from("trades").update(payload).eq("id", initial!.id)
-      : await supabase.from("trades").insert(payload);
+    const { data: writtenTrade, error: writeErr } = editing
+      ? await supabase.from("trades").update(payload).eq("id", initial!.id).select("id").single()
+      : await supabase.from("trades").insert(payload).select("id").single();
 
     if (writeErr) {
       setError(writeErr.message);
       setSubmitting(false);
       return;
+    }
+
+    const tradeId = writtenTrade?.id;
+    if (tradeId) {
+      if (playbookSelection) {
+        // Delete entries for any other playbook first
+        await supabase
+          .from("trade_playbook_entries")
+          .delete()
+          .eq("trade_id", tradeId)
+          .neq("playbook_id", playbookSelection.playbookId);
+
+        // Upsert selection
+        const entryPayload = {
+          user_id: user.id,
+          trade_id: tradeId,
+          playbook_id: playbookSelection.playbookId,
+          rules_followed: playbookSelection.rulesFollowed,
+          rules_broken: playbookSelection.rulesBroken,
+        };
+
+        const { error: upsertErr } = await supabase
+          .from("trade_playbook_entries")
+          .upsert(entryPayload, { onConflict: "trade_id, playbook_id" });
+
+        if (upsertErr) {
+          console.error("Failed to save playbook entries:", upsertErr.message);
+        }
+      } else {
+        // Remove any associated playbook entries if none selected
+        await supabase
+          .from("trade_playbook_entries")
+          .delete()
+          .eq("trade_id", tradeId);
+      }
     }
 
     setSubmitting(false);
@@ -454,6 +523,16 @@ export default function TradeForm({
               />
             </Field>
           </div>
+
+          {playbooks.length > 0 && (
+            <div className="py-1">
+              <PlaybookSelector
+                playbooks={playbooks}
+                value={playbookSelection}
+                onChange={setPlaybookSelection}
+              />
+            </div>
+          )}
 
           <details className="rounded-lg p-3" style={{ backgroundColor: 'var(--app-elevated)', border: '1px solid var(--app-border)' }}>
             <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
