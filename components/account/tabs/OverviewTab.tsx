@@ -39,6 +39,7 @@ import { fmtSignedUsd, fmtCompactNumber, fmtDateTime, fmtPct, fmtNumber } from "
 import { createClient } from "@/lib/supabase/client";
 import OpenPositionsPanel from "@/components/overview/OpenPositionsPanel";
 import InfoTooltip from "@/components/ui/InfoTooltip";
+import { cn } from "@/lib/utils";
 
 interface PlaybookRule {
   id: string;
@@ -61,10 +62,11 @@ export default function OverviewTab({
   const router = useRouter();
   const startingBalance = account.starting_balance ?? 0;
 
-  // State
+  // States
   const [otherAccounts, setOtherAccounts] = useState<{ id: string; name: string }[]>([]);
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const [chartMode, setChartMode] = useState<"equity" | "balance" | "drawdown-overlay">("equity");
+  const [timeFilter, setTimeFilter] = useState<"all" | "7d" | "30d" | "ytd">("all");
 
   // Load other accounts for the switcher
   useEffect(() => {
@@ -80,15 +82,78 @@ export default function OverviewTab({
       });
   }, [account.id]);
 
-  // Calculations
-  const kpis = useMemo(() => computeKpis(trades), [trades]);
+  // Compute time bounds
+  const filterDateBound = useMemo(() => {
+    if (timeFilter === "all") return null;
+    const now = new Date();
+    if (timeFilter === "7d") {
+      return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    }
+    if (timeFilter === "30d") {
+      return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+    if (timeFilter === "ytd") {
+      return new Date(now.getFullYear(), 0, 1); // January 1st
+    }
+    return null;
+  }, [timeFilter]);
+
+  // Filter trades and transactions based on chosen time frame
+  const filteredTrades = useMemo(() => {
+    if (!filterDateBound) return trades;
+    const boundMs = filterDateBound.getTime();
+    return trades.filter((t) => {
+      const tTime = new Date(t.close_time ?? t.open_time).getTime();
+      return tTime >= boundMs;
+    });
+  }, [trades, filterDateBound]);
+
+  const filteredTransactions = useMemo(() => {
+    if (!filterDateBound) return transactions;
+    const boundMs = filterDateBound.getTime();
+    return transactions.filter((tx) => {
+      const txTime = new Date(tx.occurred_at).getTime();
+      return txTime >= boundMs;
+    });
+  }, [transactions, filterDateBound]);
+
+  // Dynamically calculate the starting balance for the filtered period
+  const periodStartingBalance = useMemo(() => {
+    if (!filterDateBound) return startingBalance;
+    const boundMs = filterDateBound.getTime();
+
+    // Sum all trades closed BEFORE the filter boundary
+    const tradesBefore = trades.filter((t) => {
+      const tTime = new Date(t.close_time ?? t.open_time).getTime();
+      return tTime < boundMs;
+    });
+    const pnlBefore = tradesBefore.reduce((sum, t) => {
+      const gross = t.pnl ?? 0;
+      const net = gross - (t.commission ?? 0) - (t.swap ?? 0);
+      return sum + net;
+    }, 0);
+
+    // Sum all transactions occurred BEFORE the filter boundary
+    const txsBefore = transactions.filter((tx) => {
+      const txTime = new Date(tx.occurred_at).getTime();
+      return txTime < boundMs;
+    });
+    const txBeforeNet = txsBefore.reduce((sum, tx) => {
+      return sum + (tx.type === "deposit" ? tx.amount : -tx.amount);
+    }, 0);
+
+    return startingBalance + pnlBefore + txBeforeNet;
+  }, [trades, transactions, startingBalance, filterDateBound]);
+
+  // Calculations on filtered datasets
+  const kpis = useMemo(() => computeKpis(filteredTrades), [filteredTrades]);
   const equityCurve = useMemo(
-    () => buildEquityCurve(trades, transactions, startingBalance),
-    [trades, transactions, startingBalance]
+    () => buildEquityCurve(filteredTrades, filteredTransactions, periodStartingBalance),
+    [filteredTrades, filteredTransactions, periodStartingBalance]
   );
   const currentEquity = useMemo(
-    () => computeCurrentEquity(trades, transactions, startingBalance),
-    [trades, transactions, startingBalance]
+    () => computeCurrentEquity(filteredTrades, filteredTransactions, periodStartingBalance),
+    [filteredTrades, filteredTransactions, periodStartingBalance]
   );
   const drawdown = useMemo(() => computeDrawdown(equityCurve), [equityCurve]);
 
@@ -108,7 +173,7 @@ export default function OverviewTab({
 
     let gradeSum = 0;
     let gradedCount = 0;
-    for (const t of trades) {
+    for (const t of filteredTrades) {
       if (t.grade) {
         gradedCount++;
         if (t.grade === "A+") gradeSum += 100;
@@ -125,7 +190,7 @@ export default function OverviewTab({
 
     // Execution streak (A/B trades or general win streak)
     let executionStreak = 0;
-    for (const t of trades) {
+    for (const t of filteredTrades) {
       if (t.grade && ["A+", "A", "B"].includes(t.grade)) {
         executionStreak++;
       } else if (t.grade) {
@@ -161,13 +226,13 @@ export default function OverviewTab({
     }
     
     // Scan mindsets/notes
-    const recentMindsets = trades
+    const recentMindsets = filteredTrades
       .slice(0, 15)
       .map((t) => t.mindset?.toLowerCase() ?? "")
       .filter(Boolean);
 
     if (recentMindsets.some((m) => m.includes("fomo") || m.includes("impatient"))) {
-      behaviorTags.push("FOMO Trigger");
+      behaviorTags.push("FOMO Triggered");
     }
     if (recentMindsets.some((m) => m.includes("greed") || m.includes("overtrade"))) {
       behaviorTags.push("Over-Leveraging");
@@ -176,10 +241,10 @@ export default function OverviewTab({
       behaviorTags.push("Revenge Risk");
     }
     if (kpis.worstStreak > 3) {
-      behaviorTags.push("Tilt Susceptibility");
+      behaviorTags.push("Tilt Susceptible");
     }
     if (behaviorTags.length === 0) {
-      behaviorTags.push("Disciplined Execution");
+      behaviorTags.push("Disciplined Flow");
     }
 
     return {
@@ -187,11 +252,11 @@ export default function OverviewTab({
       executionStreak: finalStreak,
       tags: behaviorTags.slice(0, 3),
     };
-  }, [trades, playbooks, playbookEntries, kpis]);
+  }, [filteredTrades, playbooks, playbookEntries, kpis]);
 
   // Equity Curve calculations for visual chart
   const processedEquityCurve = useMemo(() => {
-    let peak = startingBalance;
+    let peak = periodStartingBalance;
     return equityCurve.map((point) => {
       if (point.equity > peak) peak = point.equity;
       const ddPct = peak > 0 ? -((peak - point.equity) / peak) * 100 : 0;
@@ -201,11 +266,11 @@ export default function OverviewTab({
         drawdown: Math.round(ddPct * 100) / 100,
       };
     });
-  }, [equityCurve, startingBalance]);
+  }, [equityCurve, periodStartingBalance]);
 
   // Drawdown Area chart data
   const drawdownChartData = useMemo(() => {
-    let peak = startingBalance;
+    let peak = periodStartingBalance;
     return equityCurve.map((point) => {
       if (point.equity > peak) peak = point.equity;
       const ddPct = peak > 0 ? -((peak - point.equity) / peak) * 100 : 0;
@@ -216,10 +281,10 @@ export default function OverviewTab({
         drawdownAbs: Math.round(ddAbs * 100) / 100,
       };
     });
-  }, [equityCurve, startingBalance]);
+  }, [equityCurve, periodStartingBalance]);
 
   // SVG parameters for radial gauge (Section 2)
-  const scoreSize = 100;
+  const scoreSize = 120;
   const scoreStroke = 8;
   const scoreRadius = (scoreSize - scoreStroke) / 2;
   const scoreCircumference = scoreRadius * 2 * Math.PI;
@@ -232,39 +297,68 @@ export default function OverviewTab({
       {/* TOP NAVIGATION BAR */}
       <div className="flex flex-col gap-4 rounded-2xl border p-4 sm:flex-row sm:items-center sm:justify-between" 
         style={{ backgroundColor: "var(--bg-panel)", borderColor: "var(--border-panel)" }}>
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setShowAccountDropdown(!showAccountDropdown)}
-            className="flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/10 border border-white/5"
-          >
-            <span>{account.name}</span>
-            <ChevronDown className="h-4 w-4 text-slate-400" />
-          </button>
-          
-          {showAccountDropdown && otherAccounts.length > 0 && (
-            <div className="absolute left-0 mt-2 z-50 w-56 rounded-xl border bg-black/90 p-1.5 shadow-2xl backdrop-blur-md"
-              style={{ borderColor: "var(--border-panel)" }}>
-              {otherAccounts.map((act) => (
-                <button
-                  key={act.id}
-                  onClick={() => {
-                    setShowAccountDropdown(false);
-                    router.push(`/dashboard/accounts/${act.id}`);
-                  }}
-                  className="w-full text-left rounded-lg px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-indigo-600 hover:text-white transition"
-                >
-                  {act.name}
-                </button>
-              ))}
-            </div>
-          )}
+        
+        {/* Account Selector */}
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowAccountDropdown(!showAccountDropdown)}
+              className="flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/10 border border-white/5"
+            >
+              <span>{account.name}</span>
+              <ChevronDown className="h-4 w-4 text-slate-400" />
+            </button>
+            
+            {showAccountDropdown && otherAccounts.length > 0 && (
+              <div className="absolute left-0 mt-2 z-50 w-56 rounded-xl border bg-black/90 p-1.5 shadow-2xl backdrop-blur-md"
+                style={{ borderColor: "var(--border-panel)" }}>
+                {otherAccounts.map((act) => (
+                  <button
+                    key={act.id}
+                    onClick={() => {
+                      setShowAccountDropdown(false);
+                      router.push(`/dashboard/accounts/${act.id}`);
+                    }}
+                    className="w-full text-left rounded-lg px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-indigo-600 hover:text-white transition"
+                  >
+                    {act.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Time Filters */}
+          <div className="flex items-center rounded-xl bg-black/40 p-1 border border-white/5">
+            {[
+              { id: "all", label: "All time" },
+              { id: "7d", label: "7D" },
+              { id: "30d", label: "30D" },
+              { id: "ytd", label: "YTD" },
+            ].map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setTimeFilter(f.id as any)}
+                className={cn(
+                  "rounded-lg px-2.5 py-1 text-xs font-bold transition-all",
+                  timeFilter === f.id
+                    ? "bg-slate-800 text-white shadow-sm border border-slate-700"
+                    : "text-slate-400 hover:text-slate-200 border border-transparent"
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
+        {/* Quick Actions */}
         <div className="flex flex-wrap items-center gap-2.5">
           <Link
             href={`/dashboard/accounts/${account.id}/backtest`}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 px-4 py-2 text-xs font-bold text-white hover:opacity-90 shadow-md shadow-indigo-500/10"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 px-4 py-2 text-xs font-bold text-white hover:opacity-90 shadow-md shadow-indigo-500/10 transition-transform active:scale-95"
           >
             <Play className="h-3.5 w-3.5 fill-white" />
             <span>Launch Backtester</span>
@@ -272,7 +366,7 @@ export default function OverviewTab({
           <button
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent("tradefull:gototab", { detail: "account" }))}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-white/5 border border-white/5 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-white/10"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-white/5 border border-white/5 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 transition-transform active:scale-95"
           >
             <Settings className="h-3.5 w-3.5" />
             <span>Settings</span>
@@ -281,103 +375,129 @@ export default function OverviewTab({
       </div>
 
       {/* SECTION 1: KEY PERFORMANCE STRIP */}
-      <section className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+      <section className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+        <style>{`
+          @keyframes kpiFade {
+            0% { transform: scale(0.97); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          .kpi-animate {
+            animation: kpiFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          }
+        `}</style>
+
         {/* Net P&L Card */}
-        <div className="group rounded-2xl border p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
-          style={{ backgroundColor: "var(--bg-panel)", borderColor: "var(--border-panel)" }}>
-          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+        <div 
+          key={`${timeFilter}-pnl`}
+          className="kpi-animate group rounded-2xl border p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
+          style={{ borderColor: "var(--border-panel)" }}
+        >
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
             <Coins className="h-3.5 w-3.5 text-indigo-400" />
             <span>Net P&L</span>
           </div>
           <div className={cn(
-            "mt-2 text-2xl font-black tracking-tight",
+            "mt-3.5 text-2xl font-black tracking-tight font-mono",
             kpis.netPnl >= 0 ? "text-emerald-400" : "text-red-400"
           )}>
             {fmtSignedUsd(kpis.netPnl)}
           </div>
-          <div className="mt-1 text-[11px] font-medium" style={{ color: "var(--text-secondary)" }}>
+          <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
             {account.currency} account term
           </div>
         </div>
 
         {/* Win Rate Card */}
-        <div className="group rounded-2xl border p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
-          style={{ backgroundColor: "var(--bg-panel)", borderColor: "var(--border-panel)" }}>
-          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+        <div 
+          key={`${timeFilter}-winrate`}
+          className="kpi-animate group rounded-2xl border p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
+          style={{ borderColor: "var(--border-panel)" }}
+        >
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
             <Target className="h-3.5 w-3.5 text-emerald-400" />
             <span>Win rate</span>
           </div>
-          <div className="mt-2 text-2xl font-black tracking-tight text-white">
+          <div className="mt-3.5 text-2xl font-black tracking-tight text-white font-mono">
             {fmtPct(kpis.winRate, 1)}
           </div>
-          <div className="mt-1 text-[11px] font-medium text-emerald-400">
-            {kpis.winners} winners · {kpis.losers} losers
+          <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-emerald-400/90">
+            {kpis.winners} W · {kpis.losers} L
           </div>
         </div>
 
         {/* Profit Factor Card */}
-        <div className="group rounded-2xl border p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
-          style={{ backgroundColor: "var(--bg-panel)", borderColor: "var(--border-panel)" }}>
-          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+        <div 
+          key={`${timeFilter}-pf`}
+          className="kpi-animate group rounded-2xl border p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
+          style={{ borderColor: "var(--border-panel)" }}
+        >
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
             <TrendingUp className="h-3.5 w-3.5 text-blue-400" />
             <span>Profit factor</span>
           </div>
-          <div className="mt-2 text-2xl font-black tracking-tight text-white">
+          <div className="mt-3.5 text-2xl font-black tracking-tight text-white font-mono">
             {kpis.profitFactor === Infinity ? "∞" : fmtNumber(kpis.profitFactor, 2)}
           </div>
-          <div className="mt-1 text-[11px] font-medium" style={{ color: "var(--text-secondary)" }}>
-            Ratio: Gross Win/Loss
+          <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+            Gross Win / Gross Loss
           </div>
         </div>
 
         {/* Total Trades Card */}
-        <div className="group rounded-2xl border p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
-          style={{ backgroundColor: "var(--bg-panel)", borderColor: "var(--border-panel)" }}>
-          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+        <div 
+          key={`${timeFilter}-trades`}
+          className="kpi-animate group rounded-2xl border p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
+          style={{ borderColor: "var(--border-panel)" }}
+        >
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
             <Activity className="h-3.5 w-3.5 text-orange-400" />
             <span>Total trades</span>
           </div>
-          <div className="mt-2 text-2xl font-black tracking-tight text-white">
+          <div className="mt-3.5 text-2xl font-black tracking-tight text-white font-mono">
             {kpis.trades}
           </div>
-          <div className="mt-1 text-[11px] font-medium text-slate-400">
-            Closed positions logged
+          <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+            Positions logged
           </div>
         </div>
 
         {/* Streaks Card */}
-        <div className="group rounded-2xl border p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
-          style={{ backgroundColor: "var(--bg-panel)", borderColor: "var(--border-panel)" }}>
-          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+        <div 
+          key={`${timeFilter}-streaks`}
+          className="kpi-animate group rounded-2xl border p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
+          style={{ borderColor: "var(--border-panel)" }}
+        >
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
             <Trophy className="h-3.5 w-3.5 text-amber-500" />
-            <span>Best/Worst Streak</span>
+            <span>Streak Matrix</span>
           </div>
-          <div className="mt-2 text-xl font-black tracking-tight text-white">
-            {kpis.bestStreak}W / <span className="text-red-400">{kpis.worstStreak}L</span>
+          <div className="mt-3.5 text-xl font-black tracking-tight text-white font-mono">
+            {kpis.bestStreak} W / <span className="text-red-400">{kpis.worstStreak} L</span>
           </div>
-          <div className="mt-1.5 text-[11px] font-medium text-slate-400">
-            Consecutive segments
+          <div className="mt-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+            Consecutive trades
           </div>
         </div>
       </section>
 
-      {/* SECTION 2: CORE INSIGHTS (Discipline Gauge, Streak, Behavioral Tags) */}
+      {/* SECTION 2: CORE INSIGHTS (Discipline Gauge, Calendar Stat, AI Tags) */}
       <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {/* Discipline score radial gauge */}
-        <div className="relative flex flex-col items-center justify-center rounded-2xl border p-6 text-center"
-          style={{ backgroundColor: "var(--bg-panel)", borderColor: "var(--border-panel)" }}>
-          <span className="absolute left-4 top-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+        
+        {/* Discipline Score Gauge */}
+        <div className="relative flex flex-col items-center justify-center rounded-2xl border p-6 text-center bg-[#0f1318]/60 backdrop-blur-md"
+          style={{ borderColor: "var(--border-panel)" }}>
+          <span className="absolute left-4 top-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
             <Award className="h-3.5 w-3.5 text-amber-500" />
             Discipline Score
           </span>
-          <div className="relative mt-4 flex items-center justify-center">
+          <div className="relative mt-5 mb-2 flex items-center justify-center">
             <svg width={scoreSize} height={scoreSize} className="-rotate-90">
               <circle
                 cx={scoreSize / 2}
                 cy={scoreSize / 2}
                 r={scoreRadius}
                 fill="transparent"
-                stroke="rgba(255,255,255,0.03)"
+                stroke="rgba(255,255,255,0.02)"
                 strokeWidth={scoreStroke}
               />
               <circle
@@ -390,67 +510,85 @@ export default function OverviewTab({
                 strokeDasharray={scoreCircumference}
                 strokeDashoffset={scoreOffset}
                 strokeLinecap="round"
-                className="transition-all duration-500"
+                className="transition-all duration-700 ease-out"
               />
               <defs>
                 <linearGradient id="insightGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#4F46E5" />
-                  <stop offset="100%" stopColor="#10B981" />
+                  <stop offset="0%" stopColor="#6366f1" />
+                  <stop offset="100%" stopColor="#10b981" />
                 </linearGradient>
               </defs>
             </svg>
             <div className="absolute flex flex-col items-center justify-center">
-              <span className="text-2xl font-black text-white">{coreInsights.disciplineScore}%</span>
+              <span className="text-2xl font-black text-white font-mono">{coreInsights.disciplineScore}%</span>
             </div>
           </div>
-          <span className="mt-3 text-xs font-semibold text-slate-400">Rule Compliance Rating</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-2">Rule Compliance Rating</span>
         </div>
 
-        {/* Execution Streak */}
-        <div className="group relative flex flex-col items-center justify-center rounded-2xl border p-6 text-center"
-          style={{ backgroundColor: "var(--bg-panel)", borderColor: "var(--border-panel)" }}>
-          <span className="absolute left-4 top-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+        {/* Calendar-Style Streak Widget */}
+        <div className="group relative flex flex-col items-center justify-between rounded-2xl border bg-[#0f1318]/60 backdrop-blur-md p-6"
+          style={{ borderColor: "var(--border-panel)" }}>
+          <span className="absolute left-4 top-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
             <Flame className="h-3.5 w-3.5 text-orange-500" />
-            Execution Streak
+            Execution Flow
           </span>
-          <div className="mt-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-500/10 text-orange-400">
-            <Flame className="h-8 w-8 fill-orange-500/20" />
+
+          {/* Calendar representation */}
+          <div className="flex flex-col items-center justify-center w-28 h-28 rounded-2xl overflow-hidden border border-slate-800 bg-[#07090d] shadow-inner mt-4">
+            <div className="w-full bg-red-600/90 text-[10px] font-black uppercase text-center text-white/90 py-1.5 tracking-widest">
+              STREAK
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center bg-black/40">
+              <span className="text-4xl font-black text-white font-mono leading-none">{coreInsights.executionStreak}</span>
+              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">SESSIONS</span>
+            </div>
           </div>
-          <h3 className="mt-3 text-2xl font-extrabold text-white">{coreInsights.executionStreak} Sessions</h3>
-          <span className="text-xs font-semibold text-slate-400">Consecutive disciplined actions</span>
+
+          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-3 text-center">
+            Consecutive Disciplined Choices
+          </span>
         </div>
 
-        {/* Behavioral Insights */}
-        <div className="group relative flex flex-col justify-center rounded-2xl border p-6"
-          style={{ backgroundColor: "var(--bg-panel)", borderColor: "var(--border-panel)" }}>
-          <span className="absolute left-4 top-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+        {/* Behavioral Insights (AI Tags) */}
+        <div className="group relative flex flex-col justify-between rounded-2xl border p-6 bg-[#0f1318]/60 backdrop-blur-md"
+          style={{ borderColor: "var(--border-panel)" }}>
+          <span className="absolute left-4 top-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
             <AlertTriangle className="h-3.5 w-3.5 text-indigo-400" />
             Behavioral Insights
           </span>
-          <div className="mt-4 flex flex-col gap-2.5">
+          <div className="mt-8 flex flex-col gap-2">
             {coreInsights.tags.map((tag, idx) => (
               <div
                 key={idx}
                 className={cn(
                   "flex items-center justify-between rounded-xl border px-3 py-2 text-xs font-bold transition",
-                  tag === "Disciplined Execution" 
+                  tag.includes("Flow") || tag.includes("Execution") || tag.includes("Disciplined")
                     ? "bg-emerald-500/5 border-emerald-500/10 text-emerald-400"
-                    : "bg-indigo-500/5 border-indigo-500/10 text-indigo-300"
+                    : "bg-red-500/5 border-red-500/10 text-red-400"
                 )}
               >
                 <span>{tag}</span>
-                <span className="h-1.5 w-1.5 rounded-full bg-indigo-400" />
+                <span className={cn(
+                  "h-1.5 w-1.5 rounded-full",
+                  tag.includes("Flow") || tag.includes("Execution") || tag.includes("Disciplined")
+                    ? "bg-emerald-400"
+                    : "bg-red-400"
+                )} />
               </div>
             ))}
           </div>
+          <span className="text-[9px] font-semibold text-slate-500 text-center mt-3">
+            Behavior and discipline guide profitability
+          </span>
         </div>
       </section>
 
       {/* SECTION 3: EQUITY CURVE (Hero Visual) */}
-      <section className="rounded-2xl border p-5" style={{ backgroundColor: "var(--bg-panel)", borderColor: "var(--border-panel)" }}>
+      <section className="rounded-2xl border p-5 bg-[#0f1318]/60 backdrop-blur-md" style={{ borderColor: "var(--border-panel)" }}>
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-bold text-white">Equity & Capital Progression</h3>
+            <h3 className="text-lg font-bold text-white tracking-tight">Equity & Capital Progression</h3>
             <InfoTooltip text="Visual progression of your account equity. Select toggles to analyze performance." />
           </div>
           
@@ -465,9 +603,9 @@ export default function OverviewTab({
                 type="button"
                 onClick={() => setChartMode(mode.id as any)}
                 className={cn(
-                  "rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
+                  "rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
                   chartMode === mode.id
-                    ? "bg-indigo-600 text-white shadow"
+                    ? "bg-indigo-600 text-white shadow border border-indigo-500/30"
                     : "text-slate-400 hover:text-slate-200"
                 )}
               >
@@ -491,7 +629,7 @@ export default function OverviewTab({
                 </linearGradient>
               </defs>
               
-              <CartesianGrid stroke="var(--border-panel)" strokeDasharray="3 3" vertical={false} />
+              <CartesianGrid stroke="#1f2937/40" strokeDasharray="3 3" vertical={false} />
               
               <XAxis
                 dataKey="time"
@@ -503,14 +641,14 @@ export default function OverviewTab({
                     return "";
                   }
                 }}
-                stroke="rgba(255,255,255,0.05)"
+                stroke="rgba(255,255,255,0.03)"
                 tick={{ fontSize: 10, fill: "#64748b" }}
-                minTickGap={40}
+                minTickGap={45}
               />
               
               <YAxis
                 yAxisId="left"
-                stroke="rgba(255,255,255,0.05)"
+                stroke="rgba(255,255,255,0.03)"
                 tick={{ fontSize: 10, fill: "#64748b" }}
                 tickFormatter={(val) => fmtCompactNumber(val)}
                 domain={["auto", "auto"]}
@@ -520,17 +658,17 @@ export default function OverviewTab({
                 <YAxis
                   yAxisId="right"
                   orientation="right"
-                  stroke="rgba(255,255,255,0.05)"
+                  stroke="rgba(255,255,255,0.03)"
                   tick={{ fontSize: 10, fill: "#64748b" }}
                   tickFormatter={(val) => `${val}%`}
                   domain={["dataMin", 0]}
                 />
               )}
 
-              {startingBalance > 0 && (
+              {periodStartingBalance > 0 && (
                 <ReferenceLine
                   yAxisId="left"
-                  y={startingBalance}
+                  y={periodStartingBalance}
                   stroke="#475569"
                   strokeDasharray="4 4"
                 />
@@ -538,17 +676,47 @@ export default function OverviewTab({
 
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "rgba(0,0,0,0.85)",
-                  borderColor: "var(--border-panel)",
+                  backgroundColor: "rgba(8, 11, 17, 0.95)",
+                  borderColor: "rgba(255,255,255,0.08)",
                   borderRadius: "12px",
                   fontSize: "12px",
-                  backdropFilter: "blur(4px)",
+                  backdropFilter: "blur(6px)",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
                 }}
-                labelStyle={{ color: "#94a3b8", marginBottom: 4 }}
+                labelStyle={{ color: "#94a3b8", fontWeight: "bold", marginBottom: 6 }}
                 labelFormatter={(label) => fmtDateTime(label as string)}
-                formatter={(value: any, name: any, props: any) => {
-                  if (name === "drawdown") return [`${value}%`, "Drawdown"];
-                  return [fmtSignedUsd(value as number), name === "balance" ? "Balance" : "Equity"];
+                content={({ active, payload, label }) => {
+                  if (!active || !payload || !payload.length) return null;
+                  
+                  const pPoint = payload[0].payload;
+                  const isTrade = pPoint.type === "trade";
+                  const symbolLabel = pPoint.label;
+                  const value = pPoint.equity;
+                  const delta = pPoint.delta;
+
+                  return (
+                    <div className="flex flex-col gap-1.5 p-1 text-xs">
+                      <span className="font-bold text-slate-400">{fmtDateTime(label as string)}</span>
+                      <div className="flex items-center justify-between gap-6">
+                        <span className="text-slate-500 font-semibold uppercase tracking-wider text-[10px]">Equity</span>
+                        <span className="font-mono text-white font-bold">{fmtSignedUsd(value)}</span>
+                      </div>
+                      {delta !== 0 && (
+                        <div className="flex items-center justify-between gap-6">
+                          <span className="text-slate-500 font-semibold uppercase tracking-wider text-[10px]">Delta</span>
+                          <span className={cn("font-mono font-bold", delta >= 0 ? "text-emerald-400" : "text-red-400")}>
+                            {delta >= 0 ? "+" : ""}{fmtSignedUsd(delta)}
+                          </span>
+                        </div>
+                      )}
+                      {isTrade && symbolLabel && (
+                        <div className="flex items-center justify-between gap-6 border-t border-white/5 pt-1.5 mt-0.5">
+                          <span className="text-indigo-400 font-bold uppercase tracking-wider text-[10px]">Symbol</span>
+                          <span className="font-mono font-black text-white text-[11px]">{symbolLabel}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
                 }}
               />
 
@@ -569,8 +737,8 @@ export default function OverviewTab({
                 yAxisId="left"
                 type="monotone"
                 dataKey="balance"
-                stroke="#4F46E5"
-                strokeWidth={2}
+                stroke="#6366f1"
+                strokeWidth={2.5}
                 fill="url(#eqGrad)"
                 name="equity"
               />
@@ -580,17 +748,17 @@ export default function OverviewTab({
       </section>
 
       {/* SECTION 4: DRAWDOWN VISUALIZATION */}
-      <section className="rounded-2xl border p-5" style={{ backgroundColor: "var(--bg-panel)", borderColor: "var(--border-panel)" }}>
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <section className="rounded-2xl border p-5 bg-[#0f1318]/60 backdrop-blur-md" style={{ borderColor: "var(--border-panel)" }}>
+        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
-            <TrendingDown className="h-4 w-4 text-red-400" />
-            <h3 className="text-lg font-bold text-white">Drawdown Profile</h3>
+            <TrendingDown className="h-4 w-4 text-red-500" />
+            <h3 className="text-lg font-bold text-white tracking-tight">Drawdown Profile</h3>
             <InfoTooltip text="Drawdown percentage from account high-water mark." />
           </div>
-          <div className="flex items-center gap-4 text-xs font-semibold text-slate-400">
+          <div className="flex items-center gap-4 text-xs font-semibold text-slate-400 bg-red-950/20 border border-red-500/10 px-3.5 py-1.5 rounded-xl">
             <span>
               Peak Drawdown:{" "}
-              <span className="font-mono font-bold text-red-400">{fmtPct(drawdown.maxDrawdownPct, 1)}</span>
+              <span className="font-mono font-black text-red-400">{fmtPct(drawdown.maxDrawdownPct, 1)}</span>
               {" "}({fmtSignedUsd(-drawdown.maxDrawdownAbs)})
             </span>
           </div>
@@ -601,39 +769,40 @@ export default function OverviewTab({
             <AreaChart data={drawdownChartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="ddGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#ef4444" stopOpacity={0.3} />
+                  <stop offset="0%" stopColor="#ef4444" stopOpacity={0.35} />
                   <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-panel)" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937/40" vertical={false} />
               <XAxis
                 dataKey="time"
                 tickFormatter={(val) => {
                   const d = new Date(val);
                   return `${d.getMonth() + 1}/${d.getDate()}`;
                 }}
-                stroke="rgba(255,255,255,0.05)"
+                stroke="rgba(255,255,255,0.03)"
                 tick={{ fontSize: 10, fill: "#64748b" }}
                 minTickGap={40}
               />
               <YAxis
-                stroke="rgba(255,255,255,0.05)"
+                stroke="rgba(255,255,255,0.03)"
                 tick={{ fontSize: 10, fill: "#64748b" }}
                 tickFormatter={(val) => `${val}%`}
                 domain={["dataMin", 0]}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "rgba(0,0,0,0.85)",
-                  borderColor: "var(--border-panel)",
+                  backgroundColor: "rgba(8, 11, 17, 0.95)",
+                  borderColor: "rgba(255,255,255,0.08)",
                   borderRadius: "12px",
                   fontSize: "12px",
+                  backdropFilter: "blur(6px)",
                 }}
                 formatter={(value: number) => [`${value}%`, "Drawdown"]}
                 labelFormatter={(label) => fmtDateTime(label as string)}
               />
-              <ReferenceLine y={-5} stroke="#f59e0b" strokeDasharray="3 3" strokeOpacity={0.3} />
-              <ReferenceLine y={-10} stroke="#ef4444" strokeDasharray="3 3" strokeOpacity={0.3} />
+              <ReferenceLine y={-5} stroke="#f59e0b" strokeDasharray="3 3" strokeOpacity={0.35} />
+              <ReferenceLine y={-10} stroke="#ef4444" strokeDasharray="3 3" strokeOpacity={0.35} />
               <Area
                 type="monotone"
                 dataKey="drawdown"
@@ -646,32 +815,36 @@ export default function OverviewTab({
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-4 border-t border-white/5 pt-3 text-[11px] font-medium text-slate-400">
-          <span className="text-red-400 font-bold">Risk Awareness:</span> Keeping drawdown under 10% ensures long-term compounding. Restrict lot sizes if your drawdown violates pre-set rules.
+        {/* Psychological framing banner */}
+        <div className="mt-4 border-t border-red-500/10 pt-3 text-[11px] font-bold text-slate-400 flex items-start gap-2.5 bg-red-950/[0.08] p-3 rounded-xl border border-red-500/5">
+          <AlertTriangle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+          <div>
+            <span className="text-red-400 font-extrabold">Risk Awareness & Emotional Anchor:</span> Drawdowns are a natural byproduct of active speculation. Keeping drawdown bounded (typically under 10%) preserves psychological capital and protects your high-water mark. If your metrics violate safe thresholds, scale down size immediately to maintain discipline.
+          </div>
         </div>
       </section>
 
       {/* SECTION 5: RECENT TRADES */}
-      <section className="rounded-2xl border p-5" style={{ backgroundColor: "var(--bg-panel)", borderColor: "var(--border-panel)" }}>
+      <section className="rounded-2xl border p-5 bg-[#0f1318]/60 backdrop-blur-md" style={{ borderColor: "var(--border-panel)" }}>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-white">Recent Trade Logs</h3>
-          {trades.length > 5 && (
+          <h3 className="text-lg font-bold text-white tracking-tight">Recent Trade Logs</h3>
+          {filteredTrades.length > 5 && (
             <button
               type="button"
               onClick={() => window.dispatchEvent(new CustomEvent("tradefull:gototab", { detail: "trades" }))}
               className="text-xs font-extrabold text-indigo-400 hover:underline"
             >
-              All Trades ({trades.length}) →
+              All Trades ({filteredTrades.length}) →
             </button>
           )}
         </div>
 
-        {trades.length === 0 ? (
+        {filteredTrades.length === 0 ? (
           <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-slate-700 text-sm text-slate-500">
-            No trades completed yet. Update MetaTrader sync or add manually.
+            No trades completed within the selected timeframe. Update MetaTrader sync or add manually.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-white/5">
+          <div className="overflow-x-auto rounded-xl border border-slate-800/80">
             <table className="w-full text-sm">
               <thead className="text-[10px] font-bold uppercase tracking-wider text-slate-400" 
                 style={{ backgroundColor: "rgba(0,0,0,0.3)" }}>
@@ -683,14 +856,14 @@ export default function OverviewTab({
                   <th className="px-4 py-3 text-left">Closed Timestamp</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
-                {trades.slice(0, 5).map((t) => {
+              <tbody className="divide-y divide-slate-800/60">
+                {filteredTrades.slice(0, 5).map((t) => {
                   const isLong = t.direction === "long";
                   const pnlVal = t.pnl ?? 0;
                   const isWin = pnlVal > 0;
                   return (
-                    <tr key={t.id} className="hover:bg-white/[0.01] transition-colors text-white">
-                      <td className="px-4 py-3 font-bold">{t.symbol}</td>
+                    <tr key={t.id} className="hover:bg-slate-900/20 transition-colors text-white font-medium">
+                      <td className="px-4 py-3 font-bold text-slate-200">{t.symbol}</td>
                       <td className="px-4 py-3">
                         <span className={cn(
                           "inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase",
@@ -707,7 +880,7 @@ export default function OverviewTab({
                       )}>
                         {fmtSignedUsd(pnlVal)}
                       </td>
-                      <td className="px-4 py-3 text-xs font-semibold text-slate-400">{fmtDateTime(t.close_time)}</td>
+                      <td className="px-4 py-3 text-xs font-semibold text-slate-500">{fmtDateTime(t.close_time)}</td>
                     </tr>
                   );
                 })}
@@ -719,3 +892,4 @@ export default function OverviewTab({
     </div>
   );
 }
+
