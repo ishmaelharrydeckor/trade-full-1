@@ -26,8 +26,6 @@ import {
   Activity,
   Trophy,
   Flame,
-  Settings,
-  Play,
   Award,
   Clock,
   ChevronDown,
@@ -354,24 +352,6 @@ export default function OverviewTab({
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Link
-            href={`/dashboard/accounts/${account.id}/backtest`}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 px-4 py-2 text-xs font-bold text-white hover:opacity-90 shadow-md shadow-indigo-500/10 transition-transform active:scale-95"
-          >
-            <Play className="h-3.5 w-3.5 fill-white" />
-            <span>Launch Backtester</span>
-          </Link>
-          <button
-            type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent("tradefull:gototab", { detail: "account" }))}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-white/5 border border-white/5 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 transition-transform active:scale-95"
-          >
-            <Settings className="h-3.5 w-3.5" />
-            <span>Settings</span>
-          </button>
-        </div>
       </div>
 
       {/* SECTION 1: KEY PERFORMANCE STRIP */}
