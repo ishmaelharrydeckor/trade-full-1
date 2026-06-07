@@ -36,62 +36,64 @@ export default function AnalyticsHorizontalBarChart({
           {emptyMessage}
         </div>
       ) : (
-        <div className="h-80 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={displayData}
-              layout="vertical"
-              margin={{ top: 8, right: 20, left: 10, bottom: 4 }}
-            >
-              <CartesianGrid
-                stroke="var(--app-border)"
-                strokeDasharray="3 3"
-                horizontal={false}
-              />
-              <XAxis
-                type="number"
-                stroke="var(--text-muted)"
-                tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
-                tickFormatter={(v) => fmtCompactNumber(v)}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                type="category"
-                dataKey="label"
-                stroke="var(--text-muted)"
-                tick={{ fontSize: 11, fill: 'var(--text-secondary)', fontWeight: "600" }}
-                tickLine={false}
-                axisLine={false}
-                width={70}
-              />
-              <Tooltip
-                cursor={{ fill: "rgba(255,255,255,0.03)" }}
-                contentStyle={{
-                  backgroundColor: 'var(--app-surface)',
-                  border: '1px solid var(--app-border)',
-                  borderRadius: 8,
-                  fontSize: 12,
-                  padding: '8px 12px',
-                }}
-                labelStyle={{ color: 'var(--text-secondary)', marginBottom: 4, fontWeight: "bold" }}
-                labelFormatter={(label, payload) => {
-                  const p = payload?.[0]?.payload as DimensionAggregate | undefined;
-                  if (!p) return label as string;
-                  return `${label} · ${p.trades} trade${p.trades !== 1 ? "s" : ""} · ${fmtPct(p.winRate, 0)} win`;
-                }}
-                formatter={(value: number) => [fmtSignedUsd(value), "Net P&L"]}
-              />
-              <Bar dataKey="netPnl" radius={6} maxBarSize={20}>
-                {displayData.map((d, idx) => (
-                  <Cell
-                    key={idx}
-                    fill={d.netPnl >= 0 ? '#10b981' : '#ef4444'}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="w-full overflow-x-auto">
+          <div className="h-80 min-w-[600px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={displayData}
+                layout="vertical"
+                margin={{ top: 8, right: 20, left: 10, bottom: 4 }}
+              >
+                <CartesianGrid
+                  stroke="var(--app-border)"
+                  strokeDasharray="3 3"
+                  horizontal={false}
+                />
+                <XAxis
+                  type="number"
+                  stroke="var(--text-muted)"
+                  tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
+                  tickFormatter={(v) => fmtCompactNumber(v)}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="label"
+                  stroke="var(--text-muted)"
+                  tick={{ fontSize: 11, fill: 'var(--text-secondary)', fontWeight: "600" }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={70}
+                />
+                <Tooltip
+                  cursor={{ fill: "rgba(255,255,255,0.03)" }}
+                  contentStyle={{
+                    backgroundColor: 'var(--app-surface)',
+                    border: '1px solid var(--app-border)',
+                    borderRadius: 8,
+                    fontSize: 12,
+                    padding: '8px 12px',
+                  }}
+                  labelStyle={{ color: 'var(--text-secondary)', marginBottom: 4, fontWeight: "bold" }}
+                  labelFormatter={(label, payload) => {
+                    const p = payload?.[0]?.payload as DimensionAggregate | undefined;
+                    if (!p) return label as string;
+                    return `${label} · ${p.trades} trade${p.trades !== 1 ? "s" : ""} · ${fmtPct(p.winRate, 0)} win`;
+                  }}
+                  formatter={(value: number) => [fmtSignedUsd(value), "Net P&L"]}
+                />
+                <Bar dataKey="netPnl" radius={6} maxBarSize={20}>
+                  {displayData.map((d, idx) => (
+                    <Cell
+                      key={idx}
+                      fill={d.netPnl >= 0 ? '#10b981' : '#ef4444'}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       )}
     </div>
