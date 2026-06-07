@@ -8,6 +8,7 @@ export const metadata: Metadata = {
     "Trade with discipline. Review with honesty. AI-powered trading journal for serious forex and MT5 traders.",
   icons: {
     icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
 };
 
