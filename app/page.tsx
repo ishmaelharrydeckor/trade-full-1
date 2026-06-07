@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import ProductGallery from "@/components/ui/ProductGallery";
+import BrowserScrollMockup from "@/components/ui/BrowserScrollMockup";
 
 export default async function LandingPage() {
   let user = null;
@@ -156,51 +157,19 @@ export default async function LandingPage() {
 
           {/* Side-by-side Dashboard & Calendar Screenshot View Mockup */}
           <div className="relative mt-16 md:mt-24">
-            <div className="group relative mx-auto max-w-5xl rounded-2xl border p-2 backdrop-blur-md transition-all duration-300 md:p-3"
-              style={{
-                borderColor: "var(--card-border)",
-                backgroundColor: "rgba(255, 255, 255, 0.01)",
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(79, 130, 246, 0.05)",
-              }}
-            >
-              {/* Browser bar */}
-              <div className="flex items-center justify-between border-b pb-2.5 px-3 mb-2 md:mb-3"
-                style={{ borderColor: "var(--card-border)" }}
-              >
-                <div className="flex gap-1.5">
-                  <span className="h-3 w-3 rounded-full bg-red-500/60" />
-                  <span className="h-3 w-3 rounded-full bg-yellow-500/60" />
-                  <span className="h-3 w-3 rounded-full bg-green-500/60" />
-                </div>
-                <div className="rounded bg-black/40 px-6 py-0.5 text-[10px] tracking-wide text-slate-500 font-mono">
-                  app.trade-journal.io/dashboard
-                </div>
-                <div className="w-10" />
-              </div>
-
-              {/* Side by side visual layout */}
-              <div className="grid grid-cols-1 overflow-hidden rounded-lg bg-black/40 lg:grid-cols-2">
-                <div className="relative aspect-[16/11] border-r border-white/5">
-                  <Image
-                    src="/images/dashboard-sync.png"
-                    alt="Trade Journal Sync Dashboard Overview"
-                    fill
-                    unoptimized
-                    priority
-                    className="object-cover object-top"
-                  />
-                </div>
-                <div className="relative aspect-[16/11]">
-                  <Image
-                    src="/images/dashboard-calendar.png"
-                    alt="Trade Journal Calendar View"
-                    fill
-                    unoptimized
-                    priority
-                    className="object-cover object-top"
-                  />
-                </div>
-              </div>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 max-w-5xl mx-auto">
+              <BrowserScrollMockup
+                src="/images/Screenshot_7-6-2026_101655_www.tradejernal.com.jpeg"
+                alt="Trade Journal Sync Dashboard Overview"
+                aspectRatio="aspect-[16/11]"
+                urlText="app.trade-journal.io/dashboard"
+              />
+              <BrowserScrollMockup
+                src="/images/Screenshot_7-6-2026_101814_www.tradejernal.com.jpeg"
+                alt="Trade Journal AI Insights Coach"
+                aspectRatio="aspect-[16/11]"
+                urlText="app.trade-journal.io/ai-coach"
+              />
             </div>
           </div>
         </div>
