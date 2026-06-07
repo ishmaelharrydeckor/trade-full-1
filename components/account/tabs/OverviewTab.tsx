@@ -3,7 +3,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
 import {
   ResponsiveContainer,
   AreaChart,
@@ -28,7 +28,6 @@ import {
   Flame,
   Award,
   Clock,
-  ChevronDown,
   AlertTriangle,
 } from "lucide-react";
 import type { Account, Trade, AccountTransaction, Playbook, TradePlaybookEntry } from "@/types/database";
@@ -57,28 +56,11 @@ export default function OverviewTab({
   playbooks: Playbook[];
   playbookEntries: TradePlaybookEntry[];
 }) {
-  const router = useRouter();
   const startingBalance = account.starting_balance ?? 0;
 
   // States
-  const [otherAccounts, setOtherAccounts] = useState<{ id: string; name: string }[]>([]);
-  const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const [chartMode, setChartMode] = useState<"equity" | "balance" | "drawdown-overlay">("equity");
-  const [timeFilter, setTimeFilter] = useState<"all" | "7d" | "30d" | "ytd">("all");
-
-  // Load other accounts for the switcher
-  useEffect(() => {
-    const supabase = createClient();
-    supabase
-      .from("accounts")
-      .select("id, name")
-      .eq("archived", false)
-      .then(({ data }) => {
-        if (data) {
-          setOtherAccounts(data.filter((a) => a.id !== account.id));
-        }
-      });
-  }, [account.id]);
+  const timeFilter = "all";
 
   // Compute time bounds
   const filterDateBound = useMemo(() => {
@@ -292,67 +274,6 @@ export default function OverviewTab({
     <div className="flex flex-col gap-6">
       <OpenPositionsPanel accountId={account.id} />
 
-      {/* TOP NAVIGATION BAR */}
-      <div className="flex flex-col gap-4 rounded-2xl border p-4 sm:flex-row sm:items-center sm:justify-between" 
-        style={{ backgroundColor: "var(--bg-panel)", borderColor: "var(--border-panel)" }}>
-        
-        {/* Account Selector */}
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowAccountDropdown(!showAccountDropdown)}
-              className="flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/10 border border-white/5"
-            >
-              <span>{account.name}</span>
-              <ChevronDown className="h-4 w-4 text-slate-400" />
-            </button>
-            
-            {showAccountDropdown && otherAccounts.length > 0 && (
-              <div className="absolute left-0 mt-2 z-50 w-56 rounded-xl border bg-black/90 p-1.5 shadow-2xl backdrop-blur-md"
-                style={{ borderColor: "var(--border-panel)" }}>
-                {otherAccounts.map((act) => (
-                  <button
-                    key={act.id}
-                    onClick={() => {
-                      setShowAccountDropdown(false);
-                      router.push(`/dashboard/accounts/${act.id}`);
-                    }}
-                    className="w-full text-left rounded-lg px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-indigo-600 hover:text-white transition"
-                  >
-                    {act.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Time Filters */}
-          <div className="flex items-center rounded-xl bg-black/40 p-1 border border-white/5">
-            {[
-              { id: "all", label: "All time" },
-              { id: "7d", label: "7D" },
-              { id: "30d", label: "30D" },
-              { id: "ytd", label: "YTD" },
-            ].map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => setTimeFilter(f.id as any)}
-                className={cn(
-                  "rounded-lg px-2.5 py-1 text-xs font-bold transition-all",
-                  timeFilter === f.id
-                    ? "bg-slate-800 text-white shadow-sm border border-slate-700"
-                    : "text-slate-400 hover:text-slate-200 border border-transparent"
-                )}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-      </div>
 
       {/* SECTION 1: KEY PERFORMANCE STRIP */}
       <section className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
