@@ -48,9 +48,14 @@ export default async function LandingPage() {
       <header className="sticky top-0 z-50 border-b backdrop-blur-md" style={{ borderColor: 'var(--border-panel)', backgroundColor: 'var(--nav-bg)' }}>
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4 md:px-12">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-emerald-500 text-sm font-extrabold text-white shadow-lg shadow-indigo-500/20">
-              T
-            </div>
+            <Image
+              src="/logo.png"
+              alt="TradeJernal Logo"
+              width={32}
+              height={32}
+              priority
+              className="object-contain"
+            />
             <span className="text-xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
               Trade<span className="text-emerald-500">·</span>Journal
             </span>

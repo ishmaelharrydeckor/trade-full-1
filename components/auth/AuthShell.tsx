@@ -1,5 +1,6 @@
 // components/auth/AuthShell.tsx
 import Link from "next/link";
+import Image from "next/image";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function AuthShell({
@@ -21,9 +22,14 @@ export default function AuthShell({
     <main className="ambient-bg flex min-h-screen flex-col">
       <header className="flex items-center justify-between px-6 py-6 md:px-12">
         <Link href="/" className="inline-flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-blue-500 to-indigo-600 text-xs font-bold text-white">
-            T
-          </div>
+          <Image
+            src="/logo.png"
+            alt="TradeJernal Logo"
+            width={24}
+            height={24}
+            priority
+            className="object-contain"
+          />
           <span className="text-xl font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>
             Trade<span style={{ color: 'var(--accent-blue)' }}>·</span>Journal
           </span>

@@ -1,5 +1,6 @@
 // components/dashboard/DashboardNav.tsx
 import Link from "next/link";
+import Image from "next/image";
 import { LogOut, LayoutGrid, Award, User } from "lucide-react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
@@ -22,16 +23,14 @@ export default function DashboardNav({
       <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-4 md:px-8">
         {/* Logo */}
         <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-extrabold shadow-lg"
-            style={{
-              background: 'linear-gradient(to bottom right, var(--accent), var(--accent-hover))',
-              color: '#fff',
-              boxShadow: '0 10px 15px -3px var(--accent-glow)',
-            }}
-          >
-            T
-          </div>
+          <Image
+            src="/logo.png"
+            alt="TradeJernal Logo"
+            width={28}
+            height={28}
+            priority
+            className="object-contain"
+          />
           <span
             className="text-lg font-extrabold tracking-tight"
             style={{ color: "var(--text-primary)" }}
