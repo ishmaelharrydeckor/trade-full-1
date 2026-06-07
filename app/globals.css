@@ -29,7 +29,6 @@
   --positive: #22C55E;
   --negative: #EF4444;
   --warning: #F59E0B;
-
   /* Legacy compat (used by existing inline styles) */
   --bg-app: #050816;
   --bg-panel: #0B1220;
@@ -58,47 +57,47 @@
    ============================================================ */
 [data-theme="light"] {
   /* Surfaces */
-  --app-bg: #f8fafc;
-  --app-surface: #ffffff;
-  --app-elevated: #f1f5f9;
-  --app-border: #e2e8f0;
-  --app-muted: #cbd5e1;
+  --app-bg: #F8FAFC;
+  --app-surface: #FFFFFF;
+  --app-elevated: #F1F5F9;
+  --app-border: #E2E8F0;
+  --app-muted: #CBD5E1;
 
   /* Text */
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --text-muted: #94A3B8;
 
   /* Accent */
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --accent-glow: rgba(37, 99, 235, 0.1);
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-glow: rgba(37, 99, 235, 0.08);
 
   /* Semantic */
-  --positive: #059669;
-  --negative: #dc2626;
-  --warning: #d97706;
+  --positive: #16A34A;
+  --negative: #DC2626;
+  --warning: #D97706;
 
   /* Legacy compat */
-  --bg-app: #f8fafc;
-  --bg-panel: #ffffff;
-  --bg-subtle: #f1f5f9;
-  --bg-hover: #e2e8f0;
-  --border-panel: #e2e8f0;
-  --accent-blue: #2563eb;
-  --accent-indigo: #4f46e5;
-  --accent-profit: #059669;
-  --accent-loss: #dc2626;
-  --accent-equity: #2563eb;
-  --accent-warm: #d97706;
-  --nav-bg: rgba(255, 255, 255, 0.88);
-  --card-bg: #ffffff;
-  --card-border: #e2e8f0;
-  --card-hover-border: rgba(37, 99, 235, 0.35);
-  --card-hover-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15), 0 4px 12px rgba(0, 0, 0, 0.06);
-  --input-bg: #ffffff;
-  --badge-bg: rgba(0, 0, 0, 0.04);
-  --scrollbar-thumb: #cbd5e1;
+  --bg-app: #F8FAFC;
+  --bg-panel: #FFFFFF;
+  --bg-subtle: #F1F5F9;
+  --bg-hover: #F1F5F9;
+  --border-panel: #E2E8F0;
+  --accent-blue: #2563EB;
+  --accent-indigo: #2563EB;
+  --accent-profit: #16A34A;
+  --accent-loss: #DC2626;
+  --accent-equity: #2563EB;
+  --accent-warm: #D97706;
+  --nav-bg: rgba(255, 255, 255, 0.95);
+  --card-bg: #FFFFFF;
+  --card-border: #E2E8F0;
+  --card-hover-border: rgba(37, 99, 235, 0.3);
+  --card-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  --input-bg: #FFFFFF;
+  --badge-bg: rgba(0, 0, 0, 0.03);
+  --scrollbar-thumb: #CBD5E1;
 }
 
 /* ============================================================
@@ -202,7 +201,7 @@
    (maps hardcoded dark-only Tailwind classes to light equivalents)
    ============================================================ */
 [data-theme="light"] .text-white,
-[data-theme="white"] .text-white { color: var(--text-primary); }
+[data-theme="white"] .text-white { color: var(--text-primary) !important; }
 [data-theme="light"] .text-slate-200,
 [data-theme="white"] .text-slate-200 { color: #1e293b; }
 [data-theme="light"] .text-slate-300,
@@ -242,27 +241,27 @@
 [data-theme="white"] .bg-white\/\[0\.02\],
 [data-theme="white"] .bg-white\/\[0\.01\],
 [data-theme="white"] .bg-white\/\[0\.05\] {
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: var(--app-elevated) !important;
 }
 [data-theme="light"] .bg-white\/10,
 [data-theme="light"] .hover\:bg-white\/10:hover,
 [data-theme="white"] .bg-white\/10,
 [data-theme="white"] .hover\:bg-white\/10:hover {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: rgba(0, 0, 0, 0.04) !important;
 }
 [data-theme="light"] .bg-white\/\[0\.04\],
 [data-theme="white"] .bg-white\/\[0\.04\] {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(0, 0, 0, 0.03) !important;
 }
 [data-theme="light"] .hover\:bg-white\/5:hover,
 [data-theme="white"] .hover\:bg-white\/5:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(0, 0, 0, 0.03) !important;
 }
 [data-theme="light"] .bg-black\/20,
 [data-theme="light"] .bg-black\/30,
 [data-theme="white"] .bg-black\/20,
 [data-theme="white"] .bg-black\/30 {
-  background-color: var(--app-elevated);
+  background-color: var(--app-elevated) !important;
 }
 [data-theme="light"] .border-white\/5,
 [data-theme="light"] .border-white\/10,
@@ -270,15 +269,15 @@
 [data-theme="white"] .border-white\/5,
 [data-theme="white"] .border-white\/10,
 [data-theme="white"] .border-white\/20 {
-  border-color: var(--app-border);
+  border-color: var(--app-border) !important;
 }
 [data-theme="light"] .divide-white\/5 > :not([hidden]) ~ :not([hidden]),
 [data-theme="white"] .divide-white\/5 > :not([hidden]) ~ :not([hidden]) {
-  border-color: var(--app-border);
+  border-color: var(--app-border) !important;
 }
 [data-theme="light"] .border-dashed.border-white\/10,
 [data-theme="white"] .border-dashed.border-white\/10 {
-  border-color: var(--app-muted);
+  border-color: var(--app-muted) !important;
 }
 
 /* ============================================================

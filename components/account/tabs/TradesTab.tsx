@@ -117,7 +117,118 @@ export default function TradesTab({
         </div>
       ) : (
         <div className="relative">
-          <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--app-border)' }}>
+          {/* Mobile Card Layout (Visible on mobile screens) */}
+          <div className="flex flex-col gap-3 md:hidden">
+            {filtered.map((t) => {
+              const net = tradeNetPnl(t);
+              const isWin = net > 0;
+              const isLong = t.direction === "long";
+              const entry = t.entry_price ? Number(t.entry_price) : 0;
+              const sl = t.stop_loss ? Number(t.stop_loss) : 0;
+              const tp = t.take_profit ? Number(t.take_profit) : 0;
+              let rrStr = "—";
+              if (entry && sl && tp) {
+                const risk = Math.abs(entry - sl);
+                const reward = Math.abs(tp - entry);
+                if (risk > 0) {
+                  rrStr = `1:${(reward / risk).toFixed(1)}`;
+                }
+              }
+
+              return (
+                <div
+                  key={t.id}
+                  className="rounded-xl border p-4 flex flex-col gap-3"
+                  style={{
+                    backgroundColor: "var(--app-surface)",
+                    borderColor: "var(--app-border)",
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-bold text-base text-[color:var(--text-primary)]">{t.symbol}</span>
+                      <span
+                        className={cn(
+                          "badge uppercase ml-2 text-[9px] font-extrabold",
+                          isLong ? "badge-buy" : "badge-sell"
+                        )}
+                      >
+                        {t.direction}
+                      </span>
+                    </div>
+                    <span
+                      className="font-mono text-sm font-bold"
+                      style={{
+                        color: isWin ? "var(--positive)" : net < 0 ? "var(--negative)" : "var(--text-muted)",
+                      }}
+                    >
+                      {fmtSignedUsd(net)}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs font-semibold text-[color:var(--text-secondary)]">
+                    <div>
+                      <span className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-wider block">Entry / Exit</span>
+                      <span>{fmtNumber(t.entry_price, 4)} → {fmtNumber(t.exit_price, 4)}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-wider block">Lots / R:R</span>
+                      <span>{Number(t.volume).toFixed(2)} Lots ({rrStr})</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-wider block">Closed</span>
+                      <span>{fmtDateTime(t.close_time)}</span>
+                    </div>
+                    {t.mindset && (
+                      <div>
+                        <span className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-wider block">Mindset</span>
+                        <span className="capitalize">{t.mindset}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between border-t pt-3" style={{ borderColor: "var(--app-border)" }}>
+                    <div className="flex flex-wrap gap-1">
+                      {t.tags && t.tags.slice(0, 3).map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase"
+                          style={{ background: "var(--app-elevated)", color: "var(--text-secondary)" }}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingTrade(t);
+                          setFormOpen(true);
+                        }}
+                        className="rounded bg-[color:var(--app-elevated)] p-2 transition text-slate-300 hover:text-white"
+                        title="Edit"
+                      >
+                        <Edit2 className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(t.id)}
+                        className="rounded bg-[color:var(--app-elevated)] p-2 transition text-red-400 hover:bg-red-500/10"
+                        title="Delete"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop Table View (Hidden on mobile screens) */}
+          <div className="hidden md:block overflow-x-auto rounded-xl" style={{ border: '1px solid var(--app-border)' }}>
             <table className="tj-table w-full min-w-[950px] text-sm">
               <thead>
                 <tr>
@@ -241,7 +352,6 @@ export default function TradesTab({
               </tbody>
             </table>
           </div>
-          <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-[color:var(--bg-panel)] to-transparent md:hidden" />
         </div>
       )}
 
