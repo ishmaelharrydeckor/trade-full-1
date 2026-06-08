@@ -516,135 +516,137 @@ export default function OverviewTab({
           </div>
         </div>
 
-        <div className="h-80 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={processedEquityCurve} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-              <defs>
-                <linearGradient id="eqGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#4F46E5" stopOpacity={0.4} />
-                  <stop offset="100%" stopColor="#4F46E5" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="ddOverlayGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#ef4444" stopOpacity={0.25} />
-                  <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              
-              <CartesianGrid stroke="#1f2937/40" strokeDasharray="3 3" vertical={false} />
-              
-              <XAxis
-                dataKey="time"
-                tickFormatter={(val) => {
-                  try {
-                    const d = new Date(val);
-                    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-                  } catch {
-                    return "";
-                  }
-                }}
-                stroke="rgba(255,255,255,0.03)"
-                tick={{ fontSize: 10, fill: "#64748b" }}
-                minTickGap={45}
-              />
-              
-              <YAxis
-                yAxisId="left"
-                stroke="rgba(255,255,255,0.03)"
-                tick={{ fontSize: 10, fill: "#64748b" }}
-                tickFormatter={(val) => fmtCompactNumber(val)}
-                domain={["auto", "auto"]}
-              />
-
-              {chartMode === "drawdown-overlay" && (
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
+        <div className="w-full overflow-x-auto scrollbar-thin">
+          <div className="h-80 min-w-[600px] sm:min-w-0 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={processedEquityCurve} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="eqGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#4F46E5" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="#4F46E5" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="ddOverlayGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ef4444" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                
+                <CartesianGrid stroke="#1f2937/40" strokeDasharray="3 3" vertical={false} />
+                
+                <XAxis
+                  dataKey="time"
+                  tickFormatter={(val) => {
+                    try {
+                      const d = new Date(val);
+                      return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                    } catch {
+                      return "";
+                    }
+                  }}
                   stroke="rgba(255,255,255,0.03)"
                   tick={{ fontSize: 10, fill: "#64748b" }}
-                  tickFormatter={(val) => `${val}%`}
-                  domain={["dataMin", 0]}
+                  minTickGap={45}
                 />
-              )}
-
-              {periodStartingBalance > 0 && (
-                <ReferenceLine
+                
+                <YAxis
                   yAxisId="left"
-                  y={periodStartingBalance}
-                  stroke="#475569"
-                  strokeDasharray="4 4"
+                  stroke="rgba(255,255,255,0.03)"
+                  tick={{ fontSize: 10, fill: "#64748b" }}
+                  tickFormatter={(val) => fmtCompactNumber(val)}
+                  domain={["auto", "auto"]}
                 />
-              )}
 
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "rgba(8, 11, 17, 0.95)",
-                  borderColor: "rgba(255,255,255,0.08)",
-                  borderRadius: "12px",
-                  fontSize: "12px",
-                  backdropFilter: "blur(6px)",
-                  boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
-                }}
-                labelStyle={{ color: "#94a3b8", fontWeight: "bold", marginBottom: 6 }}
-                labelFormatter={(label) => fmtDateTime(label as string)}
-                content={({ active, payload, label }) => {
-                  if (!active || !payload || !payload.length) return null;
-                  
-                  const pPoint = payload[0].payload;
-                  const isTrade = pPoint.type === "trade";
-                  const symbolLabel = pPoint.label;
-                  const value = pPoint.equity;
-                  const delta = pPoint.delta;
+                {chartMode === "drawdown-overlay" && (
+                  <YAxis
+                    yAxisId="right"
+                    orientation="right"
+                    stroke="rgba(255,255,255,0.03)"
+                    tick={{ fontSize: 10, fill: "#64748b" }}
+                    tickFormatter={(val) => `${val}%`}
+                    domain={["dataMin", 0]}
+                  />
+                )}
 
-                  return (
-                    <div className="flex flex-col gap-1.5 p-1 text-xs">
-                      <span className="font-bold text-slate-400">{fmtDateTime(label as string)}</span>
-                      <div className="flex items-center justify-between gap-6">
-                        <span className="text-slate-500 font-semibold uppercase tracking-wider text-[10px]">Equity</span>
-                        <span className="font-mono text-white font-bold">{fmtSignedUsd(value)}</span>
-                      </div>
-                      {delta !== 0 && (
+                {periodStartingBalance > 0 && (
+                  <ReferenceLine
+                    yAxisId="left"
+                    y={periodStartingBalance}
+                    stroke="#475569"
+                    strokeDasharray="4 4"
+                  />
+                )}
+
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "rgba(8, 11, 17, 0.95)",
+                    borderColor: "rgba(255,255,255,0.08)",
+                    borderRadius: "12px",
+                    fontSize: "12px",
+                    backdropFilter: "blur(6px)",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+                  }}
+                  labelStyle={{ color: "#94a3b8", fontWeight: "bold", marginBottom: 6 }}
+                  labelFormatter={(label) => fmtDateTime(label as string)}
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload || !payload.length) return null;
+                    
+                    const pPoint = payload[0].payload;
+                    const isTrade = pPoint.type === "trade";
+                    const symbolLabel = pPoint.label;
+                    const value = pPoint.equity;
+                    const delta = pPoint.delta;
+
+                    return (
+                      <div className="flex flex-col gap-1.5 p-1 text-xs">
+                        <span className="font-bold text-slate-400">{fmtDateTime(label as string)}</span>
                         <div className="flex items-center justify-between gap-6">
-                          <span className="text-slate-500 font-semibold uppercase tracking-wider text-[10px]">Delta</span>
-                          <span className={cn("font-mono font-bold", delta >= 0 ? "text-emerald-400" : "text-red-400")}>
-                            {delta >= 0 ? "+" : ""}{fmtSignedUsd(delta)}
-                          </span>
+                          <span className="text-slate-500 font-semibold uppercase tracking-wider text-[10px]">Equity</span>
+                          <span className="font-mono text-white font-bold">{fmtSignedUsd(value)}</span>
                         </div>
-                      )}
-                      {isTrade && symbolLabel && (
-                        <div className="flex items-center justify-between gap-6 border-t border-white/5 pt-1.5 mt-0.5">
-                          <span className="text-indigo-400 font-bold uppercase tracking-wider text-[10px]">Symbol</span>
-                          <span className="font-mono font-black text-white text-[11px]">{symbolLabel}</span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                }}
-              />
-
-              {chartMode === "drawdown-overlay" && (
-                <Area
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="drawdown"
-                  stroke="#ef4444"
-                  strokeWidth={1}
-                  strokeDasharray="3 3"
-                  fill="url(#ddOverlayGrad)"
-                  name="drawdown"
+                        {delta !== 0 && (
+                          <div className="flex items-center justify-between gap-6">
+                            <span className="text-slate-500 font-semibold uppercase tracking-wider text-[10px]">Delta</span>
+                            <span className={cn("font-mono font-bold", delta >= 0 ? "text-emerald-400" : "text-red-400")}>
+                              {delta >= 0 ? "+" : ""}{fmtSignedUsd(delta)}
+                            </span>
+                          </div>
+                        )}
+                        {isTrade && symbolLabel && (
+                          <div className="flex items-center justify-between gap-6 border-t border-white/5 pt-1.5 mt-0.5">
+                            <span className="text-indigo-400 font-bold uppercase tracking-wider text-[10px]">Symbol</span>
+                            <span className="font-mono font-black text-white text-[11px]">{symbolLabel}</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }}
                 />
-              )}
 
-              <Area
-                yAxisId="left"
-                type="monotone"
-                dataKey="balance"
-                stroke="#6366f1"
-                strokeWidth={2.5}
-                fill="url(#eqGrad)"
-                name="equity"
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+                {chartMode === "drawdown-overlay" && (
+                  <Area
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="drawdown"
+                    stroke="#ef4444"
+                    strokeWidth={1}
+                    strokeDasharray="3 3"
+                    fill="url(#ddOverlayGrad)"
+                    name="drawdown"
+                  />
+                )}
+
+                <Area
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="balance"
+                  stroke="#6366f1"
+                  strokeWidth={2.5}
+                  fill="url(#eqGrad)"
+                  name="equity"
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </section>
 
@@ -665,55 +667,57 @@ export default function OverviewTab({
           </div>
         </div>
 
-        <div className="h-44 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={drawdownChartData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
-              <defs>
-                <linearGradient id="ddGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#ef4444" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937/40" vertical={false} />
-              <XAxis
-                dataKey="time"
-                tickFormatter={(val) => {
-                  const d = new Date(val);
-                  return `${d.getMonth() + 1}/${d.getDate()}`;
-                }}
-                stroke="rgba(255,255,255,0.03)"
-                tick={{ fontSize: 10, fill: "#64748b" }}
-                minTickGap={40}
-              />
-              <YAxis
-                stroke="rgba(255,255,255,0.03)"
-                tick={{ fontSize: 10, fill: "#64748b" }}
-                tickFormatter={(val) => `${val}%`}
-                domain={["dataMin", 0]}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "rgba(8, 11, 17, 0.95)",
-                  borderColor: "rgba(255,255,255,0.08)",
-                  borderRadius: "12px",
-                  fontSize: "12px",
-                  backdropFilter: "blur(6px)",
-                }}
-                formatter={(value: number) => [`${value}%`, "Drawdown"]}
-                labelFormatter={(label) => fmtDateTime(label as string)}
-              />
-              <ReferenceLine y={-5} stroke="#f59e0b" strokeDasharray="3 3" strokeOpacity={0.35} />
-              <ReferenceLine y={-10} stroke="#ef4444" strokeDasharray="3 3" strokeOpacity={0.35} />
-              <Area
-                type="monotone"
-                dataKey="drawdown"
-                stroke="#ef4444"
-                strokeWidth={1.5}
-                fill="url(#ddGrad)"
-                dot={false}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+        <div className="w-full overflow-x-auto scrollbar-thin">
+          <div className="h-44 min-w-[600px] sm:min-w-0 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={drawdownChartData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="ddGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ef4444" stopOpacity={0.35} />
+                    <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937/40" vertical={false} />
+                <XAxis
+                  dataKey="time"
+                  tickFormatter={(val) => {
+                    const d = new Date(val);
+                    return `${d.getMonth() + 1}/${d.getDate()}`;
+                  }}
+                  stroke="rgba(255,255,255,0.03)"
+                  tick={{ fontSize: 10, fill: "#64748b" }}
+                  minTickGap={40}
+                />
+                <YAxis
+                  stroke="rgba(255,255,255,0.03)"
+                  tick={{ fontSize: 10, fill: "#64748b" }}
+                  tickFormatter={(val) => `${val}%`}
+                  domain={["dataMin", 0]}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "rgba(8, 11, 17, 0.95)",
+                    borderColor: "rgba(255,255,255,0.08)",
+                    borderRadius: "12px",
+                    fontSize: "12px",
+                    backdropFilter: "blur(6px)",
+                  }}
+                  formatter={(value: number) => [`${value}%`, "Drawdown"]}
+                  labelFormatter={(label) => fmtDateTime(label as string)}
+                />
+                <ReferenceLine y={-5} stroke="#f59e0b" strokeDasharray="3 3" strokeOpacity={0.35} />
+                <ReferenceLine y={-10} stroke="#ef4444" strokeDasharray="3 3" strokeOpacity={0.35} />
+                <Area
+                  type="monotone"
+                  dataKey="drawdown"
+                  stroke="#ef4444"
+                  strokeWidth={1.5}
+                  fill="url(#ddGrad)"
+                  dot={false}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         {/* Psychological framing banner */}
