@@ -199,7 +199,7 @@
 /* ============================================================
    MOBILE HEADER SOLID BACKGROUND OVERRIDE
    ============================================================ */
-@media (max-width: 640px) {
+@media (max-width: 1024px) {
   :root,
   [data-theme="light"],
   [data-theme="black"],

@@ -46,7 +46,7 @@ export default async function LandingPage() {
   return (
     <main className="ambient-bg min-h-screen font-sans selection:bg-indigo-500/30 selection:text-white">
       {/* Top Navigation */}
-      <header className="sticky top-0 z-50 border-b backdrop-blur-md" style={{ borderColor: 'var(--border-panel)', backgroundColor: 'var(--nav-bg)' }}>
+      <header className="sticky top-0 z-50 border-b backdrop-blur-md" style={{ borderColor: 'var(--border-panel)', backgroundColor: 'var(--nav-bg)', WebkitBackdropFilter: 'blur(12px)' }}>
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3 md:px-12">
           <div className="flex items-center gap-2 shrink-0">
             <div className="relative h-7 w-7 sm:h-8 sm:w-8">

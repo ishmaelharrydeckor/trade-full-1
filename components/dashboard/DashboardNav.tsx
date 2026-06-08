@@ -25,6 +25,7 @@ export default function DashboardNav({
         borderBottom: "1px solid var(--border-panel)",
         backgroundColor: "var(--nav-bg)",
         height: "72px",
+        WebkitBackdropFilter: "blur(8px)",
       }}
     >
       <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-4 md:px-8">
