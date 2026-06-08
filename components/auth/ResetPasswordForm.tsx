@@ -1,7 +1,4 @@
-// components/auth/ResetPasswordForm.tsx
-"use client";
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -22,13 +19,17 @@ export default function ResetPasswordForm() {
     "checking"
   );
 
+  // Tracks whether the password reset was completed successfully.
+  // Used by the cleanup effect below to decide whether to sign the user out.
+  const doneRef = useRef(false);
+
   // The user arrives here via the email link.
   // We first check if a 'code' query parameter is present in the URL.
   // If so, we perform the code exchange client-side to prevent email scanning bots (which do not run JS)
   // from consuming the code.
   useEffect(() => {
     const supabase = createClient();
-    
+
     if (code) {
       supabase.auth.exchangeCodeForSession(code)
         .then(({ error }) => {
@@ -53,6 +54,19 @@ export default function ResetPasswordForm() {
       });
     }
   }, [code]);
+
+  // Security: if the user navigates away without completing the password reset,
+  // sign them out. Otherwise the recovery session can be used to bypass the
+  // password requirement on subsequent visits.
+  useEffect(() => {
+    return () => {
+      if (!doneRef.current) {
+        const supabase = createClient();
+        supabase.auth.signOut().catch(() => {});
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -80,6 +94,7 @@ export default function ResetPasswordForm() {
     }
 
     setDone(true);
+    doneRef.current = true;
     setSubmitting(false);
 
     // Redirect to dashboard after a moment so they see the success state
@@ -93,7 +108,7 @@ export default function ResetPasswordForm() {
     return (
       <div className="flex flex-col items-center text-center">
         <Loader2 className="mb-3 h-6 w-6 animate-spin text-slate-400" />
-        <p className="text-sm text-slate-400">Verifying reset link…</p>
+        <p className="text-sm text-slate-400">Verifying reset link...</p>
       </div>
     );
   }
@@ -124,7 +139,7 @@ export default function ResetPasswordForm() {
         <h3 className="font-serif text-2xl">Password updated</h3>
         <p className="mt-2 text-sm text-slate-400">
           Your password has been changed successfully. Redirecting you to your
-          dashboard…
+          dashboard...
         </p>
       </div>
     );
@@ -175,7 +190,7 @@ export default function ResetPasswordForm() {
       >
         {submitting ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" /> Updating…
+            <Loader2 className="h-4 w-4 animate-spin" /> Updating...
           </>
         ) : (
           "Update password"
