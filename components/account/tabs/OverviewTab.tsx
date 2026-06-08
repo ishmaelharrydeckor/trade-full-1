@@ -518,7 +518,7 @@ export default function OverviewTab({
 
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={processedEquityCurve} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <ComposedChart data={processedEquityCurve} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="eqGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#4F46E5" stopOpacity={0.4} />
@@ -667,7 +667,7 @@ export default function OverviewTab({
 
         <div className="h-44 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={drawdownChartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+            <AreaChart data={drawdownChartData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="ddGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#ef4444" stopOpacity={0.35} />

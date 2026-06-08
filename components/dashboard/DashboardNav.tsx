@@ -147,18 +147,33 @@ export default function DashboardNav({
       {/* Mobile Drawer Overlay */}
       {isDrawerOpen && (
         <div
-          className="fixed inset-x-0 top-[72px] bottom-0 z-40 bg-black/60 backdrop-blur-sm sm:hidden flex justify-end"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm sm:hidden flex justify-end"
           onClick={toggleDrawer}
         >
           <div
-            className="w-64 h-full flex flex-col p-6 border-l animate-in slide-in-from-right duration-200"
+            className="w-80 max-w-[85vw] h-full flex flex-col p-6 border-l animate-in slide-in-from-right duration-200 shadow-2xl"
             style={{
-              backgroundColor: "var(--bg-panel)",
+              backgroundColor: "var(--app-surface)",
               borderColor: "var(--border-panel)",
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex flex-col gap-4 flex-1">
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between mb-6 pb-4 border-b" style={{ borderColor: "var(--border-panel)" }}>
+              <span className="font-extrabold text-sm uppercase tracking-wider text-[color:var(--text-muted)]">
+                Menu
+              </span>
+              <button
+                type="button"
+                onClick={toggleDrawer}
+                className="rounded-lg p-1.5 hover:bg-white/5 transition-colors"
+                style={{ color: "var(--text-primary)", minHeight: "40px", minWidth: "40px" }}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-4 flex-1 overflow-y-auto">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">
                 Navigation
               </span>
