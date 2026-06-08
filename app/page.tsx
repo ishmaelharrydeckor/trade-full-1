@@ -526,35 +526,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* Landing Page Feedback Section */}
-      <section className="py-16 md:py-24 flex justify-center px-4" style={{ backgroundColor: 'rgba(0,0,0,0.1)' }}>
-        <div 
-          className="w-full max-w-[900px] md:w-[90%] rounded-[16px] border p-8 md:p-12 text-center transition-all duration-300 hover:border-blue-500/20"
-          style={{
-            backgroundColor: "#111827",
-            borderColor: "rgba(59, 130, 246, 0.15)"
-          }}
-        >
-          <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-            Already Testing TradeJournal?
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm md:text-base leading-relaxed text-slate-300">
-            Your feedback directly shapes the future of TradeJournal. We're actively improving the platform based on insights from traders like you.
-          </p>
-          <div className="mt-8">
-            <a
-              href="https://www.tradejernal.com/beta-feedback"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-700 hover:scale-[1.02]"
-              style={{ minHeight: "48px", minWidth: "160px" }}
-            >
-              Share Feedback <ArrowRight className="h-4 w-4" />
-            </a>
-          </div>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer 
         className="px-6 py-12 border-t text-xs md:px-12" 
@@ -631,6 +602,32 @@ export default async function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Landing Page Feedback Section - Post-Footer (FAQ -> Footer -> Tiny Feedback Link) */}
+      <section className="py-8 flex justify-center px-4 border-t" style={{ backgroundColor: 'rgba(0,0,0,0.15)', borderColor: 'var(--card-border)' }}>
+        <div 
+          className="w-full max-w-[900px] md:w-[90%] rounded-[16px] border p-4 md:p-6 text-center transition-all duration-300 hover:border-blue-500/20"
+          style={{
+            backgroundColor: "#111827",
+            borderColor: "rgba(59, 130, 246, 0.15)"
+          }}
+        >
+          <div className="flex flex-col items-center gap-3">
+            <h2 className="text-sm font-semibold text-white tracking-tight">
+              Already using TradeJournal?
+            </h2>
+            <a
+              href="https://www.tradejernal.com/beta-feedback"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-2 text-xs font-bold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-700 hover:scale-[1.02]"
+              style={{ minHeight: "48px" }}
+            >
+              Share feedback &rarr;
+            </a>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
