@@ -197,6 +197,19 @@
 }
 
 /* ============================================================
+   MOBILE HEADER SOLID BACKGROUND OVERRIDE
+   ============================================================ */
+@media (max-width: 640px) {
+  :root,
+  [data-theme="light"],
+  [data-theme="black"],
+  [data-theme="white"] {
+    --nav-bg: var(--app-bg);
+  }
+}
+
+
+/* ============================================================
    LIGHT THEME — Tailwind class overrides
    (maps hardcoded dark-only Tailwind classes to light equivalents)
    ============================================================ */
