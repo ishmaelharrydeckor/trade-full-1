@@ -1,11 +1,30 @@
 // components/dashboard/DashboardNav.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, LayoutGrid, Award, User, Menu, X, MessageSquare } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { 
+  LogOut, 
+  LayoutGrid, 
+  Award, 
+  User, 
+  Menu, 
+  X, 
+  MessageSquare,
+  Sparkles, 
+  ListChecks, 
+  LineChart, 
+  Calendar, 
+  Wallet, 
+  BookOpen, 
+  BookText, 
+  Target, 
+  Calculator 
+} from "lucide-react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import { cn } from "@/lib/utils";
 
 export default function DashboardNav({
   displayName,
@@ -15,8 +34,30 @@ export default function DashboardNav({
   email: string;
 }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const pathname = usePathname();
+  const [activeTab, setActiveTab] = useState<string>("overview");
 
   const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as string;
+      if (detail) setActiveTab(detail);
+    };
+    window.addEventListener("tradefull:gototab", handler);
+    return () => window.removeEventListener("tradefull:gototab", handler);
+  }, []);
+
+  const handleTabSelect = (tabId: string) => {
+    window.dispatchEvent(new CustomEvent("tradefull:gototab", { detail: tabId }));
+    toggleDrawer();
+  };
+
+  const isAccountPage = pathname.startsWith("/dashboard/accounts/") && 
+    !pathname.endsWith("/new") && 
+    !pathname.split("/").includes("settings") && 
+    !pathname.split("/").includes("backtest") && 
+    pathname.split("/").length === 4;
 
   return (
     <header
@@ -174,6 +215,47 @@ export default function DashboardNav({
             </div>
 
             <div className="flex flex-col gap-4 flex-1 overflow-y-auto">
+              {isAccountPage && (
+                <>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">
+                    Account Menu
+                  </span>
+                  <div className="flex flex-col gap-1">
+                    {[
+                      { id: "overview", label: "Overview", icon: LayoutGrid },
+                      { id: "trades", label: "Trades", icon: ListChecks },
+                      { id: "analytics", label: "Analytics", icon: LineChart },
+                      { id: "insights", label: "AI Coach", icon: Sparkles },
+                      { id: "notebook", label: "Journal", icon: BookText },
+                      { id: "progress", label: "Discipline", icon: Target },
+                      { id: "playbook", label: "Playbook", icon: BookOpen },
+                      { id: "calendar", label: "Calendar", icon: Calendar },
+                      { id: "calculator", label: "Risk Calculator", icon: Calculator },
+                      { id: "account", label: "Account Settings", icon: Wallet },
+                    ].map((tab) => {
+                      const isActive = activeTab === tab.id;
+                      const Icon = tab.icon;
+                      return (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => handleTabSelect(tab.id as any)}
+                          className={cn(
+                            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition-all w-full text-left justify-start hover:bg-white/5",
+                            isActive ? "text-white font-bold" : "text-[color:var(--text-primary)]"
+                          )}
+                          style={isActive ? { backgroundColor: "var(--accent)" } : undefined}
+                        >
+                          <Icon className="h-4 w-4 shrink-0" />
+                          <span>{tab.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <hr className="border-t my-2" style={{ borderColor: "var(--border-panel)" }} />
+                </>
+              )}
+
               <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">
                 Navigation
               </span>
