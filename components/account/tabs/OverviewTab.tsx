@@ -276,7 +276,7 @@ export default function OverviewTab({
 
 
       {/* SECTION 1: KEY PERFORMANCE STRIP */}
-      <section className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+      <section className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
         <style>{`
           @keyframes kpiFade {
             0% { transform: scale(0.97); opacity: 0.8; }
@@ -290,7 +290,7 @@ export default function OverviewTab({
         {/* Net P&L Card */}
         <div 
           key={`${timeFilter}-pnl`}
-          className="kpi-animate group rounded-2xl border p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
+          className="kpi-animate group rounded-2xl border p-4 sm:p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
           style={{ borderColor: "var(--border-panel)" }}
         >
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -298,7 +298,7 @@ export default function OverviewTab({
             <span>Net P&L</span>
           </div>
           <div className={cn(
-            "mt-3.5 text-2xl font-black tracking-tight font-mono",
+            "mt-3 text-xl sm:text-2xl font-black tracking-tight font-mono",
             kpis.netPnl >= 0 ? "text-emerald-400" : "text-red-400"
           )}>
             {fmtSignedUsd(kpis.netPnl)}
@@ -311,14 +311,14 @@ export default function OverviewTab({
         {/* Win Rate Card */}
         <div 
           key={`${timeFilter}-winrate`}
-          className="kpi-animate group rounded-2xl border p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
+          className="kpi-animate group rounded-2xl border p-4 sm:p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
           style={{ borderColor: "var(--border-panel)" }}
         >
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
             <Target className="h-3.5 w-3.5 text-emerald-400" />
             <span>Win rate</span>
           </div>
-          <div className="mt-3.5 text-2xl font-black tracking-tight text-white font-mono">
+          <div className="mt-3 text-xl sm:text-2xl font-black tracking-tight text-white font-mono">
             {fmtPct(kpis.winRate, 1)}
           </div>
           <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-emerald-400/90">
@@ -329,14 +329,14 @@ export default function OverviewTab({
         {/* Profit Factor Card */}
         <div 
           key={`${timeFilter}-pf`}
-          className="kpi-animate group rounded-2xl border p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
+          className="kpi-animate group rounded-2xl border p-4 sm:p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
           style={{ borderColor: "var(--border-panel)" }}
         >
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
             <TrendingUp className="h-3.5 w-3.5 text-blue-400" />
             <span>Profit factor</span>
           </div>
-          <div className="mt-3.5 text-2xl font-black tracking-tight text-white font-mono">
+          <div className="mt-3 text-xl sm:text-2xl font-black tracking-tight text-white font-mono">
             {kpis.profitFactor === Infinity ? "∞" : fmtNumber(kpis.profitFactor, 2)}
           </div>
           <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
@@ -347,14 +347,14 @@ export default function OverviewTab({
         {/* Total Trades Card */}
         <div 
           key={`${timeFilter}-trades`}
-          className="kpi-animate group rounded-2xl border p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
+          className="kpi-animate group rounded-2xl border p-4 sm:p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
           style={{ borderColor: "var(--border-panel)" }}
         >
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
             <Activity className="h-3.5 w-3.5 text-orange-400" />
             <span>Total trades</span>
           </div>
-          <div className="mt-3.5 text-2xl font-black tracking-tight text-white font-mono">
+          <div className="mt-3 text-xl sm:text-2xl font-black tracking-tight text-white font-mono">
             {kpis.trades}
           </div>
           <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
@@ -365,14 +365,14 @@ export default function OverviewTab({
         {/* Streaks Card */}
         <div 
           key={`${timeFilter}-streaks`}
-          className="kpi-animate group rounded-2xl border p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
+          className="kpi-animate group rounded-2xl border p-4 sm:p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
           style={{ borderColor: "var(--border-panel)" }}
         >
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
             <Trophy className="h-3.5 w-3.5 text-amber-500" />
             <span>Streak Matrix</span>
           </div>
-          <div className="mt-3.5 text-xl font-black tracking-tight text-white font-mono">
+          <div className="mt-3 text-lg sm:text-xl font-black tracking-tight text-white font-mono">
             {kpis.bestStreak} W / <span className="text-red-400">{kpis.worstStreak} L</span>
           </div>
           <div className="mt-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500">

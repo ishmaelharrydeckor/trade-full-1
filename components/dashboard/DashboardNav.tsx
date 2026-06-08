@@ -50,7 +50,7 @@ export default function DashboardNav({
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden sm:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-1">
           <Link
             href="/dashboard"
             className="nav-item inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm"
@@ -80,20 +80,20 @@ export default function DashboardNav({
           </Link>
 
           <div
-            className="mx-2 hidden md:block h-5 w-px"
+            className="mx-2 hidden lg:block h-5 w-px"
             style={{ backgroundColor: "var(--border-panel)" }}
           />
 
           <ThemeToggle className="inline-flex" />
 
           <div
-            className="mx-2 hidden md:block h-5 w-px"
+            className="mx-2 hidden lg:block h-5 w-px"
             style={{ backgroundColor: "var(--border-panel)" }}
           />
 
           <Link
             href="/dashboard/profile"
-            className="ml-1 hidden text-right md:block hover:opacity-80 transition duration-150"
+            className="ml-1 hidden text-right lg:block hover:opacity-80 transition duration-150"
             title="Edit Profile"
           >
             <div
@@ -124,7 +124,7 @@ export default function DashboardNav({
         </nav>
 
         {/* Mobile Controls (Hamburger & Theme Toggle) */}
-        <div className="flex sm:hidden items-center gap-2">
+        <div className="flex lg:hidden items-center gap-2">
           <ThemeToggle className="inline-flex" />
           <button
             type="button"
@@ -147,7 +147,7 @@ export default function DashboardNav({
       {/* Mobile Drawer Overlay */}
       {isDrawerOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm sm:hidden flex justify-end"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:hidden flex justify-end"
           onClick={toggleDrawer}
         >
           <div
