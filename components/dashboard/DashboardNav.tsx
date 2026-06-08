@@ -22,7 +22,7 @@ export default function DashboardNav({
     <header
       className="sticky top-0 z-50 backdrop-blur"
       style={{
-        borderBottom: "1px solid var(--app-border)",
+        borderBottom: "1px solid var(--border-panel)",
         backgroundColor: "var(--nav-bg)",
         height: "72px",
       }}
@@ -32,7 +32,7 @@ export default function DashboardNav({
         <Link href="/dashboard" className="flex items-center gap-2.5">
           <Image
             src="/logo.png"
-            alt="TradeJernal Logo"
+            alt="Trade·Journal Logo"
             width={28}
             height={28}
             priority
@@ -80,14 +80,14 @@ export default function DashboardNav({
 
           <div
             className="mx-2 hidden md:block h-5 w-px"
-            style={{ backgroundColor: "var(--app-border)" }}
+            style={{ backgroundColor: "var(--border-panel)" }}
           />
 
           <ThemeToggle className="inline-flex" />
 
           <div
             className="mx-2 hidden md:block h-5 w-px"
-            style={{ backgroundColor: "var(--app-border)" }}
+            style={{ backgroundColor: "var(--border-panel)" }}
           />
 
           <Link
@@ -135,7 +135,7 @@ export default function DashboardNav({
               minWidth: "44px",
               color: "var(--text-primary)",
               backgroundColor: "rgba(255,255,255,0.02)",
-              border: "1px solid var(--app-border)",
+              border: "1px solid var(--border-panel)",
             }}
           >
             {isDrawerOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -152,8 +152,8 @@ export default function DashboardNav({
           <div
             className="w-64 h-full flex flex-col p-6 border-l animate-in slide-in-from-right duration-200"
             style={{
-              backgroundColor: "var(--app-surface)",
-              borderColor: "var(--app-border)",
+              backgroundColor: "var(--bg-panel)",
+              borderColor: "var(--border-panel)",
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -198,7 +198,7 @@ export default function DashboardNav({
                 Profile
               </Link>
 
-              <hr className="border-t my-2" style={{ borderColor: "var(--app-border)" }} />
+              <hr className="border-t my-2" style={{ borderColor: "var(--border-panel)" }} />
 
               <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">
                 Feedback
@@ -216,7 +216,7 @@ export default function DashboardNav({
               </a>
             </div>
 
-            <div className="mt-auto border-t pt-4" style={{ borderColor: "var(--app-border)" }}>
+            <div className="mt-auto border-t pt-4" style={{ borderColor: "var(--border-panel)" }}>
               <div className="px-3 mb-4">
                 <p className="text-xs font-bold truncate" style={{ color: "var(--text-primary)" }}>
                   {displayName}
