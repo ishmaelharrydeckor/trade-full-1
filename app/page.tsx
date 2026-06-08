@@ -551,7 +551,7 @@ export default async function LandingPage() {
             <p className="text-xs text-[color:var(--text-secondary)]">
               Build self-awareness. Master your mind. Excel at trade execution.
             </p>
-            <p className="text-[10px]">&copy; {new Date().getFullYear()} Trade-Journal. All rights reserved. Built in Ghana 🇬🇭</p>
+            <p className="text-[10px]">&copy; {new Date().getFullYear()} Trade·Journal. All rights reserved. Built in Ghana 🇬🇭</p>
           </div>
 
           {/* Resources & Links */}
@@ -560,31 +560,31 @@ export default async function LandingPage() {
               <h3 className="text-xs font-bold uppercase tracking-wider text-white">Resources</h3>
               <ul className="space-y-1">
                 <li>
-                  <a 
-                    href="#" 
-                    className="inline-flex items-center hover:text-white transition-colors duration-150 py-2"
-                    style={{ minHeight: "44px" }}
-                  >
-                    Documentation
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#" 
-                    className="inline-flex items-center hover:text-white transition-colors duration-150 py-2"
-                    style={{ minHeight: "44px" }}
-                  >
-                    Contact
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#" 
+                  <Link 
+                    href="/privacy-policy" 
                     className="inline-flex items-center hover:text-white transition-colors duration-150 py-2"
                     style={{ minHeight: "44px" }}
                   >
                     Privacy Policy
-                  </a>
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    href="/terms" 
+                    className="inline-flex items-center hover:text-white transition-colors duration-150 py-2"
+                    style={{ minHeight: "44px" }}
+                  >
+                    Terms of Use
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    href="/contact" 
+                    className="inline-flex items-center hover:text-white transition-colors duration-150 py-2"
+                    style={{ minHeight: "44px" }}
+                  >
+                    Contact
+                  </Link>
                 </li>
                 <li>
                   <a 
@@ -614,7 +614,7 @@ export default async function LandingPage() {
         >
           <div className="flex flex-col items-center gap-3">
             <h2 className="text-sm font-semibold text-white tracking-tight">
-              Already using TradeJournal?
+              Already using Trade·Journal?
             </h2>
             <a
               href="https://www.tradejernal.com/beta-feedback"

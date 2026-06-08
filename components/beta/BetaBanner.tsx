@@ -48,7 +48,7 @@ export default function BetaBanner() {
       {/* Desktop Banner Layout (768px and up) */}
       <div className="hidden md:flex w-full flex-row items-center justify-center gap-3 py-3 px-12 min-h-[52px]">
         <span className="text-sm font-semibold tracking-wide" style={{ color: "#F8FAFC" }}>
-          🚀 TradeJournal is currently in beta. Your feedback helps shape what we build next.
+          🚀 Trade·Journal is currently in beta. Your feedback helps shape what we build next.
         </span>
         <a
           href="https://www.tradejernal.com/beta-feedback"
@@ -79,7 +79,7 @@ export default function BetaBanner() {
       {/* Mobile Banner Layout (Below 768px) */}
       <div className="flex md:hidden w-full flex-row items-center justify-between gap-2 px-3 h-11 text-[12px] font-semibold overflow-hidden">
         <span className="truncate text-white" style={{ color: "#F8FAFC" }}>
-          🚀 Help shape TradeJournal
+          🚀 Help shape Trade·Journal
         </span>
         <div className="flex items-center gap-1.5 shrink-0">
           <a
