@@ -1,6 +1,7 @@
 // app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
+import BetaBanner from "@/components/beta/BetaBanner";
 
 export const metadata: Metadata = {
   title: "Trade·Journal — AI-Powered Trading Journal",
@@ -26,7 +27,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <BetaBanner />
+        {children}
+      </body>
     </html>
   );
 }

@@ -480,9 +480,156 @@ export default async function LandingPage() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section className="border-t py-20 md:py-28" style={{ borderColor: 'var(--border-panel)', backgroundColor: 'rgba(0,0,0,0.05)' }}>
+        <div className="mx-auto max-w-4xl px-6">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl" style={{ color: 'var(--text-primary)' }}>
+              Frequently Asked Questions
+            </h2>
+            <p className="mt-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
+              Got questions? We've got answers.
+            </p>
+          </div>
+          <div className="space-y-6">
+            {[
+              {
+                q: "What is Trade·Journal?",
+                a: "Trade·Journal is an Execution Intelligence System designed to help traders track their behavior, identify psychological triggers, and establish strict consistency in their trading plans."
+              },
+              {
+                q: "Is the beta really free?",
+                a: "Yes. During our beta program, access to the platform is completely free. No credit card is required to join."
+              },
+              {
+                q: "How does the MT5 sync work?",
+                a: "We support both manual upload logs and automated cloud-based synchronizations to fetch and record your closed trades and balance statements securely."
+              },
+              {
+                q: "Is my trading data secure?",
+                a: "Absolutely. We enforce end-to-end encryption. Your trade logs and personal details are locked and never shared with third parties."
+              }
+            ].map((faq, i) => (
+              <div 
+                key={i} 
+                className="rounded-xl border p-6"
+                style={{
+                  backgroundColor: 'var(--card-bg)',
+                  borderColor: 'var(--card-border)'
+                }}
+              >
+                <h3 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>{faq.q}</h3>
+                <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Landing Page Feedback Section */}
+      <section className="py-16 md:py-24 flex justify-center px-4" style={{ backgroundColor: 'rgba(0,0,0,0.1)' }}>
+        <div 
+          className="w-full max-w-[900px] md:w-[90%] rounded-[16px] border p-8 md:p-12 text-center transition-all duration-300 hover:border-blue-500/20"
+          style={{
+            backgroundColor: "#111827",
+            borderColor: "rgba(59, 130, 246, 0.15)"
+          }}
+        >
+          <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+            Already Testing TradeJournal?
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-sm md:text-base leading-relaxed text-slate-300">
+            Your feedback directly shapes the future of TradeJournal. We're actively improving the platform based on insights from traders like you.
+          </p>
+          <div className="mt-8">
+            <a
+              href="https://www.tradejernal.com/beta-feedback"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-700 hover:scale-[1.02]"
+              style={{ minHeight: "48px", minWidth: "160px" }}
+            >
+              Share Feedback <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="px-6 py-8 text-center text-xs" style={{ borderTop: '1px solid var(--card-border)', color: 'var(--text-muted)' }}>
-        <p>&copy; Trade-Journal. All rights reserved. Built in Ghana 🇬🇭</p>
+      <footer 
+        className="px-6 py-12 border-t text-xs md:px-12" 
+        style={{ borderColor: 'var(--card-border)', color: 'var(--text-muted)', backgroundColor: 'var(--nav-bg)' }}
+      >
+        <div className="mx-auto max-w-7xl flex flex-col md:flex-row justify-between gap-8 text-left">
+          {/* Brand Info */}
+          <div className="space-y-4 max-w-xs">
+            <div className="flex items-center gap-2">
+              <div className="relative h-6 w-6">
+                <Image
+                  src="/logo.png"
+                  alt="TradeJernal Logo"
+                  fill
+                  priority
+                  className="object-contain"
+                />
+              </div>
+              <span className="text-base font-bold tracking-tight text-white">
+                Trade<span className="text-emerald-500">·</span>Journal
+              </span>
+            </div>
+            <p className="text-xs text-[color:var(--text-secondary)]">
+              Build self-awareness. Master your mind. Excel at trade execution.
+            </p>
+            <p className="text-[10px]">&copy; {new Date().getFullYear()} Trade-Journal. All rights reserved. Built in Ghana 🇬🇭</p>
+          </div>
+
+          {/* Resources & Links */}
+          <div className="flex flex-col sm:flex-row gap-8 sm:gap-16">
+            <div className="space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-white">Resources</h3>
+              <ul className="space-y-1">
+                <li>
+                  <a 
+                    href="#" 
+                    className="inline-flex items-center hover:text-white transition-colors duration-150 py-2"
+                    style={{ minHeight: "44px" }}
+                  >
+                    Documentation
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#" 
+                    className="inline-flex items-center hover:text-white transition-colors duration-150 py-2"
+                    style={{ minHeight: "44px" }}
+                  >
+                    Contact
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#" 
+                    className="inline-flex items-center hover:text-white transition-colors duration-150 py-2"
+                    style={{ minHeight: "44px" }}
+                  >
+                    Privacy Policy
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://www.tradejernal.com/beta-feedback" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center font-semibold text-blue-400 hover:text-blue-300 transition-colors duration-150 py-2"
+                    style={{ minHeight: "44px" }}
+                  >
+                    Beta Feedback
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </footer>
     </main>
   );

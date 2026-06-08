@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Calculator,
+  MessageSquare,
 } from "lucide-react";
 
 export const SIDEBAR_GROUPS = [
@@ -157,7 +158,7 @@ export default function AccountTabs({
 
       <div className="flex flex-row lg:flex-col gap-4 w-full">
         {SIDEBAR_GROUPS.map((group) => (
-          <div key={group.label} className="flex flex-row lg:flex-col gap-1 w-full">
+          <div key={group.label} className="flex flex-row lg:flex-col gap-1 w-full shrink-0">
             {/* Group Label */}
             {!isCollapsed && (
               <span className="hidden lg:block text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] px-3 mb-1 mt-2">
@@ -198,6 +199,28 @@ export default function AccountTabs({
             </div>
           </div>
         ))}
+
+        {/* Separator / Divider */}
+        <div className="hidden lg:block border-t my-1" style={{ borderColor: "var(--app-border)" }} />
+        <div className="lg:hidden w-px h-6 shrink-0 self-center" style={{ backgroundColor: "var(--app-border)", margin: "0 4px" }} />
+
+        {/* Give Feedback Link */}
+        <a
+          href="https://www.tradejernal.com/beta-feedback"
+          target="_blank"
+          rel="noopener noreferrer"
+          title={isCollapsed ? "Give Feedback" : "Share beta feedback"}
+          className={cn(
+            "inline-flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-150 w-auto lg:w-full text-left justify-start hover:bg-white/5 text-[color:var(--text-secondary)] opacity-80 hover:opacity-100 shrink-0",
+            isCollapsed && "lg:justify-center lg:px-0 lg:py-3"
+          )}
+          style={{ minHeight: "44px" }}
+        >
+          <MessageSquare className="h-3.5 w-3.5 shrink-0 text-blue-400" />
+          <span className={cn("transition-opacity duration-200", isCollapsed && "lg:hidden")}>
+            Give Feedback
+          </span>
+        </a>
       </div>
     </nav>
   );
