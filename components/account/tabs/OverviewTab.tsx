@@ -304,7 +304,7 @@ export default function OverviewTab({
             {fmtSignedUsd(kpis.netPnl)}
           </div>
           <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-            {account.currency} account term
+            {account.currency} Account
           </div>
         </div>
 
@@ -691,7 +691,7 @@ export default function OverviewTab({
                 <YAxis
                   stroke="rgba(255,255,255,0.03)"
                   tick={{ fontSize: 10, fill: "#64748b" }}
-                  tickFormatter={(val) => `${val}%`}
+                  tickFormatter={(val) => `${Math.round(val)}%`}
                   domain={["dataMin", 0]}
                 />
                 <Tooltip
