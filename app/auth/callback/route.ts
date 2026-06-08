@@ -17,5 +17,13 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  // If code exchange fails but the user is already authenticated locally,
+  // redirect them to the intended page (e.g. /reset-password) where they can still update their password.
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    return NextResponse.redirect(`${origin}${next}`);
+  }
+
   return NextResponse.redirect(`${origin}/login?error=callback_failed`);
 }

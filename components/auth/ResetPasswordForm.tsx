@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import PasswordInput from "./PasswordInput";
@@ -10,6 +10,9 @@ import PasswordStrength from "./PasswordStrength";
 
 export default function ResetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const code = searchParams.get("code");
+
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -19,15 +22,37 @@ export default function ResetPasswordForm() {
     "checking"
   );
 
-  // The user arrives here via the email link. Supabase's auth callback handler
-  // exchanges the code for a session before the user lands on this page,
-  // so we just need to verify the session exists.
+  // The user arrives here via the email link.
+  // We first check if a 'code' query parameter is present in the URL.
+  // If so, we perform the code exchange client-side to prevent email scanning bots (which do not run JS)
+  // from consuming the code.
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSessionReady(session ? "ok" : "missing");
-    });
-  }, []);
+    
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code)
+        .then(({ error }) => {
+          if (error) {
+            console.error("Client-side code exchange failed:", error);
+            // Fallback: check if session is already active via cookies
+            supabase.auth.getSession().then(({ data: { session } }) => {
+              setSessionReady(session ? "ok" : "missing");
+            });
+          } else {
+            setSessionReady("ok");
+          }
+        })
+        .catch((err) => {
+          console.error("Error during code exchange:", err);
+          setSessionReady("missing");
+        });
+    } else {
+      // Fallback: check if session is already active via cookies (e.g. from server callback)
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSessionReady(session ? "ok" : "missing");
+      });
+    }
+  }, [code]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
