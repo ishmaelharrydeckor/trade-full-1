@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { cn } from "@/lib/utils";
+import { createPortal } from "react-dom";
 
 export default function DashboardNav({
   displayName,
@@ -36,6 +37,11 @@ export default function DashboardNav({
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState<string>("overview");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
 
@@ -53,154 +59,158 @@ export default function DashboardNav({
     toggleDrawer();
   };
 
-  const isAccountPage = pathname.startsWith("/dashboard/accounts/") && 
-    !pathname.endsWith("/new") && 
-    !pathname.split("/").includes("settings") && 
-    !pathname.split("/").includes("backtest") && 
-    pathname.split("/").length === 4;
+  const isAccountPage = pathname
+    ? pathname.startsWith("/dashboard/accounts/") &&
+      !pathname.endsWith("/new") &&
+      !pathname.split("/").includes("settings") &&
+      !pathname.split("/").includes("backtest") &&
+      pathname.split("/").length === 4
+    : false;
 
   return (
-    <header
-      className="sticky top-0 z-50 backdrop-blur"
-      style={{
-        borderBottom: "1px solid var(--border-panel)",
-        backgroundColor: "var(--nav-bg)",
-        height: "72px",
-        WebkitBackdropFilter: "blur(8px)",
-      }}
-    >
-      <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-4 md:px-8">
-        {/* Logo */}
-        <Link href="/dashboard" className="flex items-center gap-2.5">
-          <Image
-            src="/logo.png"
-            alt="Trade·Journal Logo"
-            width={28}
-            height={28}
-            priority
-            className="object-contain"
-          />
-          <span
-            className="text-lg font-extrabold tracking-tight"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Trade
-            <span style={{ color: "var(--accent)" }}>·</span>
-            Journal
-          </span>
-        </Link>
-
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-1">
-          <Link
-            href="/dashboard"
-            className="nav-item inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm"
-          >
-            Dashboard
-          </Link>
-          <Link
-            href="/dashboard/accounts"
-            className="nav-item inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm"
-          >
-            <LayoutGrid className="h-3.5 w-3.5 opacity-70" />
-            Accounts
-          </Link>
-          <Link
-            href="/dashboard/mentoring"
-            className="nav-item inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm"
-          >
-            <Award className="h-3.5 w-3.5 opacity-70" />
-            Coach
-          </Link>
-          <Link
-            href="/dashboard/profile"
-            className="nav-item inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm"
-          >
-            <User className="h-3.5 w-3.5 opacity-70" />
-            Profile
-          </Link>
-
-          <div
-            className="mx-2 hidden md:block h-5 w-px"
-            style={{ backgroundColor: "var(--border-panel)" }}
-          />
-
-          <ThemeToggle className="inline-flex" />
-
-          <div
-            className="mx-2 hidden md:block h-5 w-px"
-            style={{ backgroundColor: "var(--border-panel)" }}
-          />
-
-          <Link
-            href="/dashboard/profile"
-            className="ml-1 hidden text-right lg:block hover:opacity-80 transition duration-150"
-            title="Edit Profile"
-          >
-            <div
-              className="text-xs font-semibold"
+    <>
+      <header
+        className="sticky top-0 z-50 backdrop-blur"
+        style={{
+          borderBottom: "1px solid var(--border-panel)",
+          backgroundColor: "var(--nav-bg)",
+          height: "72px",
+          WebkitBackdropFilter: "blur(8px)",
+        }}
+      >
+        <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-4 md:px-8">
+          {/* Logo */}
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <Image
+              src="/logo.png"
+              alt="Trade·Journal Logo"
+              width={28}
+              height={28}
+              priority
+              className="object-contain"
+            />
+            <span
+              className="text-lg font-extrabold tracking-tight"
               style={{ color: "var(--text-primary)" }}
             >
-              {displayName}
-            </div>
-            <div
-              className="text-[10px] font-medium"
-              style={{ color: "var(--text-muted)" }}
-            >
-              {email}
-            </div>
+              Trade
+              <span style={{ color: "var(--accent)" }}>·</span>
+              Journal
+            </span>
           </Link>
 
-          <form action="/auth/signout" method="post" className="inline-flex">
-            <button
-              type="submit"
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            <Link
+              href="/dashboard"
               className="nav-item inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm"
-              title="Sign out"
-              style={{ minHeight: "44px" }}
             >
-              <LogOut className="h-3.5 w-3.5 opacity-70" />
-              <span>Sign out</span>
-            </button>
-          </form>
-        </nav>
+              Dashboard
+            </Link>
+            <Link
+              href="/dashboard/accounts"
+              className="nav-item inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm"
+            >
+              <LayoutGrid className="h-3.5 w-3.5 opacity-70" />
+              Accounts
+            </Link>
+            <Link
+              href="/dashboard/mentoring"
+              className="nav-item inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm"
+            >
+              <Award className="h-3.5 w-3.5 opacity-70" />
+              Coach
+            </Link>
+            <Link
+              href="/dashboard/profile"
+              className="nav-item inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm"
+            >
+              <User className="h-3.5 w-3.5 opacity-70" />
+              Profile
+            </Link>
 
-        {/* Mobile Controls (Hamburger & Theme Toggle) */}
-        <div className="flex md:hidden items-center gap-2">
-          <ThemeToggle className="inline-flex" />
-          <button
-            type="button"
-            onClick={toggleDrawer}
-            aria-label={isDrawerOpen ? "Close menu" : "Open menu"}
-            className="inline-flex items-center justify-center rounded-lg p-2 transition-colors duration-150"
-            style={{
-              minHeight: "44px",
-              minWidth: "44px",
-              color: "var(--text-primary)",
-              backgroundColor: "rgba(255,255,255,0.02)",
-              border: "1px solid var(--border-panel)",
-            }}
-          >
-            {isDrawerOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+            <div
+              className="mx-2 hidden md:block h-5 w-px"
+              style={{ backgroundColor: "var(--border-panel)" }}
+            />
+
+            <ThemeToggle className="inline-flex" />
+
+            <div
+              className="mx-2 hidden md:block h-5 w-px"
+              style={{ backgroundColor: "var(--border-panel)" }}
+            />
+
+            <Link
+              href="/dashboard/profile"
+              className="ml-1 hidden text-right lg:block hover:opacity-80 transition duration-150"
+              title="Edit Profile"
+            >
+              <div
+                className="text-xs font-semibold"
+                style={{ color: "var(--text-primary)" }}
+              >
+                {displayName}
+              </div>
+              <div
+                className="text-[10px] font-medium"
+                style={{ color: "var(--text-muted)" }}
+              >
+                {email}
+              </div>
+            </Link>
+
+            <form action="/auth/signout" method="post" className="inline-flex">
+              <button
+                type="submit"
+                className="nav-item inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm"
+                title="Sign out"
+                style={{ minHeight: "44px" }}
+              >
+                <LogOut className="h-3.5 w-3.5 opacity-70" />
+                <span>Sign out</span>
+              </button>
+            </form>
+          </nav>
+
+          {/* Mobile Controls (Hamburger & Theme Toggle) */}
+          <div className="flex md:hidden items-center gap-2">
+            <ThemeToggle className="inline-flex" />
+            <button
+              type="button"
+              onClick={toggleDrawer}
+              aria-label={isDrawerOpen ? "Close menu" : "Open menu"}
+              className="inline-flex items-center justify-center rounded-lg p-2 transition-colors duration-150"
+              style={{
+                minHeight: "44px",
+                minWidth: "44px",
+                color: "var(--text-primary)",
+                backgroundColor: "rgba(255,255,255,0.02)",
+                border: "1px solid var(--border-panel)",
+              }}
+            >
+              {isDrawerOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
       {/* Mobile Drawer Overlay */}
-      {isDrawerOpen && (
+      {isDrawerOpen && mounted && createPortal(
         <div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm md:hidden flex justify-end"
+          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm md:hidden flex justify-end"
           onClick={toggleDrawer}
         >
           <div
             className="w-80 max-w-[85vw] h-full flex flex-col p-6 border-l animate-in slide-in-from-right duration-200 shadow-2xl"
             style={{
-              backgroundColor: "var(--app-surface)",
-              borderColor: "var(--border-panel)",
+              backgroundColor: "var(--app-surface, #0B1220)",
+              borderColor: "var(--border-panel, rgba(255, 255, 255, 0.06))",
             }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Drawer Header */}
-            <div className="flex items-center justify-between mb-6 pb-4 border-b" style={{ borderColor: "var(--border-panel)" }}>
+            <div className="flex items-center justify-between mb-6 pb-4 border-b" style={{ borderColor: "var(--border-panel, rgba(255, 255, 255, 0.06))" }}>
               <span className="font-extrabold text-sm uppercase tracking-wider text-[color:var(--text-muted)]">
                 Menu
               </span>
@@ -336,8 +346,9 @@ export default function DashboardNav({
               </form>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-    </header>
+    </>
   );
 }

@@ -132,6 +132,7 @@ export function buildEquityCurve(
 
   const points: EquityPoint[] = [];
   let equity = startingBalance;
+  let runningTxAdjustment = 0;
 
   // Anchor point at first event time (or now if empty)
   if (events.length === 0) {
@@ -144,10 +145,18 @@ export function buildEquityCurve(
   points.push({ time: seedTime, equity, delta: 0, type: "trade" });
 
   for (const e of events) {
+    if (e.type === "deposit") {
+      runningTxAdjustment -= e.delta; // subtract deposits
+    } else if (e.type === "withdrawal") {
+      runningTxAdjustment -= e.delta; // add withdrawals (e.delta is negative, so subtracting it adds it back)
+    }
+
     equity += e.delta;
+    const performanceEquity = equity + runningTxAdjustment;
+
     points.push({
       time: e.time,
-      equity,
+      equity: performanceEquity,
       delta: e.delta,
       type: e.type,
       label: e.label,

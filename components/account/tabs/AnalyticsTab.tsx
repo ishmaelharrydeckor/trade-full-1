@@ -19,14 +19,18 @@ import AnalyticsHorizontalBarChart from "@/components/analytics/AnalyticsHorizon
 import AnalyticsAreaChart from "@/components/analytics/AnalyticsAreaChart";
 import AnalyticsRadarChart from "@/components/analytics/AnalyticsRadarChart";
 import RMultipleChart from "@/components/analytics/RMultipleChart";
-import type { Account, Trade } from "@/types/database";
+import MoodPerformanceChart from "@/components/analytics/MoodPerformanceChart";
+import type { Account, Trade, JournalEntry } from "@/types/database";
+import { computeMoodPerformance } from "@/lib/behavioral-engine";
 
 export default function AnalyticsTab({
   account,
   trades,
+  journalEntries = [],
 }: {
   account: Account;
   trades: Trade[];
+  journalEntries?: JournalEntry[];
 }) {
   const byAssetClass = useMemo(() => aggregateByAssetClass(trades), [trades]);
   const bySymbol     = useMemo(() => aggregateBySymbol(trades), [trades]);
@@ -36,6 +40,7 @@ export default function AnalyticsTab({
   const byMindset    = useMemo(() => aggregateByMindset(trades), [trades]);
   const byTags       = useMemo(() => aggregateByTags(trades), [trades]);
   const bySession    = useMemo(() => aggregateBySession(trades), [trades]);
+  const moodData     = useMemo(() => computeMoodPerformance(trades, journalEntries), [trades, journalEntries]);
 
   if (trades.length === 0) {
     return (
@@ -109,6 +114,11 @@ export default function AnalyticsTab({
           data={byTags}
           emptyMessage="Add tags to your trades (e.g. 'breakout', 'london', 'news') to see this breakdown."
         />
+      </div>
+
+      {/* Mood performance correlation */}
+      <div className="w-full">
+        <MoodPerformanceChart data={moodData} />
       </div>
 
       {/* Risk Distribution */}

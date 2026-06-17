@@ -157,7 +157,7 @@ export default function AccountDashboard({
         )}
 
         {tab === "analytics" && (
-          <AnalyticsTab account={account} trades={tradesForTab} />
+          <AnalyticsTab account={account} trades={tradesForTab} journalEntries={journalEntries} />
         )}
 
         {tab === "playbook" && (

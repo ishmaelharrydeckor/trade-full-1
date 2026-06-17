@@ -37,6 +37,13 @@ import { createClient } from "@/lib/supabase/client";
 import OpenPositionsPanel from "@/components/overview/OpenPositionsPanel";
 import InfoTooltip from "@/components/ui/InfoTooltip";
 import { cn } from "@/lib/utils";
+import {
+  detectRevengeTrading,
+  detectOverconfidence,
+  detectStrategySwitching,
+  computePlanAdherence
+} from "@/lib/behavioral-engine";
+import EvidenceDrawer from "@/components/insights/EvidenceDrawer";
 
 interface PlaybookRule {
   id: string;
@@ -60,6 +67,21 @@ export default function OverviewTab({
 
   // States
   const [chartMode, setChartMode] = useState<"equity" | "balance" | "drawdown-overlay">("equity");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerData, setDrawerData] = useState<{
+    title: string;
+    description: string;
+    ruleExplanation: string;
+    evidenceType: "revenge" | "overconfidence" | "switching" | "general";
+    tradesList: Trade[];
+    metrics?: Record<string, string>;
+  }>({
+    title: "",
+    description: "",
+    ruleExplanation: "",
+    evidenceType: "general",
+    tradesList: [],
+  });
   const timeFilter = "all";
 
   // Compute time bounds
@@ -179,60 +201,124 @@ export default function OverviewTab({
     }
     const finalStreak = executionStreak > 0 ? executionStreak : (kpis.bestStreak > 0 ? kpis.bestStreak : 0);
 
-    // AI Behavioral Tags detection
-    const ruleNames: Record<string, string> = {};
-    for (const pb of playbooks) {
-      const rules = (pb.rules as unknown as PlaybookRule[]) ?? [];
-      for (const r of rules) {
-        ruleNames[r.id] = r.name;
-      }
-    }
-
-    const brokenCounts: Record<string, number> = {};
-    for (const entry of playbookEntries) {
-      for (const rId of entry.rules_broken ?? []) {
-        brokenCounts[rId] = (brokenCounts[rId] ?? 0) + 1;
-      }
-    }
-
-    const topBroken = Object.entries(brokenCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 2)
-      .map(([rId]) => ruleNames[rId] || "Rule Deviation");
-
-    const behaviorTags: string[] = [];
-    if (topBroken.length > 0) {
-      behaviorTags.push(...topBroken);
-    }
-    
-    // Scan mindsets/notes
-    const recentMindsets = filteredTrades
-      .slice(0, 15)
-      .map((t) => t.mindset?.toLowerCase() ?? "")
-      .filter(Boolean);
-
-    if (recentMindsets.some((m) => m.includes("fomo") || m.includes("impatient"))) {
-      behaviorTags.push("FOMO Triggered");
-    }
-    if (recentMindsets.some((m) => m.includes("greed") || m.includes("overtrade"))) {
-      behaviorTags.push("Over-Leveraging");
-    }
-    if (recentMindsets.some((m) => m.includes("revenge") || m.includes("frustrated"))) {
-      behaviorTags.push("Revenge Risk");
-    }
-    if (kpis.worstStreak > 3) {
-      behaviorTags.push("Tilt Susceptible");
-    }
-    if (behaviorTags.length === 0) {
-      behaviorTags.push("Disciplined Flow");
-    }
-
     return {
       disciplineScore,
       executionStreak: finalStreak,
-      tags: behaviorTags.slice(0, 3),
+      tags: [],
     };
   }, [filteredTrades, playbooks, playbookEntries, kpis]);
+
+  const revengeEvidences = useMemo(() => detectRevengeTrading(filteredTrades), [filteredTrades]);
+  const overconfidenceEvidences = useMemo(() => detectOverconfidence(filteredTrades), [filteredTrades]);
+  const strategySwitchingEvidence = useMemo(() => detectStrategySwitching(filteredTrades, playbookEntries, playbooks), [filteredTrades, playbookEntries, playbooks]);
+  const planAdherenceVal = useMemo(() => computePlanAdherence(filteredTrades, playbookEntries), [filteredTrades, playbookEntries]);
+
+  const behavioralFlags = useMemo(() => {
+    const flags: {
+      type: "revenge" | "overconfidence" | "switching" | "general";
+      label: string;
+      description: string;
+      ruleExplanation: string;
+      trades: Trade[];
+      metrics?: Record<string, string>;
+      severity: "high" | "medium" | "low" | "clean";
+    }[] = [];
+
+    if (revengeEvidences.length > 0) {
+      const revengeTradesSet = new Set<string>();
+      const list: Trade[] = [];
+      revengeEvidences.forEach(e => {
+        if (!revengeTradesSet.has(e.triggerTrade.id)) {
+          revengeTradesSet.add(e.triggerTrade.id);
+          list.push(e.triggerTrade);
+        }
+        if (!revengeTradesSet.has(e.revengeTrade.id)) {
+          revengeTradesSet.add(e.revengeTrade.id);
+          list.push(e.revengeTrade);
+        }
+      });
+
+      const maxScaling = Math.max(...revengeEvidences.map(e => e.sizeMultiplier));
+      const minDiff = Math.min(...revengeEvidences.map(e => e.timeDiffMinutes));
+
+      flags.push({
+        type: "revenge",
+        label: "Revenge Trading Warning",
+        description: `${revengeEvidences.length} size-scaled rapid entries post-loss.`,
+        ruleExplanation: "Revenge trading triggers when you enter a position within 10 minutes of a loss and scale up the lot size, trying to recover losses quickly.",
+        trades: list,
+        metrics: {
+          timeDiff: `${minDiff}m gap`,
+          sizeScaling: `${maxScaling}x scaling`,
+        },
+        severity: "high",
+      });
+    }
+
+    if (overconfidenceEvidences.length > 0) {
+      const overTradesSet = new Set<string>();
+      const list: Trade[] = [];
+      overconfidenceEvidences.forEach(e => {
+        if (!overTradesSet.has(e.winningTrade.id)) {
+          overTradesSet.add(e.winningTrade.id);
+          list.push(e.winningTrade);
+        }
+        e.subsequentTrades.forEach(t => {
+          if (!overTradesSet.has(t.id)) {
+            overTradesSet.add(t.id);
+            list.push(t);
+          }
+        });
+      });
+
+      const maxScaling = Math.max(...overconfidenceEvidences.map(e => e.sizeMultiplier));
+      const minHours = Math.min(...overconfidenceEvidences.map(e => e.timeDiffHours));
+
+      flags.push({
+        type: "overconfidence",
+        label: "Post-Win Overconfidence",
+        description: `${overconfidenceEvidences.length} size/frequency escalations post-win.`,
+        ruleExplanation: "Overconfidence bias triggers when a trader scales up volume or trades with excessive frequency within 1 hour after a winning trade.",
+        trades: list,
+        metrics: {
+          timeDiff: `${minHours}h gap`,
+          sizeScaling: `${maxScaling}x scaling`,
+        },
+        severity: "medium",
+      });
+    }
+
+    if (strategySwitchingEvidence.uniquePlaybooksCount > 3) {
+      const lowTradesStrategies = strategySwitchingEvidence.playbooksList.filter(p => p.count < 3);
+      if (lowTradesStrategies.length >= 2) {
+        flags.push({
+          type: "switching",
+          label: "Strategy Hopping Detected",
+          description: `Traded ${strategySwitchingEvidence.uniquePlaybooksCount} distinct setups recently.`,
+          ruleExplanation: "Strategy Hopping triggers when you execute trades across multiple playbooks without staying with one long enough to realize statistical edge.",
+          trades: [],
+          metrics: {
+            timeDiff: "Last 30 days",
+            sizeScaling: `${strategySwitchingEvidence.uniquePlaybooksCount} setups`,
+          },
+          severity: "medium",
+        });
+      }
+    }
+
+    if (flags.length === 0) {
+      flags.push({
+        type: "general",
+        label: "Disciplined Flow",
+        description: "Zero behavioral bias patterns detected in recent trades.",
+        ruleExplanation: "No emotional patterns like revenge trading, size scaling post-loss, or post-win overconfidence detected. Excellent execution consistency!",
+        trades: [],
+        severity: "clean",
+      });
+    }
+
+    return flags;
+  }, [revengeEvidences, overconfidenceEvidences, strategySwitchingEvidence]);
 
   // Equity Curve calculations for visual chart
   const processedEquityCurve = useMemo(() => {
@@ -381,9 +467,52 @@ export default function OverviewTab({
         </div>
       </section>
 
-      {/* SECTION 2: CORE INSIGHTS (Discipline Gauge, Calendar Stat, AI Tags) */}
-      <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      {/* SECTION 2: CORE INSIGHTS (Plan Adherence, Discipline Gauge, Calendar Stat, Behavioral Warning Flags) */}
+      <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         
+        {/* Plan Adherence Card */}
+        <div className="relative flex flex-col items-center justify-center rounded-2xl border p-6 text-center bg-[#0f1318]/60 backdrop-blur-md"
+          style={{ borderColor: "var(--border-panel)" }}>
+          <span className="absolute left-4 top-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+            <Target className="h-3.5 w-3.5 text-indigo-400" />
+            Plan Adherence
+          </span>
+          <div className="relative mt-5 mb-2 flex items-center justify-center">
+            <svg width={scoreSize} height={scoreSize} className="-rotate-90">
+              <circle
+                cx={scoreSize / 2}
+                cy={scoreSize / 2}
+                r={scoreRadius}
+                fill="transparent"
+                stroke="rgba(255,255,255,0.02)"
+                strokeWidth={scoreStroke}
+              />
+              <circle
+                cx={scoreSize / 2}
+                cy={scoreSize / 2}
+                r={scoreRadius}
+                fill="transparent"
+                stroke="url(#planAdherenceGrad)"
+                strokeWidth={scoreStroke}
+                strokeDasharray={scoreCircumference}
+                strokeDashoffset={scoreCircumference - (planAdherenceVal / 100) * scoreCircumference}
+                strokeLinecap="round"
+                className="transition-all duration-700 ease-out"
+              />
+              <defs>
+                <linearGradient id="planAdherenceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#818cf8" />
+                  <stop offset="100%" stopColor="#3b82f6" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div className="absolute flex flex-col items-center justify-center">
+              <span className="text-2xl font-black text-white font-mono">{planAdherenceVal}%</span>
+            </div>
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-2">Setup Adherence Rate</span>
+        </div>
+
         {/* Discipline Score Gauge */}
         <div className="relative flex flex-col items-center justify-center rounded-2xl border p-6 text-center bg-[#0f1318]/60 backdrop-blur-md"
           style={{ borderColor: "var(--border-panel)" }}>
@@ -451,36 +580,55 @@ export default function OverviewTab({
           </span>
         </div>
 
-        {/* Behavioral Insights (AI Tags) */}
+        {/* Behavioral Insights (Programmatic Warning Flags) */}
         <div className="group relative flex flex-col justify-between rounded-2xl border p-6 bg-[#0f1318]/60 backdrop-blur-md"
           style={{ borderColor: "var(--border-panel)" }}>
           <span className="absolute left-4 top-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
             <AlertTriangle className="h-3.5 w-3.5 text-indigo-400" />
             Behavioral Insights
           </span>
-          <div className="mt-8 flex flex-col gap-2">
-            {coreInsights.tags.map((tag, idx) => (
-              <div
+          <div className="mt-8 flex flex-col gap-2 overflow-y-auto max-h-[140px] pr-1 scrollbar-thin">
+            {behavioralFlags.map((flag, idx) => (
+              <button
                 key={idx}
+                type="button"
+                onClick={() => {
+                  setDrawerData({
+                    title: flag.label,
+                    description: flag.description,
+                    ruleExplanation: flag.ruleExplanation,
+                    evidenceType: flag.type,
+                    tradesList: flag.trades,
+                    metrics: flag.metrics,
+                  });
+                  setDrawerOpen(true);
+                }}
                 className={cn(
-                  "flex items-center justify-between rounded-xl border px-3 py-2 text-xs font-bold transition",
-                  tag.includes("Flow") || tag.includes("Execution") || tag.includes("Disciplined")
-                    ? "bg-emerald-500/5 border-emerald-500/10 text-emerald-400"
-                    : "bg-red-500/5 border-red-500/10 text-red-400"
+                  "flex items-center justify-between rounded-xl border px-3 py-2 text-xs font-bold transition w-full text-left hover:scale-[1.02] active:scale-[0.98] cursor-pointer",
+                  flag.severity === "high"
+                    ? "bg-red-500/5 border-red-500/20 text-red-400 hover:bg-red-500/10"
+                    : flag.severity === "medium"
+                    ? "bg-amber-500/5 border-amber-500/20 text-amber-400 hover:bg-amber-500/10"
+                    : "bg-emerald-500/5 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10"
                 )}
               >
-                <span>{tag}</span>
+                <div className="flex flex-col min-w-0 pr-2">
+                  <span className="truncate">{flag.label}</span>
+                  <span className="text-[10px] text-slate-500 font-medium mt-0.5 truncate">{flag.description}</span>
+                </div>
                 <span className={cn(
-                  "h-1.5 w-1.5 rounded-full",
-                  tag.includes("Flow") || tag.includes("Execution") || tag.includes("Disciplined")
-                    ? "bg-emerald-400"
-                    : "bg-red-400"
+                  "h-1.5 w-1.5 rounded-full shrink-0 ml-1",
+                  flag.severity === "high"
+                    ? "bg-red-400 animate-pulse"
+                    : flag.severity === "medium"
+                    ? "bg-amber-400"
+                    : "bg-emerald-400"
                 )} />
-              </div>
+              </button>
             ))}
           </div>
           <span className="text-[9px] font-semibold text-slate-500 text-center mt-3">
-            Behavior and discipline guide profitability
+            Click warnings to expand Evidence Drawer
           </span>
         </div>
       </section>
@@ -794,6 +942,17 @@ export default function OverviewTab({
           </div>
         )}
       </section>
+
+      <EvidenceDrawer
+        isOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        title={drawerData.title}
+        description={drawerData.description}
+        ruleExplanation={drawerData.ruleExplanation}
+        evidenceType={drawerData.evidenceType}
+        tradesList={drawerData.tradesList}
+        metrics={drawerData.metrics}
+      />
     </div>
   );
 }

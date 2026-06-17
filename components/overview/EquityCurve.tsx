@@ -49,7 +49,7 @@ export default function EquityCurve({
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-1.5">
           <h3 className="text-lg font-bold">Equity curve</h3>
-          <InfoTooltip text="Your account balance over time, adjusted for each trade's P&L plus deposits and withdrawals. An upward slope means you're growing your account." />
+          <InfoTooltip text="Your account performance over time, representing pure trading P&L growth adjusted for deposits and withdrawals." />
         </div>
         <div className="flex items-center gap-2 text-xs">
           <span className="h-2 w-2 rounded-full bg-blue-400" />
