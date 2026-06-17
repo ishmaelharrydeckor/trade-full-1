@@ -114,9 +114,9 @@ export default function AccountDashboard({
     <div className="flex flex-col lg:flex-row gap-8 items-start">
       {/* Sidebar navigation */}
       <aside className={cn(
-        "hidden lg:block shrink-0 lg:sticky lg:top-20 transition-all duration-300",
-        mounted && isCollapsed ? "lg:w-16" : "lg:w-60"
-      )}>
+  "block shrink-0 lg:sticky lg:top-20 transition-all duration-300",
+  mounted && isCollapsed ? "lg:w-16" : "w-full lg:w-60"
+)}>
         <AccountTabs
           active={tab}
           onSelect={setTab}
