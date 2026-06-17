@@ -57,7 +57,12 @@ export default function PositionCalculator({
       };
     }
 
-    const lotsRaw = riskAmount / (priceDistance * contractValue);
+    // Convert JPY P&L to USD using entry price for JPY pairs
+    const adjustedContractValue = preset?.category === "forex_jpy" && e > 0
+      ? contractValue / e
+      : contractValue;
+
+    const lotsRaw = riskAmount / (priceDistance * adjustedContractValue);
     const lots = Math.floor(lotsRaw * 100) / 100; // Floor to avoid rounding up risk
 
     let warning: string | undefined;
@@ -66,7 +71,7 @@ export default function PositionCalculator({
     }
 
     return { riskAmount, riskPercent, priceDistance, lotsRaw, lots, warning };
-  }, [entry, stop, equity, riskPercent, contractValue]);
+  }, [entry, stop, equity, riskPercent, contractValue, preset]);
 
   // R:R Reward projection computations
   const projections = useMemo(() => {

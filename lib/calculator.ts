@@ -51,8 +51,9 @@ export function calculatePositionSize(params: {
   entryPrice: number;
   stopLoss: number;
   contractValue: number;
+  category?: string;
 }): SizingResult {
-  const { equity, riskParts, entryPrice, stopLoss, contractValue } = params;
+  const { equity, riskParts, entryPrice, stopLoss, contractValue, category } = params;
   const riskAmount = equity > 0 ? equity / riskParts : 0;
   const riskPercent = (1 / riskParts) * 100;
   const priceDistance = Math.abs(entryPrice - stopLoss);
@@ -71,7 +72,12 @@ export function calculatePositionSize(params: {
     };
   }
 
-  const lotsRaw = riskAmount / (priceDistance * contractValue);
+  // Convert JPY P&L to USD using entryPrice for JPY pairs
+  const adjustedContractValue = category === "forex_jpy" && entryPrice > 0
+    ? contractValue / entryPrice
+    : contractValue;
+
+  const lotsRaw = riskAmount / (priceDistance * adjustedContractValue);
   // Round DOWN to 0.01 — never round up risk
   const lots = Math.floor(lotsRaw * 100) / 100;
 
