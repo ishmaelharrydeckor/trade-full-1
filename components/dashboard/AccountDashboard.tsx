@@ -20,6 +20,8 @@ import NotebookTab from "@/components/notebook/NotebookTab";
 import ProgressTab from "@/components/progress/ProgressTab";
 import AiInsightsPanel from "@/components/insights/AiInsightsPanel";
 import CalculatorTab from "@/components/account/tabs/CalculatorTab";
+import SessionAuditCard from "@/components/insights/SessionAuditCard";
+import { useRouter } from "next/navigation";
 import type {
   Account,
   Trade,
@@ -30,6 +32,7 @@ import type {
   JournalEntry,
   DailyHabit,
   DailyLog,
+  SessionAudit,
 } from "@/types/database";
 
 // Date filter applies to these tabs only. Calendar IS a date-driven view
@@ -46,6 +49,7 @@ export default function AccountDashboard({
   journalEntries,
   habits,
   dailyLogs,
+  sessionAudits,
 }: {
   account: Account;
   trades: Trade[];
@@ -56,11 +60,34 @@ export default function AccountDashboard({
   journalEntries: JournalEntry[];
   habits: DailyHabit[];
   dailyLogs: DailyLog[];
+  sessionAudits: SessionAudit[];
 }) {
+  const router = useRouter();
   const [tab, setTab] = useState<TabId>("overview");
   const [dateRange, setDateRange] = useState<DateRange>(ALL_TIME);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [auditModalOpen, setAuditModalOpen] = useState(false);
+
+  // Trigger SessionAuditCard automatically if they traded today but have not done the daily audit yet
+  const tradesToday = useMemo(() => {
+    const todayStr = new Date().toISOString().split("T")[0];
+    return trades.filter(t => {
+      const closeTimeStr = t.close_time ? t.close_time.split("T")[0] : null;
+      return closeTimeStr === todayStr;
+    });
+  }, [trades]);
+
+  const hasAuditToday = useMemo(() => {
+    const todayStr = new Date().toISOString().split("T")[0];
+    return sessionAudits.some(a => a.audit_date.split("T")[0] === todayStr);
+  }, [sessionAudits]);
+
+  useEffect(() => {
+    if (tradesToday.length > 0 && !hasAuditToday) {
+      setAuditModalOpen(true);
+    }
+  }, [tradesToday, hasAuditToday]);
 
   // Initialize collapse state from localStorage safely on mount to prevent SSR hydration mismatch
   useEffect(() => {
@@ -142,6 +169,7 @@ export default function AccountDashboard({
             transactions={txForTab}
             playbooks={playbooks}
             playbookEntries={playbookEntries}
+            sessionAudits={sessionAudits}
           />
         )}
 
@@ -157,7 +185,12 @@ export default function AccountDashboard({
         )}
 
         {tab === "analytics" && (
-          <AnalyticsTab account={account} trades={tradesForTab} journalEntries={journalEntries} />
+          <AnalyticsTab 
+            account={account} 
+            trades={tradesForTab} 
+            journalEntries={journalEntries} 
+            sessionAudits={sessionAudits} 
+          />
         )}
 
         {tab === "playbook" && (
@@ -208,6 +241,12 @@ export default function AccountDashboard({
           />
         )}
       </div>
+      <SessionAuditCard
+        isOpen={auditModalOpen}
+        onClose={() => setAuditModalOpen(false)}
+        accountId={account.id}
+        onSubmitted={() => router.refresh()}
+      />
     </div>
   );
 }

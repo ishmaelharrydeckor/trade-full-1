@@ -15,6 +15,7 @@ import type {
   JournalEntry,
   DailyHabit,
   DailyLog,
+  SessionAudit,
 } from "@/types/database";
 
 export default async function AccountPage({
@@ -47,6 +48,7 @@ export default async function AccountPage({
     journalEntriesResult,
     habitsResult,
     dailyLogsResult,
+    auditsResult,
   ] = await Promise.all([
     supabase
       .from("trades")
@@ -88,6 +90,12 @@ export default async function AccountPage({
       .eq("account_id", id)
       .order("log_date", { ascending: false })
       .limit(365),
+    supabase
+      .from("session_audits")
+      .select("*")
+      .eq("account_id", id)
+      .order("audit_date", { ascending: false })
+      .limit(365),
   ]);
 
   const trades = tradesResult.data;
@@ -97,6 +105,7 @@ export default async function AccountPage({
   const journalEntries = journalEntriesResult.data;
   const habits = habitsResult.data;
   const dailyLogs = dailyLogsResult.data;
+  const audits = auditsResult.data;
 
   // Playbook entries (all entries for trades in this account)
   const tradeIds = (trades ?? []).map((t: Trade) => t.id);
@@ -120,6 +129,7 @@ export default async function AccountPage({
       journalEntries={(journalEntries as JournalEntry[]) ?? []}
       habits={(habits as DailyHabit[]) ?? []}
       dailyLogs={(dailyLogs as DailyLog[]) ?? []}
+      sessionAudits={(audits as SessionAudit[]) ?? []}
     />
   );
 }

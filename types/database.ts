@@ -195,3 +195,19 @@ export interface TradeComment {
   content: string;
   created_at: string;
 }
+
+export interface SessionAudit {
+  id: string;
+  user_id: string;
+  account_id: string;
+  audit_date: string;
+  emotional_states: string[];
+  followed_plan: boolean;
+  respected_risk: boolean;
+  avoided_revenge: boolean;
+  avoided_emotional: boolean;
+  waited_setup: boolean;
+  respected_sl: boolean;
+  execution_score: number;
+  created_at: string;
+}

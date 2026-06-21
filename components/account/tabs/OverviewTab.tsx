@@ -29,8 +29,9 @@ import {
   Award,
   Clock,
   AlertTriangle,
+  CheckCircle,
 } from "lucide-react";
-import type { Account, Trade, AccountTransaction, Playbook, TradePlaybookEntry } from "@/types/database";
+import type { Account, Trade, AccountTransaction, Playbook, TradePlaybookEntry, SessionAudit } from "@/types/database";
 import { computeKpis, buildEquityCurve, computeCurrentEquity, computeDrawdown } from "@/lib/stats";
 import { fmtSignedUsd, fmtCompactNumber, fmtDateTime, fmtPct, fmtNumber } from "@/lib/format";
 import { createClient } from "@/lib/supabase/client";
@@ -43,7 +44,13 @@ import {
   detectStrategySwitching,
   computePlanAdherence
 } from "@/lib/behavioral-engine";
+import {
+  calculateStreaks,
+  computeDisciplineRings,
+  evaluateBadges
+} from "@/lib/habit-loop";
 import EvidenceDrawer from "@/components/insights/EvidenceDrawer";
+import DisciplineRings from "@/components/overview/DisciplineRings";
 
 interface PlaybookRule {
   id: string;
@@ -56,12 +63,14 @@ export default function OverviewTab({
   transactions,
   playbooks,
   playbookEntries,
+  sessionAudits = [],
 }: {
   account: Account;
   trades: Trade[];
   transactions: AccountTransaction[];
   playbooks: Playbook[];
   playbookEntries: TradePlaybookEntry[];
+  sessionAudits?: SessionAudit[];
 }) {
   const startingBalance = account.starting_balance ?? 0;
 
@@ -213,6 +222,11 @@ export default function OverviewTab({
   const strategySwitchingEvidence = useMemo(() => detectStrategySwitching(filteredTrades, playbookEntries, playbooks), [filteredTrades, playbookEntries, playbooks]);
   const planAdherenceVal = useMemo(() => computePlanAdherence(filteredTrades, playbookEntries), [filteredTrades, playbookEntries]);
 
+  // Habit Loop Calculations
+  const { currentStreak, longestStreak } = useMemo(() => calculateStreaks(sessionAudits), [sessionAudits]);
+  const ringsData = useMemo(() => computeDisciplineRings(sessionAudits, trades), [sessionAudits, trades]);
+  const badgesList = useMemo(() => evaluateBadges(sessionAudits), [sessionAudits]);
+
   const behavioralFlags = useMemo(() => {
     const flags: {
       type: "revenge" | "overconfidence" | "switching" | "general";
@@ -361,7 +375,95 @@ export default function OverviewTab({
       <OpenPositionsPanel accountId={account.id} />
 
 
-      {/* SECTION 1: KEY PERFORMANCE STRIP */}
+      {/* PROCESS & DISCIPLINE HUB */}
+      <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        {/* Discipline Rings Component */}
+        <DisciplineRings
+          ruleCompliance={ringsData.ruleCompliance}
+          emotionalAwareness={ringsData.emotionalAwareness}
+          consistency={ringsData.consistency}
+          currentStreak={currentStreak}
+        />
+
+        {/* Audit Consistency Streak Card */}
+        <div 
+          className="flex flex-col justify-between rounded-2xl border p-5 bg-[#0f1318]/60 backdrop-blur-md"
+          style={{ borderColor: "var(--border-panel)" }}
+        >
+          <div className="flex w-full items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+              <Flame className="h-3.5 w-3.5 text-orange-500" />
+              Process Consistency Streak
+            </span>
+          </div>
+          <div className="flex items-center gap-6 my-auto py-2">
+            <div className="flex flex-col items-center justify-center w-20 h-20 rounded-2xl border border-slate-800 bg-[#07090d]">
+              <span className="text-3xl font-black text-white font-mono leading-none">{currentStreak}</span>
+              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">Current</span>
+            </div>
+            <div className="flex flex-col items-center justify-center w-20 h-20 rounded-2xl border border-slate-800 bg-[#07090d]">
+              <span className="text-3xl font-black text-white font-mono leading-none">{longestStreak}</span>
+              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">Longest</span>
+            </div>
+            <div className="flex-1 text-xs text-slate-400 font-semibold leading-relaxed">
+              Log daily session reviews to maintain your streak. Remaining consistent builds a data-driven record of your psychology.
+            </div>
+          </div>
+          <div className="text-[10px] text-slate-500 font-bold uppercase">
+            Target: 7 Days to reach 100% consistency ring
+          </div>
+        </div>
+
+        {/* Behavioral Badges Card */}
+        <div 
+          className="flex flex-col justify-between rounded-2xl border p-5 bg-[#0f1318]/60 backdrop-blur-md"
+          style={{ borderColor: "var(--border-panel)" }}
+        >
+          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5 mb-3">
+            <Award className="h-3.5 w-3.5 text-indigo-400" />
+            Behavioral Badges
+          </span>
+          <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-[140px] pr-1 scrollbar-thin">
+            {badgesList.map((badge) => (
+              <div
+                key={badge.id}
+                className={cn(
+                  "flex flex-col justify-between p-2.5 rounded-xl border text-left transition duration-200",
+                  badge.earned
+                    ? "bg-indigo-500/5 border-indigo-500/20 text-indigo-400"
+                    : "bg-slate-900/40 border-slate-800/85 text-slate-600"
+                )}
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1">
+                    <span className="font-extrabold text-[11px] truncate leading-tight">{badge.name}</span>
+                    {badge.earned && <CheckCircle className="h-3 w-3 shrink-0 text-indigo-400" />}
+                  </div>
+                  <span className="text-[9px] font-medium text-slate-500 leading-tight mt-0.5 block truncate">
+                    {badge.description}
+                  </span>
+                </div>
+                {!badge.earned && badge.progress !== undefined && badge.target !== undefined && (
+                  <div className="mt-1">
+                    <div className="flex justify-between text-[8px] font-bold text-slate-500 mb-0.5">
+                      <span>Progress</span>
+                      <span>{badge.progress}/{badge.target}</span>
+                    </div>
+                    <div className="w-full bg-slate-800 rounded-full h-1">
+                      <div 
+                        className="bg-slate-600 h-1 rounded-full" 
+                        style={{ width: `${(badge.progress / badge.target) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* KEY PERFORMANCE STRIP */}
       <section className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
         <style>{`
           @keyframes kpiFade {
@@ -372,27 +474,6 @@ export default function OverviewTab({
             animation: kpiFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
         `}</style>
-
-        {/* Net P&L Card */}
-        <div 
-          key={`${timeFilter}-pnl`}
-          className="kpi-animate group rounded-2xl border p-4 sm:p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
-          style={{ borderColor: "var(--border-panel)" }}
-        >
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
-            <Coins className="h-3.5 w-3.5 text-indigo-400" />
-            <span>Net P&L</span>
-          </div>
-          <div className={cn(
-            "mt-3 text-xl sm:text-2xl font-black tracking-tight font-mono",
-            kpis.netPnl >= 0 ? "text-emerald-400" : "text-red-400"
-          )}>
-            {fmtSignedUsd(kpis.netPnl)}
-          </div>
-          <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-            {account.currency} Account
-          </div>
-        </div>
 
         {/* Win Rate Card */}
         <div 
@@ -463,6 +544,23 @@ export default function OverviewTab({
           </div>
           <div className="mt-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500">
             Consecutive trades
+          </div>
+        </div>
+
+        {/* Net P&L Card (Neutrally Styled / De-emphasized) */}
+        <div 
+          key={`${timeFilter}-pnl`}
+          className="kpi-animate group rounded-2xl border border-slate-800/80 p-4 sm:p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-md hover:border-slate-700 bg-[#0f1318]/20 backdrop-blur-sm"
+        >
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <Coins className="h-3.5 w-3.5 text-slate-500" />
+            <span>Net P&L</span>
+          </div>
+          <div className="mt-3 text-xl sm:text-2xl font-bold tracking-tight text-slate-300 font-mono">
+            {fmtSignedUsd(kpis.netPnl)}
+          </div>
+          <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+            {account.currency} Account
           </div>
         </div>
       </section>
