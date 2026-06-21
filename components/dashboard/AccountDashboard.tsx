@@ -21,6 +21,7 @@ import ProgressTab from "@/components/progress/ProgressTab";
 import AiInsightsPanel from "@/components/insights/AiInsightsPanel";
 import CalculatorTab from "@/components/account/tabs/CalculatorTab";
 import SessionAuditCard from "@/components/insights/SessionAuditCard";
+import AchievementsTab from "@/components/account/tabs/AchievementsTab";
 import { useRouter } from "next/navigation";
 import type {
   Account,
@@ -217,6 +218,10 @@ export default function AccountDashboard({
             logs={dailyLogs}
             trades={trades}
           />
+        )}
+
+        {tab === "achievements" && (
+          <AchievementsTab sessionAudits={sessionAudits} />
         )}
 
         {tab === "calendar" && (

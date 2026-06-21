@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Calculator,
   MessageSquare,
+  Trophy,
 } from "lucide-react";
 
 export const SIDEBAR_GROUPS = [
@@ -69,6 +70,13 @@ export const SIDEBAR_GROUPS = [
         tooltip: "Consistency stats, habit checks, streak counts, and behavioral rules followed.",
         priority: "medium",
       },
+      {
+        id: "achievements",
+        label: "Achievements",
+        icon: Trophy,
+        tooltip: "Discipline badges, process progress tracking, and earned milestones.",
+        priority: "medium",
+      },
     ] as const,
   },
   {
@@ -116,7 +124,7 @@ export const SIDEBAR_GROUPS = [
   },
 ] as const;
 
-export type TabId = "overview" | "insights" | "trades" | "analytics" | "playbook" | "notebook" | "progress" | "calendar" | "calculator" | "account";
+export type TabId = "overview" | "insights" | "trades" | "analytics" | "playbook" | "notebook" | "progress" | "calendar" | "calculator" | "account" | "achievements";
 
 export default function AccountTabs({
   active,
