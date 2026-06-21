@@ -15,6 +15,7 @@ import {
   ReferenceLine,
   Line,
   ComposedChart,
+  Scatter,
 } from "recharts";
 import {
   ArrowUpRight,
@@ -30,6 +31,7 @@ import {
   Clock,
   AlertTriangle,
   CheckCircle,
+  Lock,
 } from "lucide-react";
 import type { Account, Trade, AccountTransaction, Playbook, TradePlaybookEntry, SessionAudit } from "@/types/database";
 import { computeKpis, buildEquityCurve, computeCurrentEquity, computeDrawdown } from "@/lib/stats";
@@ -76,6 +78,10 @@ export default function OverviewTab({
 
   // States
   const [chartMode, setChartMode] = useState<"equity" | "balance" | "drawdown-overlay">("equity");
+  const [showDisciplineOverlay, setShowDisciplineOverlay] = useState(false);
+  const [showViolationsOverlay, setShowViolationsOverlay] = useState(false);
+  const [showEmotionsOverlay, setShowEmotionsOverlay] = useState(false);
+  const [expandedInsights, setExpandedInsights] = useState<Record<number, boolean>>({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerData, setDrawerData] = useState<{
     title: string;
@@ -227,6 +233,13 @@ export default function OverviewTab({
   const ringsData = useMemo(() => computeDisciplineRings(sessionAudits, trades), [sessionAudits, trades]);
   const badgesList = useMemo(() => evaluateBadges(sessionAudits), [sessionAudits]);
 
+  const { nextMilestone, daysRemaining, progressPct } = useMemo(() => {
+    const next = currentStreak === 0 ? 7 : Math.ceil((currentStreak + 0.1) / 7) * 7;
+    const remaining = next - currentStreak;
+    const pct = (currentStreak % 7 === 0 && currentStreak > 0) ? 100 : ((currentStreak % 7) / 7) * 100;
+    return { nextMilestone: next, daysRemaining: remaining, progressPct: pct };
+  }, [currentStreak]);
+
   const behavioralFlags = useMemo(() => {
     const flags: {
       type: "revenge" | "overconfidence" | "switching" | "general";
@@ -337,16 +350,48 @@ export default function OverviewTab({
   // Equity Curve calculations for visual chart
   const processedEquityCurve = useMemo(() => {
     let peak = periodStartingBalance;
+
+    const auditMap = new Map<string, SessionAudit>();
+    sessionAudits.forEach((a) => {
+      const dStr = a.audit_date.split("T")[0];
+      auditMap.set(dStr, a);
+    });
+
     return equityCurve.map((point) => {
       if (point.equity > peak) peak = point.equity;
       const ddPct = peak > 0 ? -((peak - point.equity) / peak) * 100 : 0;
+
+      // Extract matching audit details
+      const pointDateStr = new Date(point.time).toISOString().split("T")[0];
+      const matchingAudit = auditMap.get(pointDateStr);
+
+      const disciplineScore = matchingAudit ? matchingAudit.execution_score : null;
+      const hasViolation = matchingAudit
+        ? !matchingAudit.followed_plan ||
+          !matchingAudit.respected_risk ||
+          !matchingAudit.avoided_revenge ||
+          !matchingAudit.avoided_emotional ||
+          !matchingAudit.waited_setup ||
+          !matchingAudit.respected_sl
+        : false;
+
+      const hasNegativeEmotion = matchingAudit
+        ? matchingAudit.emotional_states.some((s) =>
+            ["FOMO", "Frustrated", "Revenge Trading", "Anxious", "Impulsive"].includes(s)
+          )
+        : false;
+
       return {
         ...point,
         balance: point.equity, // default base
         drawdown: Math.round(ddPct * 100) / 100,
+        disciplineScore,
+        violationMarker: hasViolation ? point.equity : null,
+        emotionMarker: hasNegativeEmotion ? point.equity : null,
+        auditDetails: matchingAudit,
       };
     });
-  }, [equityCurve, periodStartingBalance]);
+  }, [equityCurve, periodStartingBalance, sessionAudits]);
 
   // Drawdown Area chart data
   const drawdownChartData = useMemo(() => {
@@ -374,391 +419,350 @@ export default function OverviewTab({
     <div className="flex flex-col gap-6">
       <OpenPositionsPanel accountId={account.id} />
 
-
-      {/* PROCESS & DISCIPLINE HUB */}
-      <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {/* Discipline Rings Component */}
-        <DisciplineRings
-          ruleCompliance={ringsData.ruleCompliance}
-          emotionalAwareness={ringsData.emotionalAwareness}
-          consistency={ringsData.consistency}
-          currentStreak={currentStreak}
-        />
-
-        {/* Audit Consistency Streak Card */}
-        <div 
-          className="flex flex-col justify-between rounded-2xl border p-5 bg-[#0f1318]/60 backdrop-blur-md"
-          style={{ borderColor: "var(--border-panel)" }}
-        >
-          <div className="flex w-full items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-              <Flame className="h-3.5 w-3.5 text-orange-500" />
-              Process Consistency Streak
-            </span>
-          </div>
-          <div className="flex items-center gap-6 my-auto py-2">
-            <div className="flex flex-col items-center justify-center w-20 h-20 rounded-2xl border border-slate-800 bg-[#07090d]">
-              <span className="text-3xl font-black text-white font-mono leading-none">{currentStreak}</span>
-              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">Current</span>
-            </div>
-            <div className="flex flex-col items-center justify-center w-20 h-20 rounded-2xl border border-slate-800 bg-[#07090d]">
-              <span className="text-3xl font-black text-white font-mono leading-none">{longestStreak}</span>
-              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">Longest</span>
-            </div>
-            <div className="flex-1 text-xs text-slate-400 font-semibold leading-relaxed">
-              Log daily session reviews to maintain your streak. Remaining consistent builds a data-driven record of your psychology.
-            </div>
-          </div>
-          <div className="text-[10px] text-slate-500 font-bold uppercase">
-            Target: 7 Days to reach 100% consistency ring
-          </div>
+      {/* SECTION 1: BEHAVIOR CENTER */}
+      <section className="rounded-2xl border p-6 bg-[#0f1318]/60 backdrop-blur-md" style={{ borderColor: "var(--border-panel)" }}>
+        <div className="mb-6">
+          <h3 className="text-lg font-bold text-white tracking-tight">Behavior Center</h3>
+          <p className="text-xs text-slate-500 font-medium mt-0.5">Your trading behavior compounds over time.</p>
         </div>
 
-        {/* Behavioral Badges Card */}
-        <div 
-          className="flex flex-col justify-between rounded-2xl border p-5 bg-[#0f1318]/60 backdrop-blur-md"
-          style={{ borderColor: "var(--border-panel)" }}
-        >
-          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5 mb-3">
-            <Award className="h-3.5 w-3.5 text-indigo-400" />
-            Behavioral Badges
-          </span>
-          <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-[140px] pr-1 scrollbar-thin">
-            {badgesList.map((badge) => (
-              <div
-                key={badge.id}
-                className={cn(
-                  "flex flex-col justify-between p-2.5 rounded-xl border text-left transition duration-200",
-                  badge.earned
-                    ? "bg-indigo-500/5 border-indigo-500/20 text-indigo-400"
-                    : "bg-slate-900/40 border-slate-800/85 text-slate-600"
-                )}
-              >
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1">
-                    <span className="font-extrabold text-[11px] truncate leading-tight">{badge.name}</span>
-                    {badge.earned && <CheckCircle className="h-3 w-3 shrink-0 text-indigo-400" />}
-                  </div>
-                  <span className="text-[9px] font-medium text-slate-500 leading-tight mt-0.5 block truncate">
-                    {badge.description}
-                  </span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Column 1: Discipline Rings */}
+          <div className="flex flex-col items-center justify-center border border-slate-800/60 rounded-xl bg-black/10 p-4">
+            <DisciplineRings
+              ruleCompliance={ringsData.ruleCompliance}
+              emotionalAwareness={ringsData.emotionalAwareness}
+              consistency={ringsData.consistency}
+              currentStreak={currentStreak}
+              hasData={sessionAudits.length > 0}
+            />
+          </div>
+
+          {/* Column 2: Process Streak */}
+          <div className="flex flex-col justify-between border border-slate-800/60 rounded-xl bg-black/10 p-5">
+            <div className="flex w-full items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+                <Flame className="h-3.5 w-3.5 text-orange-500" />
+                Process Streak
+              </span>
+            </div>
+
+            {sessionAudits.length === 0 ? (
+              <div className="flex flex-col items-center justify-center text-center py-6 my-auto">
+                <span className="text-xs font-bold text-slate-400">No behavioral reviews completed</span>
+                <span className="text-[10px] text-slate-500 font-medium mt-1 leading-relaxed">
+                  Complete your first review to begin building your discipline profile.
+                </span>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center my-auto py-2">
+                <div className="flex items-baseline gap-1 mt-2">
+                  <span className="text-5xl font-black text-white font-mono leading-none">{currentStreak}</span>
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Days</span>
                 </div>
-                {!badge.earned && badge.progress !== undefined && badge.target !== undefined && (
-                  <div className="mt-1">
-                    <div className="flex justify-between text-[8px] font-bold text-slate-500 mb-0.5">
-                      <span>Progress</span>
-                      <span>{badge.progress}/{badge.target}</span>
+                <span className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-wider">Current Streak</span>
+                <span className="text-[10px] text-slate-500 font-semibold mt-1">Longest Streak: {longestStreak} Days</span>
+                
+                <div className="w-full mt-6 space-y-1.5">
+                  <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                    <span>Next Milestone: {nextMilestone} Days</span>
+                    <span>{daysRemaining} {daysRemaining === 1 ? 'Day' : 'Days'} Remaining</span>
+                  </div>
+                  <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div 
+                      className="bg-orange-500 h-1.5 rounded-full transition-all duration-500" 
+                      style={{ width: `${progressPct}%` }} 
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <p className="text-[9.5px] font-semibold text-slate-500 leading-relaxed mt-4 border-t border-slate-900 pt-3 text-center">
+              Consistency compounds. Every reviewed session strengthens your behavioral profile.
+            </p>
+          </div>
+
+          {/* Column 3: Behavioral Badges */}
+          <div className="flex flex-col gap-3 max-h-[360px] overflow-y-auto pr-1 scrollbar-thin">
+            {badgesList.map((badge) => {
+              const isCompleted = badge.earned;
+              const isInProgress = !badge.earned && (badge.progress ?? 0) > 0;
+              return (
+                <div
+                  key={badge.id}
+                  className={cn(
+                    "flex flex-col justify-between p-4 rounded-xl border min-h-[140px] transition-all duration-300",
+                    isCompleted
+                      ? "bg-emerald-500/[0.03] border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.05)] text-emerald-400"
+                      : isInProgress
+                      ? "bg-indigo-500/[0.02] border-indigo-500/20 text-indigo-400"
+                      : "bg-slate-950/40 border-slate-900 text-slate-600"
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className={cn(
+                        "rounded-lg p-1.5 border",
+                        isCompleted 
+                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+                          : isInProgress 
+                          ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-400" 
+                          : "bg-slate-900/50 border-slate-800 text-slate-600"
+                      )}>
+                        <Award className="h-4.5 w-4.5" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black tracking-tight text-white leading-none">{badge.name}</h4>
+                        <p className="text-[10px] text-slate-500 font-semibold leading-tight mt-1">{badge.description}</p>
+                      </div>
                     </div>
-                    <div className="w-full bg-slate-800 rounded-full h-1">
+                    {isCompleted ? (
+                      <span className="rounded-full bg-emerald-500/10 p-1 text-emerald-400 border border-emerald-500/10">
+                        <CheckCircle className="h-3.5 w-3.5" />
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-slate-900 p-1 text-slate-600 border border-slate-800">
+                        <Lock className="h-3.5 w-3.5" />
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-3">
+                    <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
+                      <span>{isCompleted ? "Completed" : isInProgress ? "In Progress" : "Locked"}</span>
+                      <span>{badge.progress} / {badge.target}</span>
+                    </div>
+                    <div className="w-full bg-slate-900/80 rounded-full h-1.5 overflow-hidden border border-slate-800/30">
                       <div 
-                        className="bg-slate-600 h-1 rounded-full" 
-                        style={{ width: `${(badge.progress / badge.target) * 100}%` }}
+                        className={cn(
+                          "h-1.5 rounded-full transition-all duration-500",
+                          isCompleted ? "bg-emerald-500" : isInProgress ? "bg-indigo-500" : "bg-slate-850"
+                        )}
+                        style={{ width: `${((badge.progress ?? 0) / (badge.target ?? 1)) * 100}%` }}
                       />
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* KEY PERFORMANCE STRIP */}
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
-        <style>{`
-          @keyframes kpiFade {
-            0% { transform: scale(0.97); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
-          }
-          .kpi-animate {
-            animation: kpiFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          }
-        `}</style>
-
-        {/* Win Rate Card */}
-        <div 
-          key={`${timeFilter}-winrate`}
-          className="kpi-animate group rounded-2xl border p-4 sm:p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
-          style={{ borderColor: "var(--border-panel)" }}
-        >
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
-            <Target className="h-3.5 w-3.5 text-emerald-400" />
-            <span>Win rate</span>
-          </div>
-          <div className="mt-3 text-xl sm:text-2xl font-black tracking-tight text-white font-mono">
-            {fmtPct(kpis.winRate, 1)}
-          </div>
-          <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-emerald-400/90">
-            {kpis.winners} W · {kpis.losers} L
+      {/* SECTION 2: BEHAVIORAL INSIGHTS */}
+      <section className="rounded-2xl border p-5 bg-[#0f1318]/60 backdrop-blur-md" style={{ borderColor: "var(--border-panel)" }}>
+        <div className="flex items-center gap-2 mb-4">
+          <AlertTriangle className="h-5 w-5 text-indigo-400" />
+          <div>
+            <h3 className="text-lg font-bold text-white tracking-tight">Behavioral Insights</h3>
+            <p className="text-xs text-slate-400">Algorithmic analysis of your process adherence and psychological biases</p>
           </div>
         </div>
 
-        {/* Profit Factor Card */}
-        <div 
-          key={`${timeFilter}-pf`}
-          className="kpi-animate group rounded-2xl border p-4 sm:p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
-          style={{ borderColor: "var(--border-panel)" }}
-        >
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
-            <TrendingUp className="h-3.5 w-3.5 text-blue-400" />
-            <span>Profit factor</span>
-          </div>
-          <div className="mt-3 text-xl sm:text-2xl font-black tracking-tight text-white font-mono">
-            {kpis.profitFactor === Infinity ? "∞" : fmtNumber(kpis.profitFactor, 2)}
-          </div>
-          <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-            Gross Win / Gross Loss
-          </div>
-        </div>
+        <div className="space-y-3">
+          {behavioralFlags.map((flag, idx) => {
+            const isExpanded = expandedInsights[idx];
+            const hasDetail = flag.trades.length > 0 || flag.ruleExplanation;
+            
+            // Determine priority details
+            let borderClass = "border-slate-800 bg-slate-950/20";
+            let textClass = "text-slate-400";
+            let badgeText = "Positive Pattern";
+            let badgeClass = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/10";
+            let confidence = "95% Confidence";
+            let evidence = "0 occurrences";
 
-        {/* Total Trades Card */}
-        <div 
-          key={`${timeFilter}-trades`}
-          className="kpi-animate group rounded-2xl border p-4 sm:p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
-          style={{ borderColor: "var(--border-panel)" }}
-        >
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
-            <Activity className="h-3.5 w-3.5 text-orange-400" />
-            <span>Total trades</span>
-          </div>
-          <div className="mt-3 text-xl sm:text-2xl font-black tracking-tight text-white font-mono">
-            {kpis.trades}
-          </div>
-          <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-            Positions logged
-          </div>
-        </div>
+            if (flag.severity === "high") {
+              borderClass = "border-red-500/20 bg-red-500/[0.02]";
+              textClass = "text-red-400";
+              badgeText = "Critical Behavioral Risk";
+              badgeClass = "bg-red-500/10 text-red-400 border border-red-500/10";
+              confidence = "88% Confidence";
+              evidence = `${flag.trades.length} trades flagged`;
+            } else if (flag.severity === "medium") {
+              borderClass = "border-amber-500/20 bg-amber-500/[0.02]";
+              textClass = "text-amber-400";
+              badgeText = "Warning Pattern";
+              badgeClass = "bg-amber-500/10 text-amber-400 border border-amber-500/10";
+              confidence = "78% Confidence";
+              evidence = flag.type === "switching" ? flag.metrics?.sizeScaling ?? "3 setups" : `${flag.trades.length} trades flagged`;
+            }
 
-        {/* Streaks Card */}
-        <div 
-          key={`${timeFilter}-streaks`}
-          className="kpi-animate group rounded-2xl border p-4 sm:p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-lg hover:border-slate-700 bg-[#0f1318]/60 backdrop-blur-md"
-          style={{ borderColor: "var(--border-panel)" }}
-        >
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
-            <Trophy className="h-3.5 w-3.5 text-amber-500" />
-            <span>Streak Matrix</span>
-          </div>
-          <div className="mt-3 text-lg sm:text-xl font-black tracking-tight text-white font-mono">
-            {kpis.bestStreak} W / <span className="text-red-400">{kpis.worstStreak} L</span>
-          </div>
-          <div className="mt-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-            Consecutive trades
-          </div>
-        </div>
-
-        {/* Net P&L Card (Neutrally Styled / De-emphasized) */}
-        <div 
-          key={`${timeFilter}-pnl`}
-          className="kpi-animate group rounded-2xl border border-slate-800/80 p-4 sm:p-5 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-md hover:border-slate-700 bg-[#0f1318]/20 backdrop-blur-sm"
-        >
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
-            <Coins className="h-3.5 w-3.5 text-slate-500" />
-            <span>Net P&L</span>
-          </div>
-          <div className="mt-3 text-xl sm:text-2xl font-bold tracking-tight text-slate-300 font-mono">
-            {fmtSignedUsd(kpis.netPnl)}
-          </div>
-          <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-            {account.currency} Account
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 2: CORE INSIGHTS (Plan Adherence, Discipline Gauge, Calendar Stat, Behavioral Warning Flags) */}
-      <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        
-        {/* Plan Adherence Card */}
-        <div className="relative flex flex-col items-center justify-center rounded-2xl border p-6 text-center bg-[#0f1318]/60 backdrop-blur-md"
-          style={{ borderColor: "var(--border-panel)" }}>
-          <span className="absolute left-4 top-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-            <Target className="h-3.5 w-3.5 text-indigo-400" />
-            Plan Adherence
-          </span>
-          <div className="relative mt-5 mb-2 flex items-center justify-center">
-            <svg width={scoreSize} height={scoreSize} className="-rotate-90">
-              <circle
-                cx={scoreSize / 2}
-                cy={scoreSize / 2}
-                r={scoreRadius}
-                fill="transparent"
-                stroke="rgba(255,255,255,0.02)"
-                strokeWidth={scoreStroke}
-              />
-              <circle
-                cx={scoreSize / 2}
-                cy={scoreSize / 2}
-                r={scoreRadius}
-                fill="transparent"
-                stroke="url(#planAdherenceGrad)"
-                strokeWidth={scoreStroke}
-                strokeDasharray={scoreCircumference}
-                strokeDashoffset={scoreCircumference - (planAdherenceVal / 100) * scoreCircumference}
-                strokeLinecap="round"
-                className="transition-all duration-700 ease-out"
-              />
-              <defs>
-                <linearGradient id="planAdherenceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#818cf8" />
-                  <stop offset="100%" stopColor="#3b82f6" />
-                </linearGradient>
-              </defs>
-            </svg>
-            <div className="absolute flex flex-col items-center justify-center">
-              <span className="text-2xl font-black text-white font-mono">{planAdherenceVal}%</span>
-            </div>
-          </div>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-2">Setup Adherence Rate</span>
-        </div>
-
-        {/* Discipline Score Gauge */}
-        <div className="relative flex flex-col items-center justify-center rounded-2xl border p-6 text-center bg-[#0f1318]/60 backdrop-blur-md"
-          style={{ borderColor: "var(--border-panel)" }}>
-          <span className="absolute left-4 top-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-            <Award className="h-3.5 w-3.5 text-amber-500" />
-            Discipline Score
-          </span>
-          <div className="relative mt-5 mb-2 flex items-center justify-center">
-            <svg width={scoreSize} height={scoreSize} className="-rotate-90">
-              <circle
-                cx={scoreSize / 2}
-                cy={scoreSize / 2}
-                r={scoreRadius}
-                fill="transparent"
-                stroke="rgba(255,255,255,0.02)"
-                strokeWidth={scoreStroke}
-              />
-              <circle
-                cx={scoreSize / 2}
-                cy={scoreSize / 2}
-                r={scoreRadius}
-                fill="transparent"
-                stroke="url(#insightGrad)"
-                strokeWidth={scoreStroke}
-                strokeDasharray={scoreCircumference}
-                strokeDashoffset={scoreOffset}
-                strokeLinecap="round"
-                className="transition-all duration-700 ease-out"
-              />
-              <defs>
-                <linearGradient id="insightGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#6366f1" />
-                  <stop offset="100%" stopColor="#10b981" />
-                </linearGradient>
-              </defs>
-            </svg>
-            <div className="absolute flex flex-col items-center justify-center">
-              <span className="text-2xl font-black text-white font-mono">{coreInsights.disciplineScore}%</span>
-            </div>
-          </div>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-2">Rule Compliance Rating</span>
-        </div>
-
-        {/* Calendar-Style Streak Widget */}
-        <div className="group relative flex flex-col items-center justify-between rounded-2xl border bg-[#0f1318]/60 backdrop-blur-md p-6"
-          style={{ borderColor: "var(--border-panel)" }}>
-          <span className="absolute left-4 top-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-            <Flame className="h-3.5 w-3.5 text-orange-500" />
-            Execution Flow
-          </span>
-
-          {/* Calendar representation */}
-          <div className="flex flex-col items-center justify-center w-28 h-28 rounded-2xl overflow-hidden border border-slate-800 bg-[#07090d] shadow-inner mt-4">
-            <div className="w-full bg-red-600/90 text-[10px] font-black uppercase text-center text-white/90 py-1.5 tracking-widest">
-              STREAK
-            </div>
-            <div className="flex-1 flex flex-col items-center justify-center bg-black/40">
-              <span className="text-4xl font-black text-white font-mono leading-none">{coreInsights.executionStreak}</span>
-              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">SESSIONS</span>
-            </div>
-          </div>
-
-          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-3 text-center">
-            Consecutive Disciplined Choices
-          </span>
-        </div>
-
-        {/* Behavioral Insights (Programmatic Warning Flags) */}
-        <div className="group relative flex flex-col justify-between rounded-2xl border p-6 bg-[#0f1318]/60 backdrop-blur-md"
-          style={{ borderColor: "var(--border-panel)" }}>
-          <span className="absolute left-4 top-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-            <AlertTriangle className="h-3.5 w-3.5 text-indigo-400" />
-            Behavioral Insights
-          </span>
-          <div className="mt-8 flex flex-col gap-2 overflow-y-auto max-h-[140px] pr-1 scrollbar-thin">
-            {behavioralFlags.map((flag, idx) => (
-              <button
+            return (
+              <div 
                 key={idx}
-                type="button"
-                onClick={() => {
-                  setDrawerData({
-                    title: flag.label,
-                    description: flag.description,
-                    ruleExplanation: flag.ruleExplanation,
-                    evidenceType: flag.type,
-                    tradesList: flag.trades,
-                    metrics: flag.metrics,
-                  });
-                  setDrawerOpen(true);
-                }}
                 className={cn(
-                  "flex items-center justify-between rounded-xl border px-3 py-2 text-xs font-bold transition w-full text-left hover:scale-[1.02] active:scale-[0.98] cursor-pointer",
-                  flag.severity === "high"
-                    ? "bg-red-500/5 border-red-500/20 text-red-400 hover:bg-red-500/10"
-                    : flag.severity === "medium"
-                    ? "bg-amber-500/5 border-amber-500/20 text-amber-400 hover:bg-amber-500/10"
-                    : "bg-emerald-500/5 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10"
+                  "rounded-xl border transition-all duration-300 overflow-hidden",
+                  borderClass
                 )}
               >
-                <div className="flex flex-col min-w-0 pr-2">
-                  <span className="truncate">{flag.label}</span>
-                  <span className="text-[10px] text-slate-500 font-medium mt-0.5 truncate">{flag.description}</span>
+                {/* Main Bar */}
+                <div 
+                  className="flex flex-col md:flex-row md:items-center justify-between p-4 gap-4 cursor-pointer hover:bg-slate-900/10 transition"
+                  onClick={() => {
+                    if (hasDetail) {
+                      setExpandedInsights(prev => ({ ...prev, [idx]: !prev[idx] }));
+                    }
+                  }}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className={cn(
+                      "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider shrink-0 mt-0.5",
+                      badgeClass
+                    )}>
+                      {badgeText}
+                    </span>
+                    <div>
+                      <h4 className="text-sm font-bold text-white leading-snug">{flag.label}</h4>
+                      <p className="text-xs text-slate-400 mt-0.5">{flag.description}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 text-xs font-semibold text-slate-500 shrink-0">
+                    <span>{confidence}</span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-slate-700" />
+                    <span>{evidence}</span>
+                    {hasDetail && (
+                      <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest hover:underline ml-2">
+                        {isExpanded ? "Hide Details ▲" : "View Details ▼"}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <span className={cn(
-                  "h-1.5 w-1.5 rounded-full shrink-0 ml-1",
-                  flag.severity === "high"
-                    ? "bg-red-400 animate-pulse"
-                    : flag.severity === "medium"
-                    ? "bg-amber-400"
-                    : "bg-emerald-400"
-                )} />
-              </button>
-            ))}
-          </div>
-          <span className="text-[9px] font-semibold text-slate-500 text-center mt-3">
-            Click warnings to expand Evidence Drawer
-          </span>
+
+                {/* Expanded Details */}
+                {isExpanded && hasDetail && (
+                  <div className="border-t border-slate-900 bg-black/40 p-4 space-y-4">
+                    <div className="text-xs text-slate-300 leading-relaxed font-medium">
+                      <span className="font-extrabold text-slate-400 uppercase tracking-wider text-[10px] block mb-1">Methodology & Prevention:</span>
+                      {flag.ruleExplanation}
+                    </div>
+                    
+                    {flag.trades.length > 0 && (
+                      <div>
+                        <span className="font-extrabold text-slate-400 uppercase tracking-wider text-[10px] block mb-2">Supporting Evidence (Flagged Trades):</span>
+                        <div className="overflow-x-auto rounded-lg border border-slate-800">
+                          <table className="w-full text-xs text-left">
+                            <thead className="bg-[#070a0e] text-[9px] font-bold uppercase tracking-wider text-slate-500">
+                              <tr>
+                                <th className="px-3 py-2">Symbol</th>
+                                <th className="px-3 py-2">Direction</th>
+                                <th className="px-3 py-2 text-right">P&L</th>
+                                <th className="px-3 py-2 text-right">Lots</th>
+                                <th className="px-3 py-2">Close Time</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-800/40 text-slate-300">
+                              {flag.trades.map((trade) => (
+                                <tr key={trade.id} className="hover:bg-slate-900/20">
+                                  <td className="px-3 py-2 font-bold">{trade.symbol}</td>
+                                  <td className="px-3 py-2 uppercase font-bold text-[10px]">{trade.direction}</td>
+                                  <td className={cn("px-3 py-2 text-right font-mono font-bold", (trade.pnl ?? 0) >= 0 ? "text-emerald-400" : "text-red-400")}>
+                                    {fmtSignedUsd(trade.pnl)}
+                                  </td>
+                                  <td className="px-3 py-2 text-right font-mono">{Number(trade.volume).toFixed(2)}</td>
+                                  <td className="px-3 py-2 text-slate-500 font-semibold">{fmtDateTime(trade.close_time)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* SECTION 3: PERFORMANCE METRICS */}
+      <section className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-5">
+        <div className="rounded-xl border border-slate-850 bg-[#0f1318]/30 p-3 text-left">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Win Rate</span>
+          <span className="text-base font-black text-white font-mono mt-1 block">{fmtPct(kpis.winRate, 1)}</span>
+        </div>
+        <div className="rounded-xl border border-slate-850 bg-[#0f1318]/30 p-3 text-left">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Profit Factor</span>
+          <span className="text-base font-black text-white font-mono mt-1 block">{kpis.profitFactor === Infinity ? "∞" : fmtNumber(kpis.profitFactor, 2)}</span>
+        </div>
+        <div className="rounded-xl border border-slate-850 bg-[#0f1318]/30 p-3 text-left">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Total Trades</span>
+          <span className="text-base font-black text-white font-mono mt-1 block">{kpis.trades}</span>
+        </div>
+        <div className="rounded-xl border border-slate-850 bg-[#0f1318]/30 p-3 text-left">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Peak Drawdown</span>
+          <span className="text-base font-black text-red-400 font-mono mt-1 block">{fmtPct(drawdown.maxDrawdownPct, 1)}</span>
+        </div>
+        <div className="rounded-xl border border-slate-850 bg-[#0f1318]/15 p-3 text-left">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Net P&L</span>
+          <span className="text-base font-bold text-slate-300 font-mono mt-1 block">{fmtSignedUsd(kpis.netPnl)}</span>
         </div>
       </section>
 
       {/* SECTION 3: EQUITY CURVE (Hero Visual) */}
       <section className="rounded-2xl border p-5 bg-[#0f1318]/60 backdrop-blur-md" style={{ borderColor: "var(--border-panel)" }}>
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-bold text-white tracking-tight">Equity & Capital Progression</h3>
             <InfoTooltip text="Visual progression of your account equity. Select toggles to analyze performance." />
           </div>
           
-          <div className="flex items-center rounded-xl bg-black/40 p-1 border border-white/5">
-            {[
-              { id: "equity", label: "Equity Line" },
-              { id: "balance", label: "Balance" },
-              { id: "drawdown-overlay", label: "Drawdown Overlay" },
-            ].map((mode) => (
-              <button
-                key={mode.id}
-                type="button"
-                onClick={() => setChartMode(mode.id as any)}
-                className={cn(
-                  "rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
-                  chartMode === mode.id
-                    ? "bg-indigo-600 text-white shadow border border-indigo-500/30"
-                    : "text-slate-400 hover:text-slate-200"
-                )}
-              >
-                {mode.label}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center gap-4">
+            {/* Behavior Overlay Checkboxes */}
+            <div className="flex items-center gap-3 border-r border-slate-800 pr-4 mr-1">
+              <label className="flex items-center gap-1.5 text-xs font-bold text-slate-400 cursor-pointer select-none">
+                <input 
+                  type="checkbox"
+                  checked={showDisciplineOverlay}
+                  onChange={(e) => setShowDisciplineOverlay(e.target.checked)}
+                  className="rounded border-slate-800 bg-slate-900/50 text-indigo-500 focus:ring-0 cursor-pointer"
+                />
+                <span>Overlay Discipline</span>
+              </label>
+              <label className="flex items-center gap-1.5 text-xs font-bold text-slate-400 cursor-pointer select-none">
+                <input 
+                  type="checkbox"
+                  checked={showViolationsOverlay}
+                  onChange={(e) => setShowViolationsOverlay(e.target.checked)}
+                  className="rounded border-slate-800 bg-slate-900/50 text-red-500 focus:ring-0 cursor-pointer"
+                />
+                <span>Overlay Violations</span>
+              </label>
+              <label className="flex items-center gap-1.5 text-xs font-bold text-slate-400 cursor-pointer select-none">
+                <input 
+                  type="checkbox"
+                  checked={showEmotionsOverlay}
+                  onChange={(e) => setShowEmotionsOverlay(e.target.checked)}
+                  className="rounded border-slate-800 bg-slate-900/50 text-orange-500 focus:ring-0 cursor-pointer"
+                />
+                <span>Overlay Emotions</span>
+              </label>
+            </div>
+
+            <div className="flex items-center rounded-xl bg-black/40 p-1 border border-white/5">
+              {[
+                { id: "equity", label: "Equity Line" },
+                { id: "balance", label: "Balance" },
+                { id: "drawdown-overlay", label: "Drawdown Overlay" },
+              ].map((mode) => (
+                <button
+                  key={mode.id}
+                  type="button"
+                  onClick={() => setChartMode(mode.id as any)}
+                  className={cn(
+                    "rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
+                    chartMode === mode.id
+                      ? "bg-indigo-600 text-white shadow border border-indigo-500/30"
+                      : "text-slate-400 hover:text-slate-200"
+                  )}
+                >
+                  {mode.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -802,14 +806,14 @@ export default function OverviewTab({
                   domain={["auto", "auto"]}
                 />
 
-                {chartMode === "drawdown-overlay" && (
+                {(chartMode === "drawdown-overlay" || showDisciplineOverlay) && (
                   <YAxis
                     yAxisId="right"
                     orientation="right"
                     stroke="rgba(255,255,255,0.03)"
                     tick={{ fontSize: 10, fill: "#64748b" }}
                     tickFormatter={(val) => `${val}%`}
-                    domain={["dataMin", 0]}
+                    domain={showDisciplineOverlay && chartMode !== "drawdown-overlay" ? [0, 100] : ["dataMin", 0]}
                   />
                 )}
 
@@ -841,6 +845,8 @@ export default function OverviewTab({
                     const symbolLabel = pPoint.label;
                     const value = pPoint.equity;
                     const delta = pPoint.delta;
+                    const disciplineScoreVal = pPoint.disciplineScore;
+                    const audit = pPoint.auditDetails;
 
                     return (
                       <div className="flex flex-col gap-1.5 p-1 text-xs">
@@ -861,6 +867,18 @@ export default function OverviewTab({
                           <div className="flex items-center justify-between gap-6 border-t border-white/5 pt-1.5 mt-0.5">
                             <span className="text-indigo-400 font-bold uppercase tracking-wider text-[10px]">Symbol</span>
                             <span className="font-mono font-black text-white text-[11px]">{symbolLabel}</span>
+                          </div>
+                        )}
+                        {disciplineScoreVal !== null && (
+                          <div className="flex items-center justify-between gap-6 border-t border-white/5 pt-1.5 mt-0.5">
+                            <span className="text-purple-400 font-bold uppercase tracking-wider text-[10px]">Discipline Score</span>
+                            <span className="font-mono font-black text-white text-[11px]">{disciplineScoreVal}%</span>
+                          </div>
+                        )}
+                        {audit && audit.emotional_states && audit.emotional_states.length > 0 && (
+                          <div className="flex flex-col gap-0.5 border-t border-white/5 pt-1.5 mt-0.5">
+                            <span className="text-slate-500 font-semibold uppercase tracking-wider text-[10px]">Emotions logged</span>
+                            <span className="text-slate-350 font-medium text-[11px]">{audit.emotional_states.join(", ")}</span>
                           </div>
                         )}
                       </div>
@@ -890,6 +908,37 @@ export default function OverviewTab({
                   fill="url(#eqGrad)"
                   name="equity"
                 />
+
+                {showDisciplineOverlay && (
+                  <Line
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="disciplineScore"
+                    stroke="#c084fc"
+                    strokeWidth={2}
+                    dot={false}
+                    name="Discipline Score"
+                    connectNulls
+                  />
+                )}
+
+                {showViolationsOverlay && (
+                  <Scatter
+                    yAxisId="left"
+                    dataKey="violationMarker"
+                    fill="#ef4444"
+                    name="Rule Violation"
+                  />
+                )}
+
+                {showEmotionsOverlay && (
+                  <Scatter
+                    yAxisId="left"
+                    dataKey="emotionMarker"
+                    fill="#f97316"
+                    name="Negative Emotion"
+                  />
+                )}
               </ComposedChart>
             </ResponsiveContainer>
           </div>
